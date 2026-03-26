@@ -1,0 +1,23 @@
+services:
+  # Creates root-owned directories in the volume before visage starts.
+  # This simulates a real deployment where bind mounts or pre-existing
+  # volumes are owned by root — the scenario where the entrypoint's
+  # chown is actually needed.
+  init:
+    image: alpine
+    volumes:
+      - visage:/opt/visage
+    command: ["sh", "-c", "mkdir -p /opt/visage/data /opt/visage/tmp"]
+
+  visage:
+    image: visage:latest
+    ports:
+      - "3000:3000"
+    volumes:
+      - visage:/opt/visage
+    depends_on:
+      init:
+        condition: service_completed_successfully
+
+volumes:
+  visage:
