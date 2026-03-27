@@ -7,6 +7,7 @@ import { Yesttp } from "yesttp";
 import { DialogClient } from "./clients/DialogClient";
 import { RestrictedClient } from "./clients/RestrictedClient";
 import { PipelineClient } from "./clients/WebsiteClient";
+import { SocketClient } from "./clients/SocketClient";
 
 export class ClientRegistry {
   /**
@@ -49,6 +50,7 @@ export class ClientRegistry {
         return Promise.reject(response?.body);
       },
     }));
+    this.registry[SocketClient.name] = new SocketClient();
     this.registry[DialogClient.name] = new DialogClient();
     this.registry[PipelineClient.name] = new PipelineClient(yesttp);
     this.registry[RestrictedClient.name] = new RestrictedClient(yesttp);

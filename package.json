@@ -20,6 +20,7 @@
   },
   "dependencies": {
     "@js-temporal/polyfill": "^0.5.1",
+    "bowser": "^2.14.1",
     "bun-plugin-tailwind": "^0.1.2",
     "clsx": "^2.1.1",
     "drizzle-orm": "^0.45.1",

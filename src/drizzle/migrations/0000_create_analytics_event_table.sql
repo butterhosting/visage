@@ -8,5 +8,5 @@ create table analytics_event (
     screen_height integer not null,
     geo_city text,
     geo_country text,
-    is_visitor integer not null,
+    is_visitor integer not null
 );

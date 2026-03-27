@@ -8,9 +8,9 @@ import { Generate } from "./helpers/Generate";
 import { Prettify } from "./helpers/Prettify";
 import { Logger } from "./Logger";
 import { Middleware } from "./middleware/Middleware";
+import { IngestionService } from "./services/IngestionService";
 import { RestrictedService } from "./services/RestrictedService";
 import { Socket } from "./socket/Socket";
-import { IngestionService } from "./services/IngestionService";
 
 export class Server {
   private readonly log = new Logger(__filename);
@@ -76,6 +76,19 @@ export class Server {
               .map(([key, value]) => ({ [key]: value }))
               .reduce((kv1, kv2) => Object.assign({}, kv1, kv2), {});
             return Response.json(response as Env.Public);
+          }),
+        },
+
+        /**
+         * Ingestion
+         */
+        "/i": {
+          POST: this.handleRoute(async (request) => {
+            const ip = server.requestIP(request);
+            if (ip) {
+              await this.ingestionService.ingest(ip.address, await request.json());
+            }
+            return new Response();
           }),
         },
 
