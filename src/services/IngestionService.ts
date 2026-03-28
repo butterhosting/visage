@@ -6,9 +6,13 @@ import { AnalyticsEventRepository } from "@/repositories/AnalyticsEventRepositor
 import { Temporal } from "@js-temporal/polyfill";
 import Bowser from "bowser";
 import z from "zod/v4";
+import { MaxMindGeoService } from "./MaxMindGeoService";
 
 export class IngestionService {
-  public constructor(private readonly analyticsEventRepository: AnalyticsEventRepository) {}
+  public constructor(
+    private readonly maxMindGeoService: MaxMindGeoService,
+    private readonly repository: AnalyticsEventRepository,
+  ) {}
 
   public async ingest(ipAddress: string, unknown: BrowserPayload): Promise<void> {
     let payload: BrowserPayload;
@@ -52,9 +56,10 @@ export class IngestionService {
       },
       device: this.parseDevice(payload.userAgent),
       locale: this.parseLocale(payload.locale),
-      geo: await this.deriveGeo(ipAddress),
+      geo: await this.maxMindGeoService.lookup(ipAddress),
     };
-    console.log({ analyticsEvent });
+
+    await this.repository.create(analyticsEvent);
   }
 
   private parseDevice(userAgent: string): AnalyticsEvent["device"] {
@@ -68,16 +73,10 @@ export class IngestionService {
   }
 
   private parseLocale(locale: string | undefined): AnalyticsEvent["locale"] {
-    if (!locale) {
-      return {};
+    if (locale) {
+      const [language, region] = locale.split("-");
+      return { language, region };
     }
-    const [language, region] = locale.split("-");
-    return { language, region };
-  }
-
-  private async deriveGeo(ipAddress: string): Promise<AnalyticsEvent["geo"]> {
-    // not implemented yet, but ignore this method (we'll tackle this later)
-    // just assume it's available
     return {};
   }
 }

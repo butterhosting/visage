@@ -3,8 +3,6 @@ services:
     build:
       context: ./maxmindmock
       dockerfile: Dockerfile
-    ports:
-      - "3030:3030"
     networks:
       - app-network
     stop_grace_period: 100ms

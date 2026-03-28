@@ -2,6 +2,7 @@ import { Env } from "@/Env";
 import { Logger } from "@/Logger";
 import { AnalyticsEvent } from "@/models/AnalyticsEvent";
 import { Temporal } from "@js-temporal/polyfill";
+import { Reader, ReaderModel } from "@maxmind/geoip2-node";
 import { exists, readFile, unlink, writeFile } from "fs/promises";
 import { dirname, join } from "path";
 
@@ -15,6 +16,7 @@ export class MaxMindGeoService {
     localDatabaseFile: string;
     awaitDownload: boolean;
   };
+  private reader?: ReaderModel;
 
   public constructor(env: Env.Private) {
     if (env.X_MAXMIND) {
@@ -31,6 +33,21 @@ export class MaxMindGeoService {
   }
 
   public async lookup(ipAddress: string): Promise<AnalyticsEvent["geo"]> {
+    if (this.reader) {
+      try {
+        const { country, city, ...x } = this.reader.city(ipAddress);
+        return {
+          countryCode: country?.isoCode ?? undefined,
+          city: city?.names.en ?? undefined,
+        };
+      } catch (err) {
+        if (err instanceof Error && err.name === "AddressNotFoundError") {
+          // do nothing
+        } else {
+          this.log.warn(`Lookup unexpectedly failed`, err);
+        }
+      }
+    }
     return {};
   }
 
@@ -47,7 +64,7 @@ export class MaxMindGeoService {
     }
   }
 
-  public async download() {
+  private async download(): Promise<Reader | "error"> {
     try {
       this.require(this.configuration);
 
@@ -59,19 +76,20 @@ export class MaxMindGeoService {
       const localLastModified = await this.getLocalLastModified();
       const remoteLastModified = await this.getRemoteLastModified();
       if (!remoteLastModified) {
-        this.log.error("Failed to determine latest (remote) database version");
-        return;
+        return this.failDownload("Failed to determine latest (remote) database version");
       }
       if (localLastModified === remoteLastModified) {
-        this.log.info("Database is up to date");
-        return;
+        if (await exists(this.configuration.localDatabaseFile)) {
+          this.log.info("Database is up to date");
+          return await this.succeedDownload();
+        }
+        this.log.warn("Database file missing despite matching last-modified, re-downloading ...");
       }
 
-      this.log.info(`Downloading database from ${this.configuration.requestUrl}`);
+      this.log.info(`Downloading ${this.configuration.requestUrl}`);
       const response = await fetch(this.configuration.requestUrl, { headers: this.configuration.requestHeaders, redirect: "follow" });
       if (!response.ok) {
-        this.log.error(`Database download failed: ${response.status} ${response.statusText}`);
-        return;
+        return this.failDownload(`Database download failed: ${response.status} ${response.statusText}`);
       }
 
       const tarball = join(dirname(this.configuration.localDatabaseFile), "GeoLite2-City.tar.gz");
@@ -82,15 +100,15 @@ export class MaxMindGeoService {
       const exitCode = await extract.exited;
       if (exitCode !== 0) {
         const stderr = await new Response(extract.stderr).text();
-        this.log.error(`Database extraction failed: ${stderr}`);
-        return;
+        return this.failDownload(`Database extraction failed: ${stderr}`);
       }
 
       await unlink(tarball);
       await writeFile(this.configuration.localLastModifiedFile, remoteLastModified);
       this.log.info("GeoLite2-City database successfully downloaded");
+      return await this.succeedDownload();
     } catch (err) {
-      this.log.error("An unknown error occurred while downloading database", err);
+      return this.failDownload("An unknown error occurred while downloading database", err);
     }
   }
 
@@ -113,6 +131,18 @@ export class MaxMindGeoService {
     if ((await exists(this.configuration.localDatabaseFile)) && (await exists(this.configuration.localLastModifiedFile))) {
       return await readFile(this.configuration.localLastModifiedFile, "utf-8");
     }
+  }
+
+  private failDownload(...message: unknown[]): "error" {
+    this.log.error(...message);
+    return "error";
+  }
+
+  private async succeedDownload(): Promise<Reader> {
+    this.require(this.configuration);
+    const buffer = await readFile(this.configuration.localDatabaseFile);
+    this.reader = Reader.openBuffer(buffer);
+    return this.reader;
   }
 
   private require<T>(obj: T): asserts obj is NonNullable<T> {

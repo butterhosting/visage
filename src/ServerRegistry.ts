@@ -25,8 +25,8 @@ export class ServerRegistry {
     const { analyticsEventRepository } = this.register({ AnalyticsEventRepository }, [sqlite]);
 
     // Services
-    this.register({ MaxMindGeoService }, [env]);
-    const { ingestionService } = this.register({ IngestionService }, [analyticsEventRepository]);
+    const { maxMindGeoService } = this.register({ MaxMindGeoService }, [env]);
+    const { ingestionService } = this.register({ IngestionService }, [maxMindGeoService, analyticsEventRepository]);
     const { restrictedService } = this.register({ RestrictedService }, []);
 
     // Middleware
