@@ -1,0 +1,19 @@
+services:
+  maxmindmock:
+    build:
+      context: ./maxmindmock
+      dockerfile: Dockerfile
+    ports:
+      - "3030:3030"
+    networks:
+      - app-network
+    stop_grace_period: 100ms
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://localhost:3030/ || exit 1"]
+      interval: 1s
+      timeout: 10s
+      retries: 10
+
+networks:
+  app-network:
+    driver: bridge

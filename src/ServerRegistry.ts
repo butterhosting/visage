@@ -7,6 +7,7 @@ import { Middleware } from "./middleware/Middleware";
 import { AnalyticsEventRepository } from "./repositories/AnalyticsEventRepository";
 import { Server } from "./Server";
 import { IngestionService } from "./services/IngestionService";
+import { MaxMindGeoService } from "./services/MaxMindGeoService";
 import { RestrictedService } from "./services/RestrictedService";
 
 export class ServerRegistry {
@@ -24,6 +25,7 @@ export class ServerRegistry {
     const { analyticsEventRepository } = this.register({ AnalyticsEventRepository }, [sqlite]);
 
     // Services
+    this.register({ MaxMindGeoService }, [env]);
     const { ingestionService } = this.register({ IngestionService }, [analyticsEventRepository]);
     const { restrictedService } = this.register({ RestrictedService }, []);
 

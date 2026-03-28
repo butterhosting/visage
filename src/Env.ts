@@ -12,12 +12,19 @@ export namespace Env {
     O_VISAGE_TIMEZONE: z.string().refine((tz) => TimeZone.check(tz), {
       error: "invalid_timezone",
     }),
+
     X_VISAGE_ROOT: z.string(),
     X_VISAGE_LOGGING: z.enum(LogLevel),
     X_VISAGE_SUPPORT_TOKEN: z.string().optional(),
     X_VISAGE_VERIFICATION_KEY: z.string().transform((str) => str.replaceAll("\\n", "\n")),
     X_VISAGE_ENABLE_RESTRICTED_ENTPOINTS: z.enum(["true", "false"]),
+
+    X_MAXMIND_BASE_URL: z.string().optional(),
+    X_MAXMIND_ACCOUNT_ID: z.string().optional(),
+    X_MAXMIND_LICENSE_KEY: z.string().optional(),
+    X_MAXMIND_AWAIT_DOWNLOAD: z.enum(["true", "false"]).optional(),
   });
+
   export function initialize(timezone = Temporal.Now.timeZoneId() as "UTC", environment = Bun.env as z.output<typeof baseEnv>) {
     if (timezone !== "UTC") {
       throw new Error(`Invalid timezone: ${timezone}`);
@@ -28,7 +35,7 @@ export namespace Env {
         X_VISAGE_ROOT: isAbsolute(X_VISAGE_ROOT) ? X_VISAGE_ROOT : join(process.cwd(), X_VISAGE_ROOT),
         O_VISAGE_SUPPORTER: Boolean(SupportToken.verify({ hexToken: X_VISAGE_SUPPORT_TOKEN, publicKey: X_VISAGE_VERIFICATION_KEY })),
       }))
-      .transform((env) => {
+      .transform(({ X_MAXMIND_BASE_URL, X_MAXMIND_ACCOUNT_ID, X_MAXMIND_LICENSE_KEY, X_MAXMIND_AWAIT_DOWNLOAD, ...env }) => {
         const data = "data";
         return {
           ...env,
@@ -37,6 +44,16 @@ export namespace Env {
           X_VISAGE_HTPASSWD: join(env.X_VISAGE_ROOT, ".htpasswd"),
           X_VISAGE_DATA_ROOT: join(env.X_VISAGE_ROOT, data),
           X_VISAGE_DATABASE: join(env.X_VISAGE_ROOT, data, "db.sqlite"),
+          X_MAXMIND:
+            X_MAXMIND_BASE_URL && X_MAXMIND_ACCOUNT_ID && X_MAXMIND_LICENSE_KEY
+              ? {
+                  ROOT: join(env.X_VISAGE_ROOT, "maxmind"),
+                  BASE_URL: X_MAXMIND_BASE_URL,
+                  ACCOUNT_ID: X_MAXMIND_ACCOUNT_ID,
+                  LICENSE_KEY: X_MAXMIND_LICENSE_KEY,
+                  AWAIT_DOWNLOAD: X_MAXMIND_AWAIT_DOWNLOAD === "true",
+                }
+              : undefined,
           X_VISAGE_ENABLE_RESTRICTED_ENTPOINTS: env.X_VISAGE_ENABLE_RESTRICTED_ENTPOINTS === "true",
         };
       })

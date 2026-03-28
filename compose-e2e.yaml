@@ -1,3 +1,6 @@
+include:
+  - compose-deps.yaml
+
 services:
   application:
     image: visage:latest
@@ -6,3 +9,8 @@ services:
       - ./opt:/app/opt
     ports:
       - "3000:3000"
+    networks:
+      - app-network
+    depends_on:
+      maxmindmock:
+        condition: service_healthy
