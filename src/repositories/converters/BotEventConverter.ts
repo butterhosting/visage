@@ -8,7 +8,6 @@ export namespace BotEventConverter {
   export function convert(model: AnalyticsEvent): $BotEvent {
     return {
       id: model.id,
-      created: model.created.toString(),
       json: JSON.stringify(model),
     };
   }

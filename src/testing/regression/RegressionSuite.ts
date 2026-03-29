@@ -33,9 +33,10 @@ export namespace RegressionSuite {
     };
 
     export function getQueryFns(): Array<{ table: string; queryFn: (sqlite: Sqlite) => Promise<unknown[]> }> {
-      const overview: Record<keyof Tables, (sqlite: Sqlite) => Promise<unknown[]>> = {
+      const overview: Record<TableKey, (sqlite: Sqlite) => Promise<unknown[]>> = {
         $analyticsEvent: (sqlite) =>
           sqlite.query.$analyticsEvent.findMany().then((records) => records.map(AnalyticsEventConverter.convert)),
+        $botEvent: (sqlite) => sqlite.query.$botEvent.findMany(),
       };
       return Object.entries(overview).map(([table, queryFn]) => ({ table, queryFn }));
     }
