@@ -16,6 +16,8 @@ export namespace AnalyticsEventConverter {
     return {
       id: model.id,
       created: model.created.toString(),
+      pageId: model.pageId,
+      pageDurationMs: model.pageDuration ? model.pageDuration.total("millisecond") : null,
       urlHostname: model.url.hostname,
       urlPath: model.url.path,
       urlQueryString: model.url.queryString ?? null,
@@ -48,6 +50,8 @@ export namespace AnalyticsEventConverter {
       id: db.id,
       object: "analytics_event",
       created: Temporal.Instant.from(db.created),
+      pageId: db.pageId,
+      pageDuration: db.pageDurationMs !== null ? Temporal.Duration.from({ milliseconds: db.pageDurationMs }) : undefined,
       url: {
         hostname: db.urlHostname,
         path: db.urlPath,

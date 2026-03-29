@@ -1,4 +1,3 @@
-import { BrowserPayload } from "@/models/BrowserPayload";
 import { Yesttp } from "yesttp";
 
 export class RestrictedClient {

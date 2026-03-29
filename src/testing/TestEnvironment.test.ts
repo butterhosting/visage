@@ -91,6 +91,7 @@ export namespace TestEnvironment {
     const analyticsEventRepository = new AnalyticsEventRepository(sqlite);
     const analyticsEventRepositoryMock = registerMockObject<AnalyticsEventRepository>({
       create: mock(),
+      update: mock(),
     });
 
     function patchEnvironmentVariables(environment: Record<string, string>) {

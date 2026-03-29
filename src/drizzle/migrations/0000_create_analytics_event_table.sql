@@ -1,6 +1,8 @@
 create table analytics_event (
     id text primary key,
     created text not null,
+    page_id text not null,
+    page_duration_ms integer,
     url_hostname text not null,
     url_path text not null,
     url_query_string text,

@@ -1,33 +1,41 @@
-import { ServerError } from "@/errors/ServerError";
-import { ZodProblem } from "@/helpers/ZodIssues";
+import { Logger } from "@/Logger";
 import { AnalyticsEvent } from "@/models/AnalyticsEvent";
-import { BrowserPayload } from "@/models/BrowserPayload";
+import { BrowserTrackingEvent } from "@/models/BrowserTrackingEvent";
 import { AnalyticsEventRepository } from "@/repositories/AnalyticsEventRepository";
 import { Temporal } from "@js-temporal/polyfill";
 import Bowser from "bowser";
-import z from "zod/v4";
 import { MaxMindGeoService } from "./MaxMindGeoService";
 
 export class IngestionService {
+  private readonly log = new Logger(__filename);
+
   public constructor(
     private readonly maxMindGeoService: MaxMindGeoService,
     private readonly repository: AnalyticsEventRepository,
   ) {}
 
-  public async ingest(ipAddress: string, unknown: BrowserPayload): Promise<void> {
-    let payload: BrowserPayload;
+  public async ingest(ipAddress: string, unknown: BrowserTrackingEvent): Promise<void> {
     try {
-      payload = BrowserPayload.parse(unknown);
+      const event = BrowserTrackingEvent.parse(unknown);
+      switch (event.type) {
+        case "start":
+          return this.ingestStart(ipAddress, event);
+        case "end":
+          return this.ingestEnd(event);
+      }
     } catch (e) {
-      throw ServerError.invalid_request_body(ZodProblem.issuesSummary(e as z.core.$ZodCatchCtx));
+      this.log.debug("Failed to ingest tracking event", e);
     }
+  }
 
+  private async ingestStart(ipAddress: string, payload: BrowserTrackingEvent.Start): Promise<void> {
     const url = new URL(payload.url);
     const referrerUrl = payload.referrer ? new URL(payload.referrer) : undefined;
     const analyticsEvent: AnalyticsEvent = {
       id: Bun.randomUUIDv7(),
       object: "analytics_event",
       created: Temporal.Now.instant(),
+      pageId: payload.pageId,
       url: {
         hostname: url.hostname,
         path: url.pathname,
@@ -60,6 +68,10 @@ export class IngestionService {
     };
 
     await this.repository.create(analyticsEvent);
+  }
+
+  private async ingestEnd(payload: BrowserTrackingEvent.End): Promise<void> {
+    await this.repository.update(payload.pageId, Temporal.Duration.from({ milliseconds: payload.durationMs }));
   }
 
   private parseDevice(userAgent: string): AnalyticsEvent["device"] {

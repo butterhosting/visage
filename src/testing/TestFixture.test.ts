@@ -9,6 +9,7 @@ export namespace TestFixture {
       id: Bun.randomUUIDv7(),
       object: "analytics_event",
       created: Temporal.Now.instant(),
+      pageId: crypto.randomUUID(),
       url: {
         hostname: "example.com",
         path: "/hello",
