@@ -9,6 +9,7 @@ import { Server } from "./Server";
 import { IngestionService } from "./services/IngestionService";
 import { MaxMindGeoService } from "./services/MaxMindGeoService";
 import { RestrictedService } from "./services/RestrictedService";
+import { TrackerScriptService } from "./tracker/TrackerScriptService";
 
 export class ServerRegistry {
   public static async bootstrap(env: Env.Private, sqlite: Sqlite): Promise<ServerRegistry> {
@@ -26,8 +27,9 @@ export class ServerRegistry {
 
     // Services
     const { maxMindGeoService } = this.register({ MaxMindGeoService }, [env]);
-    const { ingestionService } = this.register({ IngestionService }, [maxMindGeoService, analyticsEventRepository]);
     const { restrictedService } = this.register({ RestrictedService }, []);
+    const { trackerScriptService } = this.register({ TrackerScriptService }, [env]);
+    const { ingestionService } = this.register({ IngestionService }, [maxMindGeoService, analyticsEventRepository]);
 
     // Middleware
     const { loggingMiddleware } = this.register({ LoggingMiddleware }, []);
@@ -35,7 +37,7 @@ export class ServerRegistry {
     const { middleware } = this.register({ Middleware }, [loggingMiddleware, basicAuthMiddleware]);
 
     // Server
-    this.register({ Server }, [env, ingestionService, restrictedService, middleware]);
+    this.register({ Server }, [env, restrictedService, trackerScriptService, ingestionService, middleware]);
   }
 
   public get(sqlite: "sqlite"): Sqlite;

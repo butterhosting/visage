@@ -36,14 +36,13 @@ export namespace Env {
         O_VISAGE_SUPPORTER: Boolean(SupportToken.verify({ hexToken: X_VISAGE_SUPPORT_TOKEN, publicKey: X_VISAGE_VERIFICATION_KEY })),
       }))
       .transform(({ X_MAXMIND_BASE_URL, X_MAXMIND_ACCOUNT_ID, X_MAXMIND_LICENSE_KEY, X_MAXMIND_AWAIT_DOWNLOAD, ...env }) => {
-        const data = "data";
         return {
           ...env,
           O_VISAGE_COMMIT: packageJson.commit.slice(0, 7),
           O_VISAGE_VERSION: packageJson.version,
           X_VISAGE_HTPASSWD: join(env.X_VISAGE_ROOT, ".htpasswd"),
-          X_VISAGE_DATA_ROOT: join(env.X_VISAGE_ROOT, data),
-          X_VISAGE_DATABASE: join(env.X_VISAGE_ROOT, data, "db.sqlite"),
+          X_VISAGE_DATABASE: join(env.X_VISAGE_ROOT, "data", "db.sqlite"),
+          X_VISAGE_TRACKER_SCRIPT: join(env.X_VISAGE_ROOT, "tracker", "vis.js"),
           X_MAXMIND:
             X_MAXMIND_BASE_URL && X_MAXMIND_ACCOUNT_ID && X_MAXMIND_LICENSE_KEY
               ? {

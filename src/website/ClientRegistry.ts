@@ -17,7 +17,7 @@ export class ClientRegistry {
    * In other frameworks, we'd have to use a build-time variable containing the configuration URL.
    */
   public static async bootstrap(): Promise<ClientRegistry> {
-    const { body: env } = await new Yesttp({ baseUrl: "/api" }).get<Env.Public>("/env");
+    const { body: env } = await new Yesttp({ baseUrl: "/internal-api" }).get<Env.Public>("/env");
     this.printEnv(env);
     return new ClientRegistry(env);
   }
@@ -45,7 +45,7 @@ export class ClientRegistry {
 
   public constructor(private readonly env: Env.Public) {
     const yesttp = (this.registry[Yesttp.name] = new Yesttp({
-      baseUrl: "/api",
+      baseUrl: "/internal-api",
       responseErrorIntercepter: (request, response): Promise<ProblemDetails> => {
         return Promise.reject(response?.body);
       },

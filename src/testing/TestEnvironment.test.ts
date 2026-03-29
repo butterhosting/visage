@@ -6,7 +6,7 @@ import { AnalyticsEventRepository } from "@/repositories/AnalyticsEventRepositor
 import { OmitBetter } from "@/types/OmitBetter";
 import { jest, mock, Mock } from "bun:test";
 import { mkdir } from "fs/promises";
-import { join } from "path";
+import { dirname, join } from "path";
 
 export namespace TestEnvironment {
   type Mocked<T> = {
@@ -70,7 +70,10 @@ export namespace TestEnvironment {
     Logger.initialize(env);
 
     // Setup filesystem
-    await mkdir(env.X_VISAGE_DATA_ROOT, { recursive: true });
+    await Promise.all([
+      mkdir(dirname(env.X_VISAGE_DATABASE), { recursive: true }),
+      mkdir(dirname(env.X_VISAGE_TRACKER_SCRIPT), { recursive: true }),
+    ]);
 
     // Setup SQLite
     const sqlite = await initializeSqlite(env);

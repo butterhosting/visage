@@ -106,11 +106,11 @@ run_scenario() {
 # ─── verification functions ───
 
 verify_no_auth() {
-    assert_status "200" http://localhost:3000/api/env
+    assert_status "200" http://localhost:3000/internal-api/env
 }
 
 verify_auth() {
-    assert_status "401" http://localhost:3000/api/env \
+    assert_status "401" http://localhost:3000/internal-api/env \
         && assert_status "200" -u kim:possible http://localhost:3000/api/env
 }
 

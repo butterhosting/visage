@@ -1,7 +1,7 @@
 services:
   maxmindmock:
     build:
-      context: ./maxmindmock
+      context: ./docker/maxmindmock
       dockerfile: Dockerfile
     networks:
       - app-network

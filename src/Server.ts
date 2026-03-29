@@ -11,14 +11,16 @@ import { Middleware } from "./middleware/Middleware";
 import { IngestionService } from "./services/IngestionService";
 import { RestrictedService } from "./services/RestrictedService";
 import { Socket } from "./socket/Socket";
+import { TrackerScriptService } from "./tracker/TrackerScriptService";
 
 export class Server {
   private readonly log = new Logger(__filename);
 
   public constructor(
     private readonly env: Env.Private,
-    private readonly ingestionService: IngestionService,
     private readonly restrictedService: RestrictedService,
+    private readonly trackerScriptService: TrackerScriptService,
+    private readonly ingestionService: IngestionService,
     private readonly middleware: Middleware,
   ) {}
 
@@ -65,11 +67,14 @@ export class Server {
         "/api/*": this.handleRoute(() => {
           return Response.json(ServerError.route_not_found().json(), { status: 404 });
         }),
+        "/internal-api/*": this.handleRoute(() => {
+          return Response.json(ServerError.route_not_found().json(), { status: 404 });
+        }),
 
         /**
          * Env
          */
-        "/api/env": {
+        "/internal-api/env": {
           GET: this.handleRoute(() => {
             const response = Object.entries(this.env)
               .filter(([key]) => key.startsWith("O_VISAGE_" satisfies Env.PublicPrefix))
@@ -80,8 +85,40 @@ export class Server {
         },
 
         /**
-         * Ingestion
+         * Restricted endpoints for local and/or e2e testing
          */
+        "/internal-api/restricted/purge": {
+          POST: this.handleRoute(async () => {
+            if (this.env.X_VISAGE_ENABLE_RESTRICTED_ENTPOINTS) {
+              await this.restrictedService.purge();
+              return new Response();
+            }
+            return Response.json(ServerError.route_not_found().json(), { status: 404 });
+          }),
+        },
+        "/internal-api/restricted/seed": {
+          POST: this.handleRoute(async () => {
+            if (this.env.X_VISAGE_ENABLE_RESTRICTED_ENTPOINTS) {
+              await this.restrictedService.seed();
+              return new Response();
+            }
+            return Response.json(ServerError.route_not_found().json(), { status: 404 });
+          }),
+        },
+
+        /**
+         * Client script and ingestion
+         */
+        "/vis.js": {
+          GET: this.handleRoute(async (request) => {
+            const script = await this.trackerScriptService.getMinifiedScript();
+            return new Response(script, {
+              headers: {
+                "content-type": "application/javascript",
+              },
+            });
+          }),
+        },
         "/i": {
           POST: this.handleRoute(async (request) => {
             const ip = server.requestIP(request);
@@ -91,29 +128,8 @@ export class Server {
             return new Response();
           }),
         },
-
-        /**
-         * Restricted endpoints for local and/or e2e testing
-         */
-        "/api/restricted/purge": {
-          POST: this.handleRoute(async () => {
-            if (this.env.X_VISAGE_ENABLE_RESTRICTED_ENTPOINTS) {
-              await this.restrictedService.purge();
-              return new Response();
-            }
-            return Response.json(ServerError.route_not_found().json(), { status: 404 });
-          }),
-        },
-        "/api/restricted/seed": {
-          POST: this.handleRoute(async () => {
-            if (this.env.X_VISAGE_ENABLE_RESTRICTED_ENTPOINTS) {
-              await this.restrictedService.seed();
-              return new Response();
-            }
-            return Response.json(ServerError.route_not_found().json(), { status: 404 });
-          }),
-        },
       },
+
       /**
        * Error handling
        */

@@ -1,4 +1,5 @@
 import { mkdir } from "fs/promises";
+import { dirname } from "path";
 import { initializeSqlite } from "./drizzle/sqlite";
 import { Env } from "./Env";
 import { Logger } from "./Logger";
@@ -20,10 +21,9 @@ Logger.initialize(env);
 /**
  * Create the main directories
  */
-await mkdir(env.X_VISAGE_DATA_ROOT, { recursive: true });
-
 await Promise.all([
-  mkdir(env.X_VISAGE_DATA_ROOT, { recursive: true }),
+  mkdir(dirname(env.X_VISAGE_DATABASE), { recursive: true }),
+  mkdir(dirname(env.X_VISAGE_TRACKER_SCRIPT), { recursive: true }),
   env.X_MAXMIND ? mkdir(env.X_MAXMIND.ROOT, { recursive: true }) : Promise.resolve(),
 ]);
 
