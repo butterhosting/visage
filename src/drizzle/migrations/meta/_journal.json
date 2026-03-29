@@ -8,6 +8,13 @@
       "when": 1774422998035,
       "tag": "0000_create_analytics_event_table",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1774801232646,
+      "tag": "0001_create_bot_event_table",
+      "breakpoints": true
     }
   ]
 }

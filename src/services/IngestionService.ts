@@ -4,6 +4,7 @@ import { BrowserTrackingEvent } from "@/models/BrowserTrackingEvent";
 import { AnalyticsEventRepository } from "@/repositories/AnalyticsEventRepository";
 import { Temporal } from "@js-temporal/polyfill";
 import Bowser from "bowser";
+import { BotDetectionService } from "./BotDetectionService";
 import { MaxMindGeoService } from "./MaxMindGeoService";
 
 export class IngestionService {
@@ -11,6 +12,7 @@ export class IngestionService {
 
   public constructor(
     private readonly maxMindGeoService: MaxMindGeoService,
+    private readonly botDetectionService: BotDetectionService,
     private readonly repository: AnalyticsEventRepository,
   ) {}
 
@@ -66,8 +68,11 @@ export class IngestionService {
       locale: this.parseLocale(payload.locale),
       geo: await this.maxMindGeoService.lookup(ipAddress),
     };
-
-    await this.repository.create(analyticsEvent);
+    if (await this.botDetectionService.isBot(analyticsEvent)) {
+      await this.repository.create(analyticsEvent, "bot");
+    } else {
+      await this.repository.create(analyticsEvent);
+    }
   }
 
   private async ingestEnd(payload: BrowserTrackingEvent.End): Promise<void> {

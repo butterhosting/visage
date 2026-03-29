@@ -6,6 +6,7 @@ import { LoggingMiddleware } from "./middleware/basicauth/LoggingMiddleware";
 import { Middleware } from "./middleware/Middleware";
 import { AnalyticsEventRepository } from "./repositories/AnalyticsEventRepository";
 import { Server } from "./Server";
+import { BotDetectionService } from "./services/BotDetectionService";
 import { IngestionService } from "./services/IngestionService";
 import { MaxMindGeoService } from "./services/MaxMindGeoService";
 import { RestrictedService } from "./services/RestrictedService";
@@ -27,9 +28,10 @@ export class ServerRegistry {
 
     // Services
     const { maxMindGeoService } = this.register({ MaxMindGeoService }, [env]);
+    const { botDetectionService } = this.register({ BotDetectionService }, []);
     const { restrictedService } = this.register({ RestrictedService }, []);
     const { trackerScriptService } = this.register({ TrackerScriptService }, [env]);
-    const { ingestionService } = this.register({ IngestionService }, [maxMindGeoService, analyticsEventRepository]);
+    const { ingestionService } = this.register({ IngestionService }, [maxMindGeoService, botDetectionService, analyticsEventRepository]);
 
     // Middleware
     const { loggingMiddleware } = this.register({ LoggingMiddleware }, []);
