@@ -19,10 +19,10 @@ export class IngestionService {
   public async ingest(ipAddress: string, unknown: BrowserTrackingEvent): Promise<void> {
     try {
       const event = BrowserTrackingEvent.parse(unknown);
-      switch (event.type) {
-        case "start":
+      switch (event.t) {
+        case "s":
           return this.ingestStart(ipAddress, event);
-        case "end":
+        case "e":
           return this.ingestEnd(event);
       }
     } catch (e) {
@@ -31,13 +31,14 @@ export class IngestionService {
   }
 
   private async ingestStart(ipAddress: string, payload: BrowserTrackingEvent.Start): Promise<void> {
-    const url = new URL(payload.url);
-    const referrerUrl = payload.referrer ? new URL(payload.referrer) : undefined;
+    const url = new URL(payload.u);
+    const referrerUrl = payload.r ? new URL(payload.r) : undefined;
+    const spaCount = payload.sc;
     const analyticsEvent: AnalyticsEvent = {
       id: Bun.randomUUIDv7(),
       object: "analytics_event",
       created: Temporal.Now.instant(),
-      pageId: payload.pageId,
+      pageId: payload.pi,
       url: {
         hostname: url.hostname,
         path: url.pathname,
@@ -50,8 +51,8 @@ export class IngestionService {
             queryString: referrerUrl.search.slice(1) || undefined,
           }
         : undefined,
-      isVisitor: (!referrerUrl || referrerUrl.hostname !== url.hostname) && payload.spaCount === 0,
-      userAgent: payload.userAgent,
+      isVisitor: (!referrerUrl || referrerUrl.hostname !== url.hostname) && spaCount === 0,
+      userAgent: payload.ua,
       utm: {
         source: url.searchParams.get("utm_source") ?? url.searchParams.get("source") ?? url.searchParams.get("ref") ?? undefined,
         medium: url.searchParams.get("utm_medium") ?? url.searchParams.get("medium") ?? undefined,
@@ -59,13 +60,13 @@ export class IngestionService {
         content: url.searchParams.get("utm_content") ?? url.searchParams.get("content") ?? undefined,
       },
       window: {
-        screenWidth: payload.screenWidth,
-        screenHeight: payload.screenHeight,
-        viewportWidth: payload.viewportWidth,
-        viewportHeight: payload.viewportHeight,
+        screenWidth: payload.sw,
+        screenHeight: payload.sh,
+        viewportWidth: payload.vw,
+        viewportHeight: payload.vh,
       },
-      device: this.parseDevice(payload.userAgent),
-      locale: this.parseLocale(payload.locale),
+      device: this.parseDevice(payload.ua),
+      locale: this.parseLocale(payload.l),
       geo: await this.maxMindGeoService.lookup(ipAddress),
     };
     if (await this.botDetectionService.isBot(analyticsEvent)) {
@@ -76,7 +77,7 @@ export class IngestionService {
   }
 
   private async ingestEnd(payload: BrowserTrackingEvent.End): Promise<void> {
-    await this.repository.update(payload.pageId, Temporal.Duration.from({ milliseconds: payload.durationMs }));
+    await this.repository.update(payload.pi, Temporal.Duration.from({ milliseconds: payload.d }));
   }
 
   private parseDevice(userAgent: string): AnalyticsEvent["device"] {

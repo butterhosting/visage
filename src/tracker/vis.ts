@@ -11,17 +11,17 @@ const originalReplaceState = history.replaceState.bind(history);
 
 function submitStart(): void {
   const event: BrowserTrackingEvent.Start = {
-    type: "start",
-    pageId,
-    url: window.location.href,
-    referrer: document.referrer || undefined,
-    userAgent: navigator.userAgent,
-    screenWidth: screen.width,
-    screenHeight: screen.height,
-    viewportWidth: window.innerWidth,
-    viewportHeight: window.innerHeight,
-    locale: navigator.language || undefined,
-    spaCount,
+    t: "s",
+    pi: pageId,
+    u: window.location.href,
+    r: document.referrer || undefined,
+    ua: navigator.userAgent,
+    sw: screen.width,
+    sh: screen.height,
+    vw: window.innerWidth,
+    vh: window.innerHeight,
+    l: navigator.language || undefined,
+    sc: spaCount,
   };
   navigator.sendBeacon("{{INGESTION_ENDPOINT}}", JSON.stringify(event));
   spaCount++;
@@ -33,9 +33,9 @@ function submitEnd(): void {
     hiddenSince = null;
   }
   const event: BrowserTrackingEvent.End = {
-    type: "end",
-    pageId,
-    durationMs: Math.max(0, Date.now() - startTime - msHidden),
+    t: "e",
+    pi: pageId,
+    d: Math.max(0, Date.now() - startTime - msHidden),
   };
   navigator.sendBeacon("{{INGESTION_ENDPOINT}}", JSON.stringify(event));
 }

@@ -5,45 +5,78 @@ export type BrowserTrackingEvent = BrowserTrackingEvent.Start | BrowserTrackingE
 
 export namespace BrowserTrackingEvent {
   export type Start = {
-    type: "start";
-    pageId: string;
-    url: string;
-    referrer?: string;
-    spaCount: number;
-    userAgent: string;
-    screenWidth: number;
-    screenHeight: number;
-    viewportWidth: number;
-    viewportHeight: number;
-    locale?: string;
+    /**
+     * Type
+     */
+    t: "s";
+    /**
+     * Page ID
+     */
+    pi: string;
+    /**
+     * URL
+     */
+    u: string;
+    /**
+     * Referrer
+     */
+    r?: string;
+    /**
+     * SPA count
+     */
+    sc: number;
+    /**
+     * User agent
+     */
+    ua: string;
+    /**
+     * Screen width
+     */
+    sw: number;
+    /**
+     * Screen height
+     */
+    sh: number;
+    /**
+     * Viewport width
+     */
+    vw: number;
+    /**
+     * Viewport height
+     */
+    vh: number;
+    /**
+     * Locale
+     */
+    l?: string;
   };
 
   export type End = {
-    type: "end";
-    pageId: string;
-    durationMs: number;
+    t: "e";
+    pi: string;
+    d: number;
   };
 
   export const parse = ZodParser.forType<BrowserTrackingEvent>()
     .ensureSchemaMatchesType(() =>
-      z.discriminatedUnion("type", [
+      z.discriminatedUnion("t", [
         z.object({
-          type: z.literal("start"),
-          pageId: z.string(),
-          url: z.string(),
-          referrer: z.string().optional(),
-          spaCount: z.number(),
-          userAgent: z.string(),
-          screenWidth: z.number(),
-          screenHeight: z.number(),
-          viewportWidth: z.number(),
-          viewportHeight: z.number(),
-          locale: z.string().optional(),
+          t: z.literal("s"),
+          pi: z.string(),
+          u: z.string(),
+          r: z.string().optional(),
+          sc: z.number(),
+          ua: z.string(),
+          sw: z.number(),
+          sh: z.number(),
+          vw: z.number(),
+          vh: z.number(),
+          l: z.string().optional(),
         }),
         z.object({
-          type: z.literal("end"),
-          pageId: z.string(),
-          durationMs: z.number(),
+          t: z.literal("e"),
+          pi: z.string(),
+          d: z.number(),
         }),
       ]),
     )
