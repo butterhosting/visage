@@ -25,8 +25,8 @@ export class MaxMindGeoService {
         requestHeaders: {
           Authorization: `Basic ${Buffer.from(`${env.X_MAXMIND.ACCOUNT_ID}:${env.X_MAXMIND.LICENSE_KEY}`, "utf-8").toBase64()}`,
         },
-        localLastModifiedFile: join(env.X_MAXMIND?.ROOT, ".last-modified"),
-        localDatabaseFile: join(env.X_MAXMIND?.ROOT, "GeoLite2-City.mmdb"),
+        localDatabaseFile: join(env.X_MAXMIND.ROOT, "GeoLite2-City.mmdb"),
+        localLastModifiedFile: join(env.X_MAXMIND.ROOT, "GeoLite2-City.last-modified"),
         awaitDownload: env.X_MAXMIND.AWAIT_DOWNLOAD,
       };
     }

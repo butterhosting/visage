@@ -13,5 +13,5 @@
     },
     "incremental": true,
   },
-  "exclude": ["dist", "node_modules"],
+  "exclude": ["dist", "node_modules", "opt"],
 }
