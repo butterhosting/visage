@@ -39,7 +39,7 @@ export namespace AnalyticsEventConverter {
       localeLanguage: model.locale.language ?? null,
       localeRegion: model.locale.region ?? null,
       geoCountryCode: model.geo.countryCode ?? null,
-      geoCity: model.geo.city ?? null,
+      geoCityName: model.geo.cityName ?? null,
     };
   }
 
@@ -87,7 +87,7 @@ export namespace AnalyticsEventConverter {
       },
       geo: {
         countryCode: db.geoCountryCode ?? undefined,
-        city: db.geoCity ?? undefined,
+        cityName: db.geoCityName ?? undefined,
       },
     };
   }

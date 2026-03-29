@@ -26,5 +26,5 @@ export const $analyticsEvent = sqliteTable("analytics_event", {
   localeLanguage: text(),
   localeRegion: text(),
   geoCountryCode: text(),
-  geoCity: text(),
+  geoCityName: text(),
 });

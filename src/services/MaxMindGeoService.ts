@@ -38,7 +38,7 @@ export class MaxMindGeoService {
         const { country, city, ...x } = this.reader.city(ipAddress);
         return {
           countryCode: country?.isoCode ?? undefined,
-          city: city?.names.en ?? undefined,
+          cityName: city?.names.en ?? undefined,
         };
       } catch (err) {
         if (err instanceof Error && err.name === "AddressNotFoundError") {

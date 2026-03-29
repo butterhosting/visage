@@ -40,6 +40,6 @@ export type AnalyticsEvent = {
   };
   geo: {
     countryCode?: string;
-    city?: string;
+    cityName?: string;
   };
 };

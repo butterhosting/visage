@@ -38,7 +38,7 @@ export namespace TestFixture {
       },
       geo: {
         countryCode: "DE",
-        city: "Berlin",
+        cityName: "Berlin",
       },
     };
     return deepMerge(defaults, overrides);
