@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SPA Website</title>
+  <script src="http://localhost:3000/vis.js" defer></script>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 600px; margin: 40px auto; padding: 0 20px; }
+    nav { display: flex; gap: 16px; margin-bottom: 24px; }
+    a { color: #2563eb; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <nav>
+    <a data-href="/">Home</a>
+    <a data-href="/about">About</a>
+    <a data-href="/contact">Contact</a>
+  </nav>
+  <div id="app"></div>
+  <script>
+    const pages = {
+      "/":        "<h1>Home</h1><p>Welcome to the SPA website.</p>",
+      "/about":   "<h1>About</h1><p>This is the about page.</p>",
+      "/contact": "<h1>Contact</h1><p>This is the contact page.</p>",
+    };
+
+    function render() {
+      document.getElementById("app").innerHTML = pages[location.pathname] || "<h1>404</h1>";
+    }
+
+    document.addEventListener("click", (e) => {
+      const href = e.target.dataset?.href;
+      if (href) {
+        e.preventDefault();
+        history.pushState(null, "", href);
+        render();
+      }
+    });
+
+    window.addEventListener("popstate", render);
+    render();
+  </script>
+</body>
+</html>

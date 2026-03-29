@@ -12,6 +12,36 @@ services:
       timeout: 10s
       retries: 10
 
+  spawebsite:
+    build:
+      context: ./docker/spawebsite
+      dockerfile: Dockerfile
+    ports:
+      - "4001:4001"
+    networks:
+      - app-network
+    stop_grace_period: 100ms
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://localhost:4002/ || exit 1"]
+      interval: 1s
+      timeout: 10s
+      retries: 10
+
+  trawebsite:
+    build:
+      context: ./docker/trawebsite
+      dockerfile: Dockerfile
+    ports:
+      - "4002:4002"
+    networks:
+      - app-network
+    stop_grace_period: 100ms
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://localhost:4001/ || exit 1"]
+      interval: 1s
+      timeout: 10s
+      retries: 10
+
 networks:
   app-network:
     driver: bridge
