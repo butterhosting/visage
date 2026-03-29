@@ -1,15 +1,27 @@
 import { BrowserTrackingEvent } from "@/models/BrowserTrackingEvent";
 
+const originalPushState = history.pushState.bind(history);
+const originalReplaceState = history.replaceState.bind(history);
+const skipLocalhostCollection = "{{SKIP_LOCALHOST_COLLECTION}}" as "true" | "false";
+
 let spaCount = 0;
 let pageId = crypto.randomUUID();
 let startTime = Date.now();
 let msHidden = 0;
 let hiddenSince: number | null = null;
 
-const originalPushState = history.pushState.bind(history);
-const originalReplaceState = history.replaceState.bind(history);
+function shouldSkipRequest(): boolean {
+  if (skipLocalhostCollection === "true" && window.location.hostname === "localhost") {
+    console.warn("[Visage] Skipping analytics collection on `localhost`");
+    return true;
+  }
+  return false;
+}
 
 function submitStart(): void {
+  if (shouldSkipRequest()) {
+    return;
+  }
   const event: BrowserTrackingEvent.Start = {
     t: "s",
     pi: pageId,
@@ -28,6 +40,9 @@ function submitStart(): void {
 }
 
 function submitEnd(): void {
+  if (shouldSkipRequest()) {
+    return;
+  }
   if (hiddenSince !== null) {
     msHidden += Date.now() - hiddenSince;
     hiddenSince = null;
