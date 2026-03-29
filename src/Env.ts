@@ -15,6 +15,7 @@ export namespace Env {
 
     X_VISAGE_ROOT: z.string(),
     X_VISAGE_LOGGING: z.enum(LogLevel),
+    X_VISAGE_HOSTNAME: z.string(),
     X_VISAGE_SUPPORT_TOKEN: z.string().optional(),
     X_VISAGE_VERIFICATION_KEY: z.string().transform((str) => str.replaceAll("\\n", "\n")),
     X_VISAGE_ENABLE_RESTRICTED_ENTPOINTS: z.enum(["true", "false"]),
@@ -30,9 +31,12 @@ export namespace Env {
       throw new Error(`Invalid timezone: ${timezone}`);
     }
     return baseEnv
-      .transform(({ X_VISAGE_ROOT, X_VISAGE_SUPPORT_TOKEN, X_VISAGE_VERIFICATION_KEY, ...env }) => ({
+      .transform(({ X_VISAGE_ROOT, X_VISAGE_SUPPORT_TOKEN, X_VISAGE_VERIFICATION_KEY, X_VISAGE_HOSTNAME, ...env }) => ({
         ...env,
         X_VISAGE_ROOT: isAbsolute(X_VISAGE_ROOT) ? X_VISAGE_ROOT : join(process.cwd(), X_VISAGE_ROOT),
+        X_VISAGE_HOSTNAME: X_VISAGE_HOSTNAME.startsWith("http")
+          ? X_VISAGE_HOSTNAME
+          : `${env.O_VISAGE_STAGE === "production" ? "https" : "http"}://${X_VISAGE_HOSTNAME}`,
         O_VISAGE_SUPPORTER: Boolean(SupportToken.verify({ hexToken: X_VISAGE_SUPPORT_TOKEN, publicKey: X_VISAGE_VERIFICATION_KEY })),
       }))
       .transform(({ X_MAXMIND_BASE_URL, X_MAXMIND_ACCOUNT_ID, X_MAXMIND_LICENSE_KEY, X_MAXMIND_AWAIT_DOWNLOAD, ...env }) => {
