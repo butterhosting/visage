@@ -11,7 +11,7 @@ import { Middleware } from "./middleware/Middleware";
 import { IngestionService } from "./services/IngestionService";
 import { RestrictedService } from "./services/RestrictedService";
 import { Socket } from "./socket/Socket";
-import { TrackerScriptService } from "./tracker/TrackerScriptService";
+import { TrackerScriptService } from "./services/TrackerScriptService";
 
 export class Server {
   private readonly log = new Logger(__filename);

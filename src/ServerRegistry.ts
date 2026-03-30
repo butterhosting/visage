@@ -10,7 +10,7 @@ import { BotDetectionService } from "./services/BotDetectionService";
 import { IngestionService } from "./services/IngestionService";
 import { MaxMindGeoService } from "./services/MaxMindGeoService";
 import { RestrictedService } from "./services/RestrictedService";
-import { TrackerScriptService } from "./tracker/TrackerScriptService";
+import { TrackerScriptService } from "./services/TrackerScriptService";
 
 export class ServerRegistry {
   public static async bootstrap(env: Env.Private, sqlite: Sqlite): Promise<ServerRegistry> {

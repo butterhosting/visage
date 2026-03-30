@@ -164,12 +164,12 @@ export class MaxMindGeoService {
       this.log.warn(`MaxMind HEAD request failed: ${headResponse.status} ${headResponse.statusText}`);
       return;
     }
-    const lastModified = headResponse.headers.get("last-modified") || undefined;
+    const lastModified = headResponse.headers.get("last-modified");
     if (lastModified) {
       // Uses the standard HTTP date format, for example:
       // Fri, 27 Mar 2026 15:01:04 GMT
-      const ms = Date.parse(lastModified);
-      return Temporal.Instant.fromEpochMilliseconds(ms);
+      const epochMillis = Date.parse(lastModified);
+      return Temporal.Instant.fromEpochMilliseconds(epochMillis);
     }
     return undefined;
   }

@@ -13,7 +13,7 @@ let hiddenSince: number | null = null;
 
 function shouldSkipRequest(): boolean {
   if (skipLocalhostCollection === "true" && window.location.hostname === "localhost") {
-    console.warn("[Visage] Skipping analytics collection on `localhost`");
+    console.warn("[Visage] Skipping analytics on `localhost`");
     return true;
   }
   return false;
