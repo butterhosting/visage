@@ -15,6 +15,7 @@ export namespace AnalyticsEventConverter {
   function toDatabase(model: AnalyticsEvent): $AnalyticsEvent {
     return {
       id: model.id,
+      websiteId: model.websiteId,
       created: model.created.toString(),
       durationSeconds: model.durationSeconds ?? null,
       urlHostname: model.url.hostname,
@@ -48,6 +49,7 @@ export namespace AnalyticsEventConverter {
     return {
       id: db.id,
       object: "analytics_event",
+      websiteId: db.websiteId,
       created: Temporal.Instant.from(db.created),
       durationSeconds: db.durationSeconds ?? undefined,
       url: {

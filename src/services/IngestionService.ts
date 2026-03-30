@@ -6,6 +6,7 @@ import { Temporal } from "@js-temporal/polyfill";
 import Bowser from "bowser";
 import { BotDetectionService } from "./BotDetectionService";
 import { MaxMindGeoService } from "./MaxMindGeoService";
+import { WebsiteRepository } from "@/repositories/WebsiteRepository";
 
 export class IngestionService {
   private readonly log = new Logger(__filename);
@@ -13,7 +14,8 @@ export class IngestionService {
   public constructor(
     private readonly maxMindGeoService: MaxMindGeoService,
     private readonly botDetectionService: BotDetectionService,
-    private readonly repository: AnalyticsEventRepository,
+    private readonly analyticsEventRepository: AnalyticsEventRepository,
+    private readonly websiteRepository: WebsiteRepository,
   ) {}
 
   public async ingest(ipAddress: string, unknown: BrowserTrackingEvent): Promise<void> {
@@ -21,9 +23,9 @@ export class IngestionService {
       const event = BrowserTrackingEvent.parse(unknown);
       switch (event.t) {
         case "s":
-          return this.ingestStart(ipAddress, event);
+          return await this.ingestStart(ipAddress, event);
         case "e":
-          return this.ingestEnd(event);
+          return await this.ingestEnd(event);
       }
     } catch (e) {
       this.log.debug("Failed to ingest tracking event", e);
@@ -32,11 +34,14 @@ export class IngestionService {
 
   private async ingestStart(ipAddress: string, payload: BrowserTrackingEvent.Start): Promise<void> {
     const url = new URL(payload.u);
+    const website = await this.websiteRepository.findByHostname(url.hostname);
+
     const referrerUrl = payload.r ? new URL(payload.r) : undefined;
     const spaCount = payload.sc;
     const analyticsEvent: AnalyticsEvent = {
       id: payload.i,
       object: "analytics_event",
+      websiteId: website.id,
       created: Temporal.Now.instant(),
       url: {
         hostname: url.hostname,
@@ -68,16 +73,20 @@ export class IngestionService {
       locale: this.parseLocale(payload.l),
       geo: await this.maxMindGeoService.lookup(ipAddress),
     };
+
     if (await this.botDetectionService.isBot(analyticsEvent)) {
-      await this.repository.create(analyticsEvent, "bot");
+      await this.analyticsEventRepository.create(analyticsEvent, "bot");
     } else {
-      await this.repository.create(analyticsEvent);
+      await this.analyticsEventRepository.create(analyticsEvent);
     }
   }
 
   private async ingestEnd(payload: BrowserTrackingEvent.End): Promise<void> {
     if (payload.dms > 0) {
-      await this.repository.update(payload.i, Temporal.Duration.from({ milliseconds: payload.dms }).round("seconds").total("seconds"));
+      await this.analyticsEventRepository.update(
+        payload.i,
+        Temporal.Duration.from({ milliseconds: payload.dms }).round("seconds").total("seconds"),
+      );
     }
   }
 

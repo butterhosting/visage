@@ -3,6 +3,7 @@ import { $analyticsEvent } from "@/drizzle/schema";
 import { initializeSqlite, Sqlite } from "@/drizzle/sqlite";
 import { Env } from "@/Env";
 import { AnalyticsEventConverter } from "@/repositories/converters/AnalyticsEventConverter";
+import { WebsiteConverter } from "@/repositories/converters/WebsiteConverter";
 import { test } from "bun:test";
 import { InferInsertModel } from "drizzle-orm";
 import { join } from "path";
@@ -34,6 +35,7 @@ export namespace RegressionSuite {
 
     export function getQueryFns(): Array<{ table: string; queryFn: (sqlite: Sqlite) => Promise<unknown[]> }> {
       const overview: Record<TableKey, (sqlite: Sqlite) => Promise<unknown[]>> = {
+        $website: (sqlite) => sqlite.query.$website.findMany().then((records) => records.map(WebsiteConverter.convert)),
         $analyticsEvent: (sqlite) =>
           sqlite.query.$analyticsEvent.findMany().then((records) => records.map(AnalyticsEventConverter.convert)),
         $botEvent: (sqlite) => sqlite.query.$botEvent.findMany(),

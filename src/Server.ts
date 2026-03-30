@@ -12,12 +12,15 @@ import { IngestionService } from "./services/IngestionService";
 import { RestrictedService } from "./services/RestrictedService";
 import { Socket } from "./socket/Socket";
 import { TrackerScriptService } from "./services/TrackerScriptService";
+import { Website } from "./models/Website";
+import { WebsiteService } from "./services/WebsiteService";
 
 export class Server {
   private readonly log = new Logger(__filename);
 
   public constructor(
     private readonly env: Env.Private,
+    private readonly websiteService: WebsiteService,
     private readonly restrictedService: RestrictedService,
     private readonly trackerScriptService: TrackerScriptService,
     private readonly ingestionService: IngestionService,
@@ -81,6 +84,16 @@ export class Server {
               .map(([key, value]) => ({ [key]: value }))
               .reduce((kv1, kv2) => Object.assign({}, kv1, kv2), {});
             return Response.json(response as Env.Public);
+          }),
+        },
+
+        /**
+         * Websites
+         */
+        "/internal-api/websites": {
+          GET: this.handleRoute(async () => {
+            const websites: Website[] = await this.websiteService.query();
+            return Response.json(websites);
           }),
         },
 

@@ -6,14 +6,21 @@
       "idx": 0,
       "version": "6",
       "when": 1774422998035,
-      "tag": "0000_create_analytics_event_table",
+      "tag": "0000_create_website_table",
       "breakpoints": true
     },
     {
       "idx": 1,
       "version": "6",
       "when": 1774801232646,
-      "tag": "0001_create_bot_event_table",
+      "tag": "0001_create_analytics_event_table",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1774891815515,
+      "tag": "0002_create_bot_event_table",
       "breakpoints": true
     }
   ]

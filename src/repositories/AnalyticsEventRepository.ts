@@ -19,6 +19,7 @@ export class AnalyticsEventRepository {
     if (bot === "bot") {
       await this.sqlite.insert($botEvent).values({
         id: Bun.randomUUIDv7(),
+        websiteId: analyticsEvent.websiteId,
         json: JSON.stringify(analyticsEvent),
       });
       await this.deleteOldestBotEvents();

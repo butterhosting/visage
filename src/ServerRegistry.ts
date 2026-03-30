@@ -5,12 +5,14 @@ import { BasicAuthMiddleware } from "./middleware/basicauth/BasicAuthMiddleware"
 import { LoggingMiddleware } from "./middleware/basicauth/LoggingMiddleware";
 import { Middleware } from "./middleware/Middleware";
 import { AnalyticsEventRepository } from "./repositories/AnalyticsEventRepository";
+import { WebsiteRepository } from "./repositories/WebsiteRepository";
 import { Server } from "./Server";
 import { BotDetectionService } from "./services/BotDetectionService";
 import { IngestionService } from "./services/IngestionService";
 import { MaxMindGeoService } from "./services/MaxMindGeoService";
 import { RestrictedService } from "./services/RestrictedService";
 import { TrackerScriptService } from "./services/TrackerScriptService";
+import { WebsiteService } from "./services/WebsiteService";
 
 export class ServerRegistry {
   public static async bootstrap(env: Env.Private, sqlite: Sqlite): Promise<ServerRegistry> {
@@ -24,14 +26,21 @@ export class ServerRegistry {
     private readonly sqlite: Sqlite,
   ) {
     // Repositories
+    const { websiteRepository } = this.register({ WebsiteRepository }, [sqlite]);
     const { analyticsEventRepository } = this.register({ AnalyticsEventRepository }, [env, sqlite]);
 
     // Services
     const { maxMindGeoService } = this.register({ MaxMindGeoService }, [env]);
     const { botDetectionService } = this.register({ BotDetectionService }, []);
+    const { websiteService } = this.register({ WebsiteService }, [websiteRepository]);
     const { restrictedService } = this.register({ RestrictedService }, []);
     const { trackerScriptService } = this.register({ TrackerScriptService }, [env]);
-    const { ingestionService } = this.register({ IngestionService }, [maxMindGeoService, botDetectionService, analyticsEventRepository]);
+    const { ingestionService } = this.register({ IngestionService }, [
+      maxMindGeoService,
+      botDetectionService,
+      analyticsEventRepository,
+      websiteRepository,
+    ]);
 
     // Middleware
     const { loggingMiddleware } = this.register({ LoggingMiddleware }, []);
@@ -39,7 +48,7 @@ export class ServerRegistry {
     const { middleware } = this.register({ Middleware }, [loggingMiddleware, basicAuthMiddleware]);
 
     // Server
-    this.register({ Server }, [env, restrictedService, trackerScriptService, ingestionService, middleware]);
+    this.register({ Server }, [env, websiteService, restrictedService, trackerScriptService, ingestionService, middleware]);
   }
 
   public get(sqlite: "sqlite"): Sqlite;
