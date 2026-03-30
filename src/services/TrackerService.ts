@@ -1,7 +1,7 @@
 import { Env } from "@/Env";
 import { readFile } from "fs/promises";
 
-export class TrackerScriptService {
+export class TrackerService {
   private cachedScript?: string;
 
   public constructor(private readonly env: Env.Private) {}
@@ -15,7 +15,7 @@ export class TrackerScriptService {
     return this.cachedScript;
   }
 
-  private replaceVariables(script: string, replacements: Record<string, string>) {
+  private replaceVariables(script: string, replacements: Record<string, string>): string {
     const result = script.replace(/\{\{(\w+)\}\}/g, (match, key) => {
       if (!(key in replacements)) {
         throw new Error(`Unresolved template variable: {{${key}}}`);

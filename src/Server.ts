@@ -8,12 +8,12 @@ import { Generate } from "./helpers/Generate";
 import { Prettify } from "./helpers/Prettify";
 import { Logger } from "./Logger";
 import { Middleware } from "./middleware/Middleware";
+import { Website } from "./models/Website";
 import { IngestionService } from "./services/IngestionService";
 import { RestrictedService } from "./services/RestrictedService";
-import { Socket } from "./socket/Socket";
-import { TrackerScriptService } from "./services/TrackerScriptService";
-import { Website } from "./models/Website";
+import { TrackerService } from "./services/TrackerService";
 import { WebsiteService } from "./services/WebsiteService";
+import { Socket } from "./socket/Socket";
 
 export class Server {
   private readonly log = new Logger(__filename);
@@ -22,7 +22,7 @@ export class Server {
     private readonly env: Env.Private,
     private readonly websiteService: WebsiteService,
     private readonly restrictedService: RestrictedService,
-    private readonly trackerScriptService: TrackerScriptService,
+    private readonly trackerService: TrackerService,
     private readonly ingestionService: IngestionService,
     private readonly middleware: Middleware,
   ) {}
@@ -120,11 +120,11 @@ export class Server {
         },
 
         /**
-         * Client script and ingestion
+         * Client script and data ingestion
          */
         "/vis.js": {
-          GET: this.handleRoute(async (request) => {
-            const script = await this.trackerScriptService.getMinifiedScript();
+          GET: this.handleRoute(async () => {
+            const script = await this.trackerService.getMinifiedScript();
             return new Response(script, {
               headers: {
                 "content-type": "application/javascript",

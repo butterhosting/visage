@@ -11,7 +11,7 @@ import { BotDetectionService } from "./services/BotDetectionService";
 import { IngestionService } from "./services/IngestionService";
 import { MaxMindGeoService } from "./services/MaxMindGeoService";
 import { RestrictedService } from "./services/RestrictedService";
-import { TrackerScriptService } from "./services/TrackerScriptService";
+import { TrackerService } from "./services/TrackerService";
 import { WebsiteService } from "./services/WebsiteService";
 
 export class ServerRegistry {
@@ -34,7 +34,7 @@ export class ServerRegistry {
     const { botDetectionService } = this.register({ BotDetectionService }, []);
     const { websiteService } = this.register({ WebsiteService }, [websiteRepository]);
     const { restrictedService } = this.register({ RestrictedService }, []);
-    const { trackerScriptService } = this.register({ TrackerScriptService }, [env]);
+    const { trackerService } = this.register({ TrackerService }, [env]);
     const { ingestionService } = this.register({ IngestionService }, [
       maxMindGeoService,
       botDetectionService,
@@ -48,7 +48,7 @@ export class ServerRegistry {
     const { middleware } = this.register({ Middleware }, [loggingMiddleware, basicAuthMiddleware]);
 
     // Server
-    this.register({ Server }, [env, websiteService, restrictedService, trackerScriptService, ingestionService, middleware]);
+    this.register({ Server }, [env, websiteService, restrictedService, trackerService, ingestionService, middleware]);
   }
 
   public get(sqlite: "sqlite"): Sqlite;
