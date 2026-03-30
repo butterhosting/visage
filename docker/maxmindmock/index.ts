@@ -18,25 +18,35 @@ async function constructGeoLiteDatabaseFixtureTarball(): Promise<Uint8Array<Arra
   return tarballBytes;
 }
 
+function validateRequest({ database }: { database: string }) {
+  if (database !== "GeoLite2-City") {
+    throw new Error(`Unsupported database: ${database}`);
+  }
+}
+
 const databaseFixtureTarball = await constructGeoLiteDatabaseFixtureTarball();
 const server = Bun.serve({
   port: 3030,
   routes: {
     "/": () => new Response("ok"),
     "/geoip/databases/:database/download": {
-      HEAD: () =>
-        new Response(null, {
+      HEAD: ({ params }) => {
+        validateRequest(params);
+        return new Response(null, {
           headers: {
             "last-modified": new Date().toUTCString(),
           },
-        }),
-      GET: () =>
-        new Response(databaseFixtureTarball, {
+        });
+      },
+      GET: ({ params }) => {
+        validateRequest(params);
+        return new Response(databaseFixtureTarball, {
           headers: {
             "content-type": "application/gzip",
             "last-modified": new Date().toUTCString(),
           },
-        }),
+        });
+      },
     },
   },
 });
