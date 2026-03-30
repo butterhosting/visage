@@ -35,10 +35,9 @@ export class IngestionService {
     const referrerUrl = payload.r ? new URL(payload.r) : undefined;
     const spaCount = payload.sc;
     const analyticsEvent: AnalyticsEvent = {
-      id: Bun.randomUUIDv7(),
+      id: payload.i,
       object: "analytics_event",
       created: Temporal.Now.instant(),
-      pageId: payload.pi,
       url: {
         hostname: url.hostname,
         path: url.pathname,
@@ -77,7 +76,9 @@ export class IngestionService {
   }
 
   private async ingestEnd(payload: BrowserTrackingEvent.End): Promise<void> {
-    await this.repository.update(payload.pi, Temporal.Duration.from({ milliseconds: payload.d }));
+    if (payload.dms > 0) {
+      await this.repository.update(payload.i, Temporal.Duration.from({ milliseconds: payload.dms }).round("seconds").total("seconds"));
+    }
   }
 
   private parseDevice(userAgent: string): AnalyticsEvent["device"] {

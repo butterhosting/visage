@@ -61,7 +61,6 @@ export namespace TestEnvironment {
       O_VISAGE_TIMEZONE: "UTC",
       X_VISAGE_ROOT: join(unitTestRoot, "visage"),
       X_VISAGE_LOGGING: LogLevel.warn,
-      X_VISAGE_HOSTNAME: "localhost:3000",
       X_VISAGE_VERIFICATION_KEY:
         "-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEAalpLQu9Fkn/R3WylORAad6UB0XAOowFIjF2/FwAyjpc=\n-----END PUBLIC KEY-----",
       X_VISAGE_ENABLE_RESTRICTED_ENTPOINTS: "false",
@@ -88,7 +87,7 @@ export namespace TestEnvironment {
     }
 
     // Dependencies
-    const analyticsEventRepository = new AnalyticsEventRepository(sqlite);
+    const analyticsEventRepository = new AnalyticsEventRepository(env, sqlite);
     const analyticsEventRepositoryMock = registerMockObject<AnalyticsEventRepository>({
       create: mock(),
       update: mock(),

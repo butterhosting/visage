@@ -4,8 +4,7 @@ export type AnalyticsEvent = {
   id: string;
   object: "analytics_event";
   created: Temporal.Instant;
-  pageId: string;
-  pageDuration?: Temporal.Duration;
+  durationSeconds?: number;
   url: {
     hostname: string;
     path: string;

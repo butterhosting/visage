@@ -1,5 +1,6 @@
 import { BrowserTrackingEvent } from "@/models/BrowserTrackingEvent";
 
+const ingestionEndpoint = new URL("i", document.currentScript?.getAttribute("src") as string);
 const originalPushState = history.pushState.bind(history);
 const originalReplaceState = history.replaceState.bind(history);
 const skipLocalhostCollection = "{{SKIP_LOCALHOST_COLLECTION}}" as "true" | "false";
@@ -24,7 +25,7 @@ function submitStart(): void {
   }
   const event: BrowserTrackingEvent.Start = {
     t: "s",
-    pi: pageId,
+    i: pageId,
     u: window.location.href,
     r: document.referrer || undefined,
     ua: navigator.userAgent,
@@ -35,7 +36,7 @@ function submitStart(): void {
     l: navigator.language || undefined,
     sc: spaCount,
   };
-  navigator.sendBeacon("{{INGESTION_ENDPOINT}}", JSON.stringify(event));
+  navigator.sendBeacon(ingestionEndpoint, JSON.stringify(event));
   spaCount++;
 }
 
@@ -49,10 +50,10 @@ function submitEnd(): void {
   }
   const event: BrowserTrackingEvent.End = {
     t: "e",
-    pi: pageId,
-    d: Math.max(0, Date.now() - startTime - msHidden),
+    i: pageId,
+    dms: Math.max(0, Date.now() - startTime - msHidden),
   };
-  navigator.sendBeacon("{{INGESTION_ENDPOINT}}", JSON.stringify(event));
+  navigator.sendBeacon(ingestionEndpoint, JSON.stringify(event));
 }
 
 function resetPage(): void {

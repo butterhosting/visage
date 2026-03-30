@@ -6,10 +6,9 @@ type DeepPartial<T> = T extends object ? { [P in keyof T]?: DeepPartial<T[P]> } 
 export namespace TestFixture {
   export function createAnalyticsEvent(overrides: DeepPartial<AnalyticsEvent> = {}): AnalyticsEvent {
     const defaults: AnalyticsEvent = {
-      id: Bun.randomUUIDv7(),
+      id: crypto.randomUUID(),
       object: "analytics_event",
       created: Temporal.Now.instant(),
-      pageId: crypto.randomUUID(),
       url: {
         hostname: "example.com",
         path: "/hello",

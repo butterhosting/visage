@@ -24,7 +24,7 @@ export class ServerRegistry {
     private readonly sqlite: Sqlite,
   ) {
     // Repositories
-    const { analyticsEventRepository } = this.register({ AnalyticsEventRepository }, [sqlite]);
+    const { analyticsEventRepository } = this.register({ AnalyticsEventRepository }, [env, sqlite]);
 
     // Services
     const { maxMindGeoService } = this.register({ MaxMindGeoService }, [env]);

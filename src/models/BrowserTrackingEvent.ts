@@ -10,9 +10,9 @@ export namespace BrowserTrackingEvent {
      */
     t: "s";
     /**
-     * Page ID
+     * ID
      */
-    pi: string;
+    i: string;
     /**
      * URL
      */
@@ -52,9 +52,18 @@ export namespace BrowserTrackingEvent {
   };
 
   export type End = {
+    /**
+     * Type
+     */
     t: "e";
-    pi: string;
-    d: number;
+    /**
+     * ID
+     */
+    i: string;
+    /**
+     * Duration (ms)
+     */
+    dms: number;
   };
 
   export const parse = ZodParser.forType<BrowserTrackingEvent>()
@@ -62,7 +71,7 @@ export namespace BrowserTrackingEvent {
       z.discriminatedUnion("t", [
         z.object({
           t: z.literal("s"),
-          pi: z.string(),
+          i: z.string(),
           u: z.string(),
           r: z.string().optional(),
           sc: z.number(),
@@ -75,8 +84,8 @@ export namespace BrowserTrackingEvent {
         }),
         z.object({
           t: z.literal("e"),
-          pi: z.string(),
-          d: z.number(),
+          i: z.string(),
+          dms: z.number(),
         }),
       ]),
     )

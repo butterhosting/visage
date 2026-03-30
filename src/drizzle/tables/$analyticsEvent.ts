@@ -3,8 +3,7 @@ import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 export const $analyticsEvent = sqliteTable("analytics_event", {
   id: text().primaryKey(),
   created: text().notNull(),
-  pageId: text().notNull(),
-  pageDurationMs: integer(),
+  durationSeconds: integer(),
   urlHostname: text().notNull(),
   urlPath: text().notNull(),
   urlQueryString: text(),

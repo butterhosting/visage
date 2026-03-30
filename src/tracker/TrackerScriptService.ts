@@ -9,8 +9,7 @@ export class TrackerScriptService {
   public async getMinifiedScript(): Promise<string> {
     if (!this.cachedScript || this.env.O_VISAGE_STAGE !== "production") {
       this.cachedScript = this.replaceVariables(await readFile(this.env.X_VISAGE_TRACKER_SCRIPT, "utf-8"), {
-        INGESTION_ENDPOINT: `${this.env.X_VISAGE_HOSTNAME}/i`,
-        SKIP_LOCALHOST_COLLECTION: (this.env.O_VISAGE_STAGE !== "production" ? "true" : "false") satisfies "true" | "false",
+        SKIP_LOCALHOST_COLLECTION: (this.env.O_VISAGE_STAGE === "production" ? "true" : "false") satisfies "true" | "false",
       });
     }
     return this.cachedScript;
