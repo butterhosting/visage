@@ -2,8 +2,8 @@ export const Route = {
   websites(id?: string) {
     return id ? `websites/${id}` : "websites";
   },
-  script() {
-    return "script";
+  api() {
+    return "api";
   },
   data() {
     return "data";

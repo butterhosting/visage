@@ -5,7 +5,7 @@ import { DialogClient } from "./clients/DialogClient";
 import { SocketClient } from "./clients/SocketClient";
 import { DialogManager } from "./comps/DialogManager";
 import { dataPage } from "./pages/data.page";
-import { scriptPage } from "./pages/script.page";
+import { apiPage } from "./pages/api.page";
 import { websites$idPage } from "./pages/websites.$id.page";
 import { websitesPage } from "./pages/websites.page";
 import { Route } from "./Route";
@@ -20,8 +20,8 @@ const router = createBrowserRouter([
     Component: websites$idPage,
   },
   {
-    path: Route.script(),
-    Component: scriptPage,
+    path: Route.api(),
+    Component: apiPage,
   },
   {
     path: Route.data(),

@@ -23,7 +23,7 @@ export namespace Skeleton {
 
     const navigationLinks = [
       { title: "Websites", link: `/${Route.websites()}`, rounding: "left" },
-      { title: "Script", link: `/${Route.script()}`, rounding: undefined },
+      { title: "API", link: `/${Route.api()}`, rounding: undefined },
       { title: "Data", link: `/${Route.data()}`, rounding: "right" },
     ] as const;
 
@@ -34,11 +34,11 @@ export namespace Skeleton {
             <Link
               key={title}
               to={link}
-              className={clsx("p-6 hover:bg-c-dim/30", {
+              className={clsx("p-6 hover:bg-c-primary/15", {
                 "rounded-l-2xl": rounding === "left",
                 "rounded-r-2xl": rounding === "right",
-                "bg-c-dim/20": pathname.startsWith(link),
-                "ml-auto": title === "Data",
+                "bg-c-primary/10": pathname.startsWith(link),
+                "ml-auto": title === "API",
               })}
             >
               <span className="relative text-lg">{title}</span>

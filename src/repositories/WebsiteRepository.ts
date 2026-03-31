@@ -1,8 +1,9 @@
-import { Sqlite } from "@/drizzle/sqlite";
-import { Website } from "@/models/Website";
-import { WebsiteConverter } from "./converters/WebsiteConverter";
-import { eq } from "drizzle-orm";
 import { $website } from "@/drizzle/schema";
+import { Sqlite } from "@/drizzle/sqlite";
+import { WebsiteError } from "@/errors/WebsiteError";
+import { Website } from "@/models/Website";
+import { eq } from "drizzle-orm";
+import { WebsiteConverter } from "./converters/WebsiteConverter";
 
 export class WebsiteRepository {
   public constructor(private readonly sqlite: Sqlite) {}
@@ -16,9 +17,9 @@ export class WebsiteRepository {
     const website = await this.sqlite.query.$website.findFirst({
       where: eq($website.hostname, hostname),
     });
-    if (website) {
-      return WebsiteConverter.convert(website);
+    if (!website) {
+      throw WebsiteError.not_found({ hostname });
     }
-    throw new Error("website not found ..."); // TODO replace every `throw new Error` by our enum type
+    return WebsiteConverter.convert(website);
   }
 }

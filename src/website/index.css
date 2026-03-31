@@ -78,7 +78,9 @@
     /* Fonts */
     --font-f-everywhere: "Inter", sans-serif;
     /* Colors */
-    --color-c-primary: #d4d4d4;
+    --color-c-light: #fdfbff;
+    --color-c-primary: #4647d2;
+
     --color-c-success: #b8ffba;
     --color-c-warning: #efb41b;
     --color-c-error: #ff6464;
@@ -127,14 +129,7 @@
     body {
         font-optical-sizing: auto;
         @apply relative min-w-[320px] min-h-screen font-f-everywhere text-c-primary;
-        background-image: url("./images/background/grid.svg"), radial-gradient(ellipse at 30% 0%, rgb(210 230 255 / 0.7) 0%, white 80%);
-        background-position:
-            center top,
-            top;
-        background-size:
-            30px,
-            100% 1000px;
-        background-repeat: repeat, no-repeat;
+        background-image: radial-gradient(ellipse at 30% 0%, #faf4ff 0%, #faf4ff 80%);
     }
     #root {
         @apply u-root-grid;

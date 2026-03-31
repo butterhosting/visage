@@ -95,6 +95,10 @@ export class Server {
             const websites: Website[] = await this.websiteService.query();
             return Response.json(websites);
           }),
+          POST: this.handleRoute(async (request) => {
+            const website: Website = await this.websiteService.create(await request.json());
+            return Response.json(website);
+          }),
         },
 
         /**
