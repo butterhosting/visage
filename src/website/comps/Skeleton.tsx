@@ -22,9 +22,9 @@ export namespace Skeleton {
     const { pathname } = useLocation();
 
     const navigationLinks = [
-      { title: "Websites", link: `/${Route.websites()}`, rounding: "left" },
-      { title: "API", link: `/${Route.api()}`, rounding: undefined },
-      { title: "Data", link: `/${Route.data()}`, rounding: "right" },
+      { title: "Websites", link: Route.websites(), rounding: "left" },
+      { title: "API", link: Route.api(), rounding: undefined },
+      { title: "Data", link: Route.data(), rounding: "right" },
     ] as const;
 
     return (
