@@ -1,5 +1,3 @@
-import grid from "./background/grid.svg";
-
 import close from "./icons/close.svg";
 import error from "./icons/error.svg";
 import newSvg from "./icons/new.svg";
@@ -9,10 +7,6 @@ import trashcan from "./icons/trashcan.svg";
 import warning from "./icons/warning.svg";
 
 export namespace Images {
-  export const Background = {
-    grid,
-  } as const;
-
   export const Icon = {
     close,
     error,

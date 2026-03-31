@@ -39,7 +39,7 @@ export function websitesPage() {
     <Skeleton className="grid grid-cols-3 gap-5">
       {websites.map((website) => (
         <Link to={Route.websites(website.id)}>
-          <WebsiteCard />
+          <WebsiteCard website={website} />
         </Link>
       ))}
     </Skeleton>

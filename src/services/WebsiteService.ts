@@ -13,6 +13,7 @@ export class WebsiteService {
 
   public async create(unknown: z.output<typeof WebsiteService.Upsert>): Promise<Website> {
     const { hostname } = WebsiteService.Upsert.parse(unknown);
+    throw new Error("not implemented");
   }
 }
 
