@@ -34,12 +34,9 @@ const MOCK_DATA = [
 ];
 
 const STATS = [
-  { label: "UNIQUE VISITORS", value: "282k", change: 4, positive: true, active: true },
-  { label: "TOTAL VISITS", value: "476k", change: 5, positive: true },
-  { label: "TOTAL PAGEVIEWS", value: "1.9M", change: 10, positive: true },
-  { label: "VIEWS PER VISIT", value: "4.02", change: 4, positive: true },
-  { label: "BOUNCE RATE", value: "42%", change: 0 },
-  { label: "VISIT DURATION", value: "7m 44s", change: 1, positive: false },
+  { label: "VISITS", value: "476k", change: 5, positive: true, active: true },
+  { label: "PAGEVIEWS", value: "1.9M", change: 10, positive: true, active: true },
+  { label: "DURATION", value: "7m 44s", change: 1, positive: false, active: true },
 ];
 
 function formatValue(value: number) {
@@ -51,13 +48,8 @@ function CustomTooltip({ active, payload, label }: { active?: boolean; payload?:
   if (!active || !payload?.length) return null;
   return (
     <div className="bg-c-dark text-white rounded-xl px-5 py-4 shadow-xl">
-      <div className="text-xs font-bold tracking-wide mb-2 text-white/70">VISITORS</div>
-      <div className="flex items-center gap-3">
-        <div className="size-2.5 rounded-full bg-c-primary" />
-        <span className="text-sm text-white/80">{label}</span>
-        <span className="text-lg font-bold ml-auto">{formatValue(payload[0].value)}</span>
-      </div>
-      <div className="border-t border-white/20 mt-3 pt-2 text-xs text-white/50">Click to view day</div>
+      <div className="text-xs font-bold tracking-wide mb-2 text-white/70">{label}</div>
+      <div className="flex items-center gap-3">{formatValue(payload[0].value)} visitors</div>
     </div>
   );
 }
@@ -73,9 +65,7 @@ export function websites$idPage() {
             key={stat.label}
             className={`px-5 py-5 text-left cursor-pointer hover:bg-c-primary/5 transition-colors ${stat.active ? "border-b-2 border-c-primary" : ""}`}
           >
-            <div className={`text-xs font-bold tracking-wide mb-1 ${stat.active ? "text-c-primary" : "text-c-dark/50"}`}>
-              {stat.label}
-            </div>
+            <div className={`text-xs font-bold tracking-wide mb-1 ${stat.active ? "text-c-primary" : "text-c-dark/50"}`}>{stat.label}</div>
             <div className="flex items-baseline gap-2">
               <span className="text-3xl font-extrabold text-c-dark">{stat.value}</span>
               {stat.change !== 0 && (
@@ -100,13 +90,7 @@ export function websites$idPage() {
               </linearGradient>
             </defs>
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e5e5" />
-            <XAxis
-              dataKey="date"
-              axisLine={false}
-              tickLine={false}
-              tick={{ fontSize: 13, fontWeight: 600, fill: "#2d2c32" }}
-              dy={12}
-            />
+            <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fontSize: 13, fontWeight: 600, fill: "#2d2c32" }} dy={12} />
             <YAxis
               axisLine={false}
               tickLine={false}
@@ -114,10 +98,7 @@ export function websites$idPage() {
               tickFormatter={(v: number) => (v >= 1000 ? `${v / 1000}k` : `${v}`)}
               dx={-4}
             />
-            <Tooltip
-              content={<CustomTooltip />}
-              cursor={{ stroke: "#4647d2", strokeWidth: 1, strokeDasharray: "4 4" }}
-            />
+            <Tooltip content={<CustomTooltip />} cursor={{ stroke: "#4647d2", strokeWidth: 1, strokeDasharray: "4 4" }} />
             <Area
               type="linear"
               dataKey="visitors"

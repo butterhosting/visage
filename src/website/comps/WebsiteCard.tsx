@@ -42,7 +42,7 @@ export function WebsiteCard({ website }: Props) {
       <div className="px-5 pt-5 pb-3">
         <div className="text-sm font-semibold text-c-dark tracking-wide">{website.hostname}</div>
       </div>
-      <div className="h-30 pointer-events-none">
+      <div className="h-30">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={MOCK_DATA} margin={{ top: 5, right: 0, left: 0, bottom: 0 }}>
             <defs>

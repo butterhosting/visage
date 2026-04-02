@@ -1,35 +1,34 @@
 import { Website } from "@/models/Website";
-import { Paper } from "../comps/Paper";
+import { Temporal } from "@js-temporal/polyfill";
+import { Link } from "react-router";
 import { Skeleton } from "../comps/Skeleton";
 import { WebsiteCard } from "../comps/WebsiteCard";
 import { useDocumentTitle } from "../hooks/useDocumentTitle";
-import { Temporal } from "@js-temporal/polyfill";
-import { Link } from "react-router";
 import { Route } from "../Route";
 
 export function websitesPage() {
   useDocumentTitle("Websites | Visage");
   const websites: Website[] = [
     {
-      id: crypto.randomUUID(),
+      id: "bd668786-55bf-45af-9d44-116142aea97f",
       object: "website",
       created: Temporal.Now.instant(),
       hostname: "www.example.com",
     },
     {
-      id: crypto.randomUUID(),
+      id: "ef33e6d6-c3de-43be-9a72-8aea26ddf13f",
       object: "website",
       created: Temporal.Now.instant(),
       hostname: "www.google.com",
     },
     {
-      id: crypto.randomUUID(),
+      id: "5c265941-a612-4db0-9e59-592ba5fec4c0",
       object: "website",
       created: Temporal.Now.instant(),
       hostname: "www.netflix.com",
     },
     {
-      id: crypto.randomUUID(),
+      id: "b4b7a250-4b6e-4462-ba80-a0c665920ea0",
       object: "website",
       created: Temporal.Now.instant(),
       hostname: "www.youtube.com",

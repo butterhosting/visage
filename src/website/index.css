@@ -126,6 +126,10 @@
         font-size: 14px; /* 80% of default 16px */
     }
 
+    .recharts-wrapper * {
+        outline: none !important;
+    }
+
     body {
         font-optical-sizing: auto;
         @apply relative min-w-[320px] min-h-screen font-f-everywhere text-c-primary;
