@@ -16,7 +16,7 @@ export type AnalyticsEvent = {
     path: string;
     queryString?: string;
   };
-  isVisitor: boolean;
+  classification: "visitor" | "pageview";
   userAgent: string;
   utm: {
     source?: string;

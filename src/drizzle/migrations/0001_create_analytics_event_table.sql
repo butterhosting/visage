@@ -9,7 +9,7 @@ create table analytics_event (
     referrer_hostname text,
     referrer_path text,
     referrer_query_string text,
-    is_visitor integer not null,
+    classification text not null,
     user_agent text not null,
     utm_source text,
     utm_medium text,

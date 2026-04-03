@@ -1,12 +1,13 @@
+import { WebsiteError } from "@/errors/WebsiteError";
 import { Logger } from "@/Logger";
 import { AnalyticsEvent } from "@/models/AnalyticsEvent";
 import { BrowserTrackingEvent } from "@/models/BrowserTrackingEvent";
 import { AnalyticsEventRepository } from "@/repositories/AnalyticsEventRepository";
+import { WebsiteRepository } from "@/repositories/WebsiteRepository";
 import { Temporal } from "@js-temporal/polyfill";
 import Bowser from "bowser";
 import { BotDetectionService } from "./BotDetectionService";
 import { MaxMindGeoService } from "./MaxMindGeoService";
-import { WebsiteRepository } from "@/repositories/WebsiteRepository";
 
 export class IngestionService {
   private readonly log = new Logger(__filename);
@@ -34,10 +35,18 @@ export class IngestionService {
 
   private async ingestStart(ipAddress: string, payload: BrowserTrackingEvent.Start): Promise<void> {
     const url = new URL(payload.u);
-    const website = await this.websiteRepository.findByHostname(url.hostname);
+    const website = await this.websiteRepository.find(url.hostname, () =>
+      WebsiteError.not_found({
+        ref: url.hostname,
+      }),
+    );
 
     const referrerUrl = payload.r ? new URL(payload.r) : undefined;
-    const spaCount = payload.sc;
+    let classification: AnalyticsEvent["classification"] = "pageview";
+    if ((!referrerUrl || referrerUrl.hostname !== url.hostname) && payload.sc === 0) {
+      classification = "visitor";
+    }
+
     const analyticsEvent: AnalyticsEvent = {
       id: payload.i,
       object: "analytics_event",
@@ -55,7 +64,7 @@ export class IngestionService {
             queryString: referrerUrl.search.slice(1) || undefined,
           }
         : undefined,
-      isVisitor: (!referrerUrl || referrerUrl.hostname !== url.hostname) && spaCount === 0,
+      classification,
       userAgent: payload.ua,
       utm: {
         source: url.searchParams.get("utm_source") ?? url.searchParams.get("source") ?? url.searchParams.get("ref") ?? undefined,

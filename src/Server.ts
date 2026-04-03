@@ -11,6 +11,7 @@ import { Middleware } from "./middleware/Middleware";
 import { Website } from "./models/Website";
 import { IngestionService } from "./services/IngestionService";
 import { RestrictedService } from "./services/RestrictedService";
+import { StatsService } from "./services/StatsService";
 import { TrackerService } from "./services/TrackerService";
 import { WebsiteService } from "./services/WebsiteService";
 import { Socket } from "./socket/Socket";
@@ -24,6 +25,7 @@ export class Server {
     private readonly restrictedService: RestrictedService,
     private readonly trackerService: TrackerService,
     private readonly ingestionService: IngestionService,
+    private readonly statsService: StatsService,
     private readonly middleware: Middleware,
   ) {}
 
@@ -98,6 +100,16 @@ export class Server {
           POST: this.handleRoute(async (request) => {
             const website: Website = await this.websiteService.create(await request.json());
             return Response.json(website);
+          }),
+        },
+
+        /**
+         * Stats
+         */
+        "/internal-api/stats": {
+          GET: this.handleRoute(async (request) => {
+            const stats = await this.statsService.query(this.searchParams(request));
+            return Response.json(stats);
           }),
         },
 
@@ -179,6 +191,11 @@ export class Server {
         "",
       ].join("\n"),
     );
+  }
+
+  private searchParams(request: Bun.BunRequest): Record<string, string> {
+    const url = new URL(request.url);
+    return Object.fromEntries(url.searchParams);
   }
 
   private searchParam<T extends `${string}!`>(request: Bun.BunRequest, name: T): string;
