@@ -1,5 +1,4 @@
 import { Prettify } from "@/helpers/Prettify";
-import { DistributionPoint } from "@/models/DistributionPoint";
 import { Stats } from "@/models/Stats";
 import { StatsQuery } from "@/models/StatsQuery";
 import { TimeSeries } from "@/models/TimeSeries";
@@ -7,7 +6,7 @@ import { useState } from "react";
 import { useParams } from "react-router";
 import { StatsClient } from "../clients/StatsClient";
 import { WebsiteClient } from "../clients/WebsiteClient";
-import { DistributionTable } from "../comps/DistributionTable";
+import { DistributionPanel } from "../comps/DistributionPanel";
 import { Paper } from "../comps/Paper";
 import { Skeleton } from "../comps/Skeleton";
 import { TimeSeriesChart } from "../comps/TimeSeriesChart";
@@ -50,7 +49,9 @@ export function websites$idPage() {
             Stats.Field.pageDistribution,
             Stats.Field.screenDistribution,
             Stats.Field.browserDistribution,
+            Stats.Field.osDistribution,
             Stats.Field.countryDistribution,
+            Stats.Field.cityDistribution,
           ],
           ...filters,
         }),
@@ -74,19 +75,26 @@ export function websites$idPage() {
   const activeFilterCount = Object.keys(filters).length;
 
   const statCards: { key: ActiveStat; label: string; value?: number; format?: (n: number) => string }[] = [
-    { key: "visitors", label: "VISITORS", value: stats?.visitorsTotal },
-    { key: "pageviews", label: "PAGEVIEWS", value: stats?.pageviewsTotal },
-    { key: "duration", label: "VISIT DURATION", value: stats?.durationMedian, format: Prettify.duration },
+    { key: "visitors", label: "TOTAL VISITORS", value: stats?.visitorsTotal },
+    { key: "pageviews", label: "TOTAL PAGEVIEWS", value: stats?.pageviewsTotal },
+    { key: "duration", label: "MEDIAN PAGE TIME", value: stats?.durationMedian, format: Prettify.duration },
   ];
 
   const activeTimeSeries = stats?.[STAT_TO_TIME_SERIES[activeStat] as keyof Stats] as TimeSeries | undefined;
 
-  const distributions: { title: string; field: keyof Stats; filterKey: StatsQuery.StringFilter }[] = [
-    { title: "PAGES", field: Stats.Field.pageDistribution, filterKey: StatsQuery.Filter.page },
-    { title: "SOURCES", field: Stats.Field.sourceDistribution, filterKey: StatsQuery.Filter.source },
-    { title: "BROWSERS", field: Stats.Field.browserDistribution, filterKey: StatsQuery.Filter.browser },
-    { title: "SCREENS", field: Stats.Field.screenDistribution, filterKey: StatsQuery.Filter.screen },
-    { title: "COUNTRIES", field: Stats.Field.countryDistribution, filterKey: StatsQuery.Filter.country },
+  type Tab = { title: string; field: keyof Stats; filterKey: StatsQuery.StringFilter };
+  const panels: Tab[][] = [
+    [{ title: "PAGES", field: Stats.Field.pageDistribution, filterKey: StatsQuery.Filter.page }],
+    [{ title: "SOURCES", field: Stats.Field.sourceDistribution, filterKey: StatsQuery.Filter.source }],
+    [
+      { title: "COUNTRIES", field: Stats.Field.countryDistribution, filterKey: StatsQuery.Filter.country },
+      { title: "CITIES", field: Stats.Field.cityDistribution, filterKey: StatsQuery.Filter.city },
+    ],
+    [
+      { title: "SCREENS", field: Stats.Field.screenDistribution, filterKey: StatsQuery.Filter.screen },
+      { title: "BROWSERS", field: Stats.Field.browserDistribution, filterKey: StatsQuery.Filter.browser },
+      { title: "OS", field: Stats.Field.osDistribution, filterKey: StatsQuery.Filter.os },
+    ],
   ];
 
   return (
@@ -136,17 +144,10 @@ export function websites$idPage() {
         </div>
       </Paper>
 
-      {/* Distribution tables */}
+      {/* Distribution panels */}
       <div className="col-span-full grid grid-cols-2 gap-5">
-        {distributions.map((dist) => (
-          <DistributionTable
-            key={dist.title}
-            title={dist.title}
-            data={stats?.[dist.field] as DistributionPoint[] | undefined}
-            filterKey={dist.filterKey}
-            activeValue={filters[dist.filterKey]}
-            onFilter={toggleFilter}
-          />
+        {panels.map((tabs, i) => (
+          <DistributionPanel key={i} tabs={tabs} stats={stats} filters={filters} onFilter={toggleFilter} />
         ))}
       </div>
     </Skeleton>

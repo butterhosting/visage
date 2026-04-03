@@ -13,10 +13,10 @@ export type Stats = Partial<{
   [Stats.Field.pageDistribution]: DistributionPoint[];
   [Stats.Field.sourceDistribution]: DistributionPoint[];
   [Stats.Field.screenDistribution]: DistributionPoint[];
-  [Stats.Field.browserDistribution]: DistributionPoint[];
-  [Stats.Field.osDistribution]: DistributionPoint[];
   [Stats.Field.countryDistribution]: DistributionPoint[];
   [Stats.Field.cityDistribution]: DistributionPoint[];
+  [Stats.Field.browserDistribution]: DistributionPoint[];
+  [Stats.Field.osDistribution]: DistributionPoint[];
 }>;
 
 export namespace Stats {
@@ -30,10 +30,10 @@ export namespace Stats {
     pageDistribution = "pageDistribution",
     sourceDistribution = "sourceDistribution",
     screenDistribution = "screenDistribution",
-    browserDistribution = "browserDistribution",
-    osDistribution = "osDistribution",
     countryDistribution = "countryDistribution",
     cityDistribution = "cityDistribution",
+    browserDistribution = "browserDistribution",
+    osDistribution = "osDistribution",
   }
 
   export const parse = ZodParser.forType<Stats>()
