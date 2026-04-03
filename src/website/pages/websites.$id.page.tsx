@@ -1,6 +1,8 @@
 import { DistributionPoint } from "@/models/DistributionPoint";
 import { Stats } from "@/models/Stats";
+import { StatsQuery } from "@/models/StatsQuery";
 import { TimeSeries } from "@/models/TimeSeries";
+import { Temporal } from "@js-temporal/polyfill";
 import { useState } from "react";
 import { useParams } from "react-router";
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
@@ -37,8 +39,8 @@ function yUnitLabel(yUnit: TimeSeries["yUnit"]): string {
   return "";
 }
 
-function formatTimestamp(iso: string, tUnit: TimeSeries["tUnit"]): string {
-  const d = new Date(iso);
+function formatTimestamp(t: Temporal.Instant, tUnit: TimeSeries["tUnit"]): string {
+  const d = new Date(t.epochMilliseconds);
   if (tUnit === "month") return d.toLocaleDateString("en", { month: "short", year: "2-digit" });
   if (tUnit === "day") return d.toLocaleDateString("en", { day: "numeric", month: "short" });
   return d.toLocaleTimeString("en", { hour: "2-digit", minute: "2-digit" });
@@ -76,7 +78,7 @@ function TimeSeriesChart({ timeSeries }: { timeSeries?: TimeSeries }) {
   }
   const { tUnit, yUnit } = timeSeries;
   const chartData = timeSeries.data.map((d) => ({
-    date: formatTimestamp(d.t as unknown as string, tUnit),
+    date: formatTimestamp(d.t, tUnit),
     y: d.y,
   }));
 
@@ -114,22 +116,42 @@ function TimeSeriesChart({ timeSeries }: { timeSeries?: TimeSeries }) {
   );
 }
 
-function DistributionTable({ title, data }: { title: string; data?: DistributionPoint[] }) {
+type DistributionTableProps = {
+  title: string;
+  data?: DistributionPoint[];
+  filterKey: StringFilter;
+  activeValue?: string;
+  onFilter: (key: StringFilter, value: string) => void;
+};
+
+function DistributionTable({ title, data, filterKey, activeValue, onFilter }: DistributionTableProps) {
   if (!data || data.length === 0) return null;
   const max = data[0].value;
   return (
     <Paper className="p-5">
       <h3 className="text-sm font-bold text-c-dark/50 tracking-wide mb-4">{title}</h3>
       <div className="flex flex-col gap-2">
-        {data.slice(0, 10).map((point) => (
-          <div key={point.label} className="flex items-center gap-3">
-            <div className="relative flex-1 h-7 rounded overflow-hidden bg-c-primary/5">
-              <div className="absolute inset-y-0 left-0 bg-c-primary/10 rounded" style={{ width: `${(point.value / max) * 100}%` }} />
-              <span className="relative px-2 text-sm leading-7 text-c-dark truncate">{point.label}</span>
-            </div>
-            <span className="text-sm font-semibold text-c-dark tabular-nums w-14 text-right">{formatNumber(point.value)}</span>
-          </div>
-        ))}
+        {data.slice(0, 10).map((point) => {
+          const isActive = activeValue === point.label;
+          return (
+            <button
+              key={point.label}
+              onClick={() => onFilter(filterKey, point.label)}
+              className="flex items-center gap-3 cursor-pointer text-left"
+            >
+              <div className={`relative flex-1 h-7 rounded overflow-hidden ${isActive ? "bg-c-primary/15" : "bg-c-primary/5"}`}>
+                <div
+                  className={`absolute inset-y-0 left-0 rounded ${isActive ? "bg-c-primary/25" : "bg-c-primary/10"}`}
+                  style={{ width: `${(point.value / max) * 100}%` }}
+                />
+                <span className={`relative px-2 text-sm leading-7 truncate ${isActive ? "font-semibold text-c-primary" : "text-c-dark"}`}>
+                  {point.label}
+                </span>
+              </div>
+              <span className="text-sm font-semibold text-c-dark tabular-nums w-14 text-right">{formatNumber(point.value)}</span>
+            </button>
+          );
+        })}
       </div>
     </Paper>
   );
@@ -143,11 +165,15 @@ const STAT_TO_TIME_SERIES: Record<ActiveStat, Stats.Field> = {
   duration: Stats.Field.durationTimeSeries,
 };
 
+type StringFilter = Exclude<StatsQuery.Filter, StatsQuery.Filter.from | StatsQuery.Filter.to>;
+type Filters = Partial<Record<StringFilter, string>>;
+
 export function websites$idPage() {
   const { id } = useParams();
   const websiteClient = useRegistry(WebsiteClient);
   const statsClient = useRegistry(StatsClient);
   const [activeStat, setActiveStat] = useState<ActiveStat>("visitors");
+  const [filters, setFilters] = useState<Filters>({});
 
   const { data: websites } = useYesQuery({ queryFn: () => websiteClient.query() });
   const website = websites?.find((w) => w.id === id);
@@ -164,18 +190,32 @@ export function websites$idPage() {
                 Stats.Field.durationMedian,
                 STAT_TO_TIME_SERIES[activeStat],
                 Stats.Field.sourceDistribution,
-                Stats.Field.pathDistribution,
+                Stats.Field.pageDistribution,
                 Stats.Field.screenDistribution,
                 Stats.Field.browserDistribution,
                 Stats.Field.countryDistribution,
               ],
+              ...filters,
             })
           : undefined,
     },
-    [website?.id, activeStat],
+    [website?.id, activeStat, JSON.stringify(filters)],
   );
 
   useDocumentTitle(website ? `${website.hostname} | Visage` : "Visage");
+
+  function toggleFilter(key: StringFilter, value: string) {
+    setFilters((prev) => {
+      if (prev[key] === value) {
+        const next = { ...prev };
+        delete next[key];
+        return next;
+      }
+      return { ...prev, [key]: value };
+    });
+  }
+
+  const activeFilterCount = Object.keys(filters).length;
 
   const statCards: { key: ActiveStat; label: string; value?: number; format?: (n: number) => string }[] = [
     { key: "visitors", label: "VISITORS", value: stats?.visitorsTotal },
@@ -185,8 +225,38 @@ export function websites$idPage() {
 
   const activeTimeSeries = stats?.[STAT_TO_TIME_SERIES[activeStat] as keyof Stats] as TimeSeries | undefined;
 
+  const distributions: { title: string; field: keyof Stats; filterKey: StringFilter }[] = [
+    { title: "PAGES", field: Stats.Field.pageDistribution, filterKey: StatsQuery.Filter.page },
+    { title: "SOURCES", field: Stats.Field.sourceDistribution, filterKey: StatsQuery.Filter.source },
+    { title: "BROWSERS", field: Stats.Field.browserDistribution, filterKey: StatsQuery.Filter.browser },
+    { title: "SCREENS", field: Stats.Field.screenDistribution, filterKey: StatsQuery.Filter.screen },
+    { title: "COUNTRIES", field: Stats.Field.countryDistribution, filterKey: StatsQuery.Filter.country },
+  ];
+
   return (
     <Skeleton className="grid grid-cols-1 gap-5">
+      {/* Active filters bar */}
+      {activeFilterCount > 0 && (
+        <div className="col-span-full flex items-center gap-2 flex-wrap">
+          {Object.entries(filters).map(([key, value]) => (
+            <button
+              key={key}
+              onClick={() => toggleFilter(key as StringFilter, value!)}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-c-primary/10 text-c-primary text-sm font-semibold cursor-pointer hover:bg-c-primary/20 transition-colors"
+            >
+              <span className="text-c-dark/50">{key}:</span> {value}
+              <span className="ml-1 text-c-primary/50">&times;</span>
+            </button>
+          ))}
+          <button
+            onClick={() => setFilters({})}
+            className="px-3 py-1.5 rounded-lg text-sm font-semibold text-c-dark/50 hover:text-c-dark cursor-pointer transition-colors"
+          >
+            Clear all
+          </button>
+        </div>
+      )}
+
       {/* Stats + Chart */}
       <Paper className="col-span-full">
         <div className="flex divide-x divide-black/10">
@@ -212,11 +282,16 @@ export function websites$idPage() {
 
       {/* Distribution tables */}
       <div className="col-span-full grid grid-cols-2 gap-5">
-        <DistributionTable title="PAGES" data={stats?.pathDistribution} />
-        <DistributionTable title="SOURCES" data={stats?.sourceDistribution} />
-        <DistributionTable title="BROWSERS" data={stats?.browserDistribution} />
-        <DistributionTable title="SCREENS" data={stats?.screenDistribution} />
-        <DistributionTable title="COUNTRIES" data={stats?.countryDistribution} />
+        {distributions.map((dist) => (
+          <DistributionTable
+            key={dist.title}
+            title={dist.title}
+            data={stats?.[dist.field] as DistributionPoint[] | undefined}
+            filterKey={dist.filterKey}
+            activeValue={filters[dist.filterKey]}
+            onFilter={toggleFilter}
+          />
+        ))}
       </div>
     </Skeleton>
   );

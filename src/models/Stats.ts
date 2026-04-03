@@ -1,5 +1,7 @@
+import { ZodParser } from "@/helpers/ZodParser";
 import { DistributionPoint } from "./DistributionPoint";
 import { TimeSeries } from "./TimeSeries";
+import z from "zod/v4";
 
 export type Stats = Partial<{
   [Stats.Field.visitorsTotal]: number;
@@ -8,7 +10,7 @@ export type Stats = Partial<{
   [Stats.Field.visitorsTimeSeries]: TimeSeries;
   [Stats.Field.pageviewsTimeSeries]: TimeSeries;
   [Stats.Field.durationTimeSeries]: TimeSeries;
-  [Stats.Field.pathDistribution]: DistributionPoint[];
+  [Stats.Field.pageDistribution]: DistributionPoint[];
   [Stats.Field.sourceDistribution]: DistributionPoint[];
   [Stats.Field.screenDistribution]: DistributionPoint[];
   [Stats.Field.browserDistribution]: DistributionPoint[];
@@ -25,7 +27,7 @@ export namespace Stats {
     visitorsTimeSeries = "visitorsTimeSeries",
     pageviewsTimeSeries = "pageviewsTimeSeries",
     durationTimeSeries = "durationTimeSeries",
-    pathDistribution = "pathDistribution",
+    pageDistribution = "pageDistribution",
     sourceDistribution = "sourceDistribution",
     screenDistribution = "screenDistribution",
     browserDistribution = "browserDistribution",
@@ -33,4 +35,24 @@ export namespace Stats {
     countryDistribution = "countryDistribution",
     cityDistribution = "cityDistribution",
   }
+
+  export const parse = ZodParser.forType<Stats>()
+    .ensureSchemaMatchesType(() =>
+      z.object({
+        [Field.visitorsTotal]: z.number().optional(),
+        [Field.pageviewsTotal]: z.number().optional(),
+        [Field.durationMedian]: z.number().optional(),
+        [Field.visitorsTimeSeries]: TimeSeries.parse.SCHEMA.optional(),
+        [Field.pageviewsTimeSeries]: TimeSeries.parse.SCHEMA.optional(),
+        [Field.durationTimeSeries]: TimeSeries.parse.SCHEMA.optional(),
+        [Field.pageDistribution]: z.array(DistributionPoint.parse.SCHEMA).optional(),
+        [Field.sourceDistribution]: z.array(DistributionPoint.parse.SCHEMA).optional(),
+        [Field.screenDistribution]: z.array(DistributionPoint.parse.SCHEMA).optional(),
+        [Field.browserDistribution]: z.array(DistributionPoint.parse.SCHEMA).optional(),
+        [Field.osDistribution]: z.array(DistributionPoint.parse.SCHEMA).optional(),
+        [Field.countryDistribution]: z.array(DistributionPoint.parse.SCHEMA).optional(),
+        [Field.cityDistribution]: z.array(DistributionPoint.parse.SCHEMA).optional(),
+      }),
+    )
+    .ensureTypeMatchesSchema();
 }

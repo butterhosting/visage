@@ -15,6 +15,7 @@ import { StatsService } from "./services/StatsService";
 import { TrackerService } from "./services/TrackerService";
 import { WebsiteService } from "./services/WebsiteService";
 import { Socket } from "./socket/Socket";
+import { WebsiteRM } from "./models/WebsiteRM";
 
 export class Server {
   private readonly log = new Logger(__filename);
@@ -94,7 +95,7 @@ export class Server {
          */
         "/internal-api/websites": {
           GET: this.handleRoute(async () => {
-            const websites: Website[] = await this.websiteService.query();
+            const websites: WebsiteRM[] = await this.websiteService.query();
             return Response.json(websites);
           }),
           POST: this.handleRoute(async (request) => {
@@ -108,7 +109,7 @@ export class Server {
          */
         "/internal-api/stats": {
           GET: this.handleRoute(async (request) => {
-            const stats = await this.statsService.query(this.searchParams(request));
+            const stats = await this.statsService.query(this.searchParams(request), "unknown");
             return Response.json(stats);
           }),
         },
@@ -159,7 +160,7 @@ export class Server {
         },
         "/api/stats": {
           GET: this.handleRoute(async (request) => {
-            const stats = await this.statsService.query(this.searchParams(request));
+            const stats = await this.statsService.query(this.searchParams(request), "unknown");
             return Response.json(stats);
           }),
         },

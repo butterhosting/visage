@@ -1,11 +1,11 @@
-import { Website } from "@/models/Website";
+import { WebsiteRM } from "@/models/WebsiteRM";
 import { Yesttp } from "yesttp";
 
 export class WebsiteClient {
   public constructor(private readonly yesttp: Yesttp) {}
 
-  public async query(): Promise<Website[]> {
-    const { body } = await this.yesttp.get<Website[]>("/websites");
-    return body;
+  public async query(): Promise<WebsiteRM[]> {
+    const { body } = await this.yesttp.get<unknown[]>("/websites");
+    return body.map(WebsiteRM.parse);
   }
 }

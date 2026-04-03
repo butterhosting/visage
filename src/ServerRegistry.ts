@@ -33,10 +33,10 @@ export class ServerRegistry {
     // Services
     const { maxMindGeoService } = this.register({ MaxMindGeoService }, [env]);
     const { botDetectionService } = this.register({ BotDetectionService }, []);
-    const { websiteService } = this.register({ WebsiteService }, [websiteRepository]);
     const { restrictedService } = this.register({ RestrictedService }, []);
     const { trackerService } = this.register({ TrackerService }, [env]);
     const { statsService } = this.register({ StatsService }, [sqlite, websiteRepository]);
+    const { websiteService } = this.register({ WebsiteService }, [websiteRepository, statsService]);
     const { ingestionService } = this.register({ IngestionService }, [
       maxMindGeoService,
       botDetectionService,

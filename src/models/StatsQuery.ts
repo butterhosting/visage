@@ -6,18 +6,29 @@ import { Stats } from "./Stats";
 export type StatsQuery = {
   website: string;
   fields: Stats.Field[];
-  from?: Temporal.Instant;
-  to?: Temporal.Instant;
-  path?: string;
-  source?: string;
-  screen?: string;
-  browser?: string;
-  os?: string;
-  country?: string;
-  city?: string;
+  [StatsQuery.Filter.from]?: Temporal.Instant;
+  [StatsQuery.Filter.to]?: Temporal.Instant;
+  [StatsQuery.Filter.page]?: string;
+  [StatsQuery.Filter.source]?: string;
+  [StatsQuery.Filter.screen]?: string;
+  [StatsQuery.Filter.browser]?: string;
+  [StatsQuery.Filter.os]?: string;
+  [StatsQuery.Filter.country]?: string;
+  [StatsQuery.Filter.city]?: string;
 };
 
 export namespace StatsQuery {
+  export enum Filter {
+    from = "from",
+    to = "to",
+    page = "page",
+    source = "source",
+    screen = "screen",
+    browser = "browser",
+    os = "os",
+    country = "country",
+    city = "city",
+  }
   export const parse = ZodParser.forType<StatsQuery>()
     .ensureSchemaMatchesType(() =>
       z.object({
@@ -28,13 +39,13 @@ export namespace StatsQuery {
           .refine((fields) => fields.every((f) => Object.values(Stats.Field).includes(f))),
         from: z
           .string()
-          .transform((s) => Temporal.Instant.from(s))
+          .transform((t) => Temporal.Instant.from(t))
           .optional(),
         to: z
           .string()
-          .transform((s) => Temporal.Instant.from(s))
+          .transform((t) => Temporal.Instant.from(t))
           .optional(),
-        path: z.string().optional(),
+        page: z.string().optional(),
         source: z.string().optional(),
         screen: z.string().optional(),
         browser: z.string().optional(),

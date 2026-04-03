@@ -1,13 +1,9 @@
-import { Stats } from "@/models/Stats";
-import { Website } from "@/models/Website";
+import { WebsiteRM } from "@/models/WebsiteRM";
 import { Area, AreaChart, ResponsiveContainer } from "recharts";
-import { StatsClient } from "../clients/StatsClient";
-import { useRegistry } from "../hooks/useRegistry";
-import { useYesQuery } from "../hooks/useYesQuery";
 import { Paper } from "./Paper";
 
 type Props = {
-  website: Website;
+  website: WebsiteRM;
 };
 
 function formatNumber(n: number): string {
@@ -17,16 +13,8 @@ function formatNumber(n: number): string {
 }
 
 export function WebsiteCard({ website }: Props) {
-  const statsClient = useRegistry(StatsClient);
-  const { data: stats } = useYesQuery({
-    queryFn: () =>
-      statsClient.query({
-        website: website.hostname,
-        fields: [Stats.Field.visitorsTotal, Stats.Field.pageviewsTotal, Stats.Field.visitorsTimeSeries],
-      }),
-  });
-
-  const chartData = stats?.visitorsTimeSeries?.data.map((d) => ({ v: d.y })) ?? [];
+  const chartData = website.visitorsTimeSeries30d.data.map((d) => ({ v: d.y }));
+  const totalVisitors = website.visitorsTimeSeries30d.data.reduce((sum, d) => sum + d.y, 0);
 
   return (
     <Paper className="overflow-hidden hover:shadow-lg">
@@ -56,17 +44,10 @@ export function WebsiteCard({ website }: Props) {
         </ResponsiveContainer>
       </div>
       <div className="px-5 pb-4 pt-2 flex items-center gap-5 text-sm text-c-dark/50">
-        {stats?.visitorsTotal != null && (
-          <div>
-            <span className="font-semibold text-c-dark">{formatNumber(stats.visitorsTotal)}</span> visitors
-          </div>
-        )}
-        {stats?.pageviewsTotal != null && (
-          <div>
-            <span className="font-semibold text-c-dark">{formatNumber(stats.pageviewsTotal)}</span> pageviews
-          </div>
-        )}
-        <div className="ml-auto text-xs text-c-dark/40">all time</div>
+        <div>
+          <span className="font-semibold text-c-dark">{formatNumber(totalVisitors)}</span> visitors
+        </div>
+        <div className="ml-auto text-xs text-c-dark/40">last 30d</div>
       </div>
     </Paper>
   );

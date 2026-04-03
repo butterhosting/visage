@@ -16,8 +16,10 @@ export class StatsService {
     private readonly websiteRepository: WebsiteRepository,
   ) {}
 
-  public async query(unknown: unknown): Promise<Stats> {
-    const q = StatsQuery.parse(unknown);
+  public async query(query: StatsQuery): Promise<Stats>;
+  public async query(query: unknown, unknown: "unknown"): Promise<Stats>;
+  public async query(query: unknown | StatsQuery, unknown?: "unknown"): Promise<Stats> {
+    let q = unknown ? StatsQuery.parse(query) : (query as StatsQuery);
     const website = await this.websiteRepository.find(q.website, () =>
       WebsiteError.not_found({
         ref: q.website,
@@ -44,8 +46,8 @@ export class StatsService {
     if (q.fields.includes(Stats.Field.durationTimeSeries)) {
       stats.durationTimeSeries = await this.durationTimeSeries(where, q);
     }
-    if (q.fields.includes(Stats.Field.pathDistribution)) {
-      stats.pathDistribution = await this.distribution(where, $analyticsEvent.urlPath);
+    if (q.fields.includes(Stats.Field.pageDistribution)) {
+      stats.pageDistribution = await this.distribution(where, $analyticsEvent.urlPath);
     }
     if (q.fields.includes(Stats.Field.sourceDistribution)) {
       stats.sourceDistribution = await this.distribution(where, $analyticsEvent.utmSource);
@@ -72,7 +74,7 @@ export class StatsService {
     const where: SQL[] = [eq($analyticsEvent.websiteId, websiteId)];
     if (q.from) where.push(gte($analyticsEvent.created, q.from.toString()));
     if (q.to) where.push(lte($analyticsEvent.created, q.to.toString()));
-    if (q.path) where.push(eq($analyticsEvent.urlPath, q.path));
+    if (q.page) where.push(eq($analyticsEvent.urlPath, q.page));
     if (q.source) where.push(eq($analyticsEvent.utmSource, q.source));
     if (q.screen) where.push(this.screenClassification(q.screen));
     if (q.browser) where.push(eq($analyticsEvent.deviceBrowserName, q.browser));
