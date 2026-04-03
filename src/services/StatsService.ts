@@ -27,19 +27,22 @@ export class StatsService {
     const where = this.buildWhere(website.id, q);
     const stats: Stats = {};
     if (q.fields.includes(Stats.Field.visitorsTotal)) {
-      stats.visitorsTotal = await this.countByClassification(where, "visitor");
+      stats.visitorsTotal = await this.countWhere(where, eq($analyticsEvent.isVisitor, true));
     }
     if (q.fields.includes(Stats.Field.pageviewsTotal)) {
-      stats.pageviewsTotal = await this.countByClassification(where, "pageview");
+      stats.pageviewsTotal = await this.countWhere(where);
     }
     if (q.fields.includes(Stats.Field.durationMedian)) {
       stats.durationMedian = await this.median(where);
     }
     if (q.fields.includes(Stats.Field.visitorsTimeSeries)) {
-      stats.visitorsTimeSeries = await this.timeSeries(where, "visitor", q);
+      stats.visitorsTimeSeries = await this.timeSeries(where, q, "visitor", eq($analyticsEvent.isVisitor, true));
     }
     if (q.fields.includes(Stats.Field.pageviewsTimeSeries)) {
-      stats.pageviewsTimeSeries = await this.timeSeries(where, "pageview", q);
+      stats.pageviewsTimeSeries = await this.timeSeries(where, q, "pageview");
+    }
+    if (q.fields.includes(Stats.Field.durationTimeSeries)) {
+      stats.durationTimeSeries = await this.durationTimeSeries(where, q);
     }
     if (q.fields.includes(Stats.Field.pathDistribution)) {
       stats.pathDistribution = await this.distribution(where, $analyticsEvent.urlPath);
@@ -79,7 +82,7 @@ export class StatsService {
     return where;
   }
 
-  private async pickTimeUnit(where: SQL[], q: StatsQuery): Promise<TimeSeries["unit"]> {
+  private async pickTimeUnit(where: SQL[], q: StatsQuery): Promise<TimeSeries["tUnit"]> {
     let from = q.from;
     let to = q.to;
     if (!from || !to) {
@@ -97,7 +100,7 @@ export class StatsService {
     return "month";
   }
 
-  private strftimeFormat(unit: TimeSeries["unit"]): string {
+  private strftimeFormat(unit: TimeSeries["tUnit"]): string {
     switch (unit) {
       case "minute":
         return "%Y-%m-%dT%H:%M:00Z";
@@ -110,21 +113,49 @@ export class StatsService {
     }
   }
 
-  private async timeSeries(where: SQL[], classification: "visitor" | "pageview", q: StatsQuery): Promise<TimeSeries> {
+  private async durationTimeSeries(where: SQL[], q: StatsQuery): Promise<TimeSeries> {
+    const unit = await this.pickTimeUnit(where, q);
+    const fmt = this.strftimeFormat(unit);
+    const bucket = sql<string>`strftime(${fmt}, ${$analyticsEvent.created})`;
+    const rows = await this.sqlite
+      .select({ bucket, duration: $analyticsEvent.durationSeconds })
+      .from($analyticsEvent)
+      .where(and(...where, isNotNull($analyticsEvent.durationSeconds)))
+      .orderBy(bucket, $analyticsEvent.durationSeconds);
+
+    const buckets = new Map<string, number[]>();
+    for (const r of rows) {
+      const arr = buckets.get(r.bucket) ?? [];
+      arr.push(r.duration!);
+      buckets.set(r.bucket, arr);
+    }
+
+    return {
+      tUnit: unit,
+      yUnit: "second",
+      data: [...buckets.entries()].map(([b, values]) => ({
+        t: Temporal.Instant.from(b),
+        y: values[Math.floor(values.length / 2)],
+      })),
+    };
+  }
+
+  private async timeSeries(where: SQL[], q: StatsQuery, yUnit: "visitor" | "pageview", ...extra: SQL[]): Promise<TimeSeries> {
     const unit = await this.pickTimeUnit(where, q);
     const fmt = this.strftimeFormat(unit);
     const bucket = sql<string>`strftime(${fmt}, ${$analyticsEvent.created})`;
     const rows = await this.sqlite
       .select({ bucket, count: count() })
       .from($analyticsEvent)
-      .where(and(...where, eq($analyticsEvent.classification, classification)))
+      .where(and(...where, ...extra))
       .groupBy(bucket)
       .orderBy(bucket);
     return {
-      unit,
+      tUnit: unit,
+      yUnit,
       data: rows.map((r) => ({
-        timestamp: Temporal.Instant.from(r.bucket),
-        value: r.count,
+        t: Temporal.Instant.from(r.bucket),
+        y: r.count,
       })),
     };
   }
@@ -147,11 +178,11 @@ export class StatsService {
     return result[0].value ?? 0;
   }
 
-  private async countByClassification(where: SQL[], classification: "visitor" | "pageview"): Promise<number> {
+  private async countWhere(where: SQL[], ...extra: SQL[]): Promise<number> {
     const result = await this.sqlite
       .select({ count: count() })
       .from($analyticsEvent)
-      .where(and(...where, eq($analyticsEvent.classification, classification)));
+      .where(and(...where, ...extra));
     return result[0].count;
   }
 

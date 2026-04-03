@@ -6,8 +6,9 @@ import { createContext } from "react";
 import { Yesttp } from "yesttp";
 import { DialogClient } from "./clients/DialogClient";
 import { RestrictedClient } from "./clients/RestrictedClient";
-import { PipelineClient } from "./clients/WebsiteClient";
 import { SocketClient } from "./clients/SocketClient";
+import { StatsClient } from "./clients/StatsClient";
+import { WebsiteClient } from "./clients/WebsiteClient";
 
 export class ClientRegistry {
   /**
@@ -52,7 +53,8 @@ export class ClientRegistry {
     }));
     this.registry[SocketClient.name] = new SocketClient();
     this.registry[DialogClient.name] = new DialogClient();
-    this.registry[PipelineClient.name] = new PipelineClient(yesttp);
+    this.registry[WebsiteClient.name] = new WebsiteClient(yesttp);
+    this.registry[StatsClient.name] = new StatsClient(yesttp);
     this.registry[RestrictedClient.name] = new RestrictedClient(yesttp);
   }
 

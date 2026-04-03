@@ -1,9 +1,10 @@
 import { Temporal } from "@js-temporal/polyfill";
 
 export type TimeSeries = {
-  unit: "minute" | "hour" | "day" | "month";
+  tUnit: "minute" | "hour" | "day" | "month";
+  yUnit: "visitor" | "pageview" | "second";
   data: Array<{
-    value: number;
-    timestamp: Temporal.Instant;
+    t: Temporal.Instant;
+    y: number;
   }>;
 };

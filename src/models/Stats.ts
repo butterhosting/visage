@@ -7,6 +7,7 @@ export type Stats = Partial<{
   [Stats.Field.durationMedian]: number;
   [Stats.Field.visitorsTimeSeries]: TimeSeries;
   [Stats.Field.pageviewsTimeSeries]: TimeSeries;
+  [Stats.Field.durationTimeSeries]: TimeSeries;
   [Stats.Field.pathDistribution]: DistributionPoint[];
   [Stats.Field.sourceDistribution]: DistributionPoint[];
   [Stats.Field.screenDistribution]: DistributionPoint[];
@@ -23,6 +24,7 @@ export namespace Stats {
     durationMedian = "durationMedian",
     visitorsTimeSeries = "visitorsTimeSeries",
     pageviewsTimeSeries = "pageviewsTimeSeries",
+    durationTimeSeries = "durationTimeSeries",
     pathDistribution = "pathDistribution",
     sourceDistribution = "sourceDistribution",
     screenDistribution = "screenDistribution",

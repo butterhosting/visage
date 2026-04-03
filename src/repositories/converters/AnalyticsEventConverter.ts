@@ -24,7 +24,7 @@ export namespace AnalyticsEventConverter {
       referrerHostname: model.referrer?.hostname ?? null,
       referrerPath: model.referrer?.path ?? null,
       referrerQueryString: model.referrer?.queryString ?? null,
-      classification: model.classification,
+      isVisitor: model.isVisitor,
       userAgent: model.userAgent,
       utmSource: model.utm.source ?? null,
       utmMedium: model.utm.medium ?? null,
@@ -65,7 +65,7 @@ export namespace AnalyticsEventConverter {
               queryString: db.referrerQueryString ?? undefined,
             }
           : undefined,
-      classification: db.classification,
+      isVisitor: db.isVisitor,
       userAgent: db.userAgent,
       utm: {
         source: db.utmSource ?? undefined,

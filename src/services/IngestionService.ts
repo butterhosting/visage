@@ -42,10 +42,7 @@ export class IngestionService {
     );
 
     const referrerUrl = payload.r ? new URL(payload.r) : undefined;
-    let classification: AnalyticsEvent["classification"] = "pageview";
-    if ((!referrerUrl || referrerUrl.hostname !== url.hostname) && payload.sc === 0) {
-      classification = "visitor";
-    }
+    const isVisitor = (!referrerUrl || referrerUrl.hostname !== url.hostname) && payload.sc === 0;
 
     const analyticsEvent: AnalyticsEvent = {
       id: payload.i,
@@ -64,7 +61,7 @@ export class IngestionService {
             queryString: referrerUrl.search.slice(1) || undefined,
           }
         : undefined,
-      classification,
+      isVisitor,
       userAgent: payload.ua,
       utm: {
         source: url.searchParams.get("utm_source") ?? url.searchParams.get("source") ?? url.searchParams.get("ref") ?? undefined,

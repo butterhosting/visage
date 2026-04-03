@@ -11,7 +11,7 @@ export const $analyticsEvent = sqliteTable("analytics_event", {
   referrerHostname: text(),
   referrerPath: text(),
   referrerQueryString: text(),
-  classification: text({ enum: ["visitor", "pageview"] }).notNull(),
+  isVisitor: integer({ mode: "boolean" }).notNull(),
   userAgent: text().notNull(),
   utmSource: text(),
   utmMedium: text(),
