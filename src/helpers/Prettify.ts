@@ -1,3 +1,4 @@
+import { TimeSeries } from "@/models/TimeSeries";
 import { Temporal } from "@js-temporal/polyfill";
 
 export class Prettify {
@@ -15,5 +16,36 @@ export class Prettify {
     const seconds = String(wallClockTime.second).padStart(2, "0");
 
     return `${day} ${month} ${year} at ${hours}:${minutes}:${seconds}`;
+  }
+
+  public static number(n: number): string {
+    if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
+    if (n >= 1_000) return `${(n / 1_000).toFixed(1)}k`;
+    return n.toString();
+  }
+
+  public static duration(seconds: number): string {
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    if (m === 0) return `${s}s`;
+    return `${m}m ${s}s`;
+  }
+
+  public static yValue(value: number, yUnit: TimeSeries["yUnit"]): string {
+    if (yUnit === "second") return Prettify.duration(value);
+    return Prettify.number(value);
+  }
+
+  public static yUnitLabel(yUnit: TimeSeries["yUnit"]): string {
+    if (yUnit === "visitor") return "visitors";
+    if (yUnit === "pageview") return "pageviews";
+    return "";
+  }
+
+  public static chartTimestamp(t: Temporal.Instant, tUnit: TimeSeries["tUnit"]): string {
+    const d = new Date(t.epochMilliseconds);
+    if (tUnit === "month") return d.toLocaleDateString("en", { month: "short", year: "2-digit" });
+    if (tUnit === "day") return d.toLocaleDateString("en", { day: "numeric", month: "short" });
+    return d.toLocaleTimeString("en", { hour: "2-digit", minute: "2-digit" });
   }
 }

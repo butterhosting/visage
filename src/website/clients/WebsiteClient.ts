@@ -8,4 +8,9 @@ export class WebsiteClient {
     const { body } = await this.yesttp.get<unknown[]>("/websites");
     return body.map(WebsiteRM.parse);
   }
+
+  public async find(ref: string): Promise<WebsiteRM> {
+    const { body } = await this.yesttp.get<unknown>(`/websites/${ref}`);
+    return WebsiteRM.parse(body);
+  }
 }

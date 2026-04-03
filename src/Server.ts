@@ -78,6 +78,43 @@ export class Server {
         }),
 
         /**
+         * Public script
+         */
+        "/vis.js": {
+          GET: this.handleRoute(async () => {
+            const script = await this.trackerService.getMinifiedScript();
+            return new Response(script, {
+              headers: {
+                "content-type": "application/javascript",
+              },
+            });
+          }),
+        },
+
+        /**
+         * Public ingestion endpoint
+         */
+        "/i": {
+          POST: this.handleRoute(async (request) => {
+            const ip = server.requestIP(request);
+            if (ip) {
+              await this.ingestionService.ingest(ip.address, await request.json());
+            }
+            return new Response();
+          }),
+        },
+
+        /**
+         * Semi-publically-accessible API
+         */
+        "/api/stats": {
+          GET: this.handleRoute(async (request) => {
+            const stats = await this.statsService.query(this.searchParams(request), "unknown");
+            return Response.json(stats);
+          }),
+        },
+
+        /**
          * Env
          */
         "/internal-api/env": {
@@ -97,6 +134,16 @@ export class Server {
           GET: this.handleRoute(async () => {
             const websites: WebsiteRM[] = await this.websiteService.query();
             return Response.json(websites);
+          }),
+          POST: this.handleRoute(async (request) => {
+            const website: Website = await this.websiteService.create(await request.json());
+            return Response.json(website);
+          }),
+        },
+        "/internal-api/websites/:ref": {
+          GET: this.handleRoute(async ({ params }) => {
+            const website: WebsiteRM = await this.websiteService.find(params.ref);
+            return Response.json(website);
           }),
           POST: this.handleRoute(async (request) => {
             const website: Website = await this.websiteService.create(await request.json());
@@ -133,35 +180,6 @@ export class Server {
               return new Response();
             }
             return Response.json(ServerError.route_not_found().json(), { status: 404 });
-          }),
-        },
-
-        /**
-         * Public endpoints and "public" API
-         */
-        "/vis.js": {
-          GET: this.handleRoute(async () => {
-            const script = await this.trackerService.getMinifiedScript();
-            return new Response(script, {
-              headers: {
-                "content-type": "application/javascript",
-              },
-            });
-          }),
-        },
-        "/i": {
-          POST: this.handleRoute(async (request) => {
-            const ip = server.requestIP(request);
-            if (ip) {
-              await this.ingestionService.ingest(ip.address, await request.json());
-            }
-            return new Response();
-          }),
-        },
-        "/api/stats": {
-          GET: this.handleRoute(async (request) => {
-            const stats = await this.statsService.query(this.searchParams(request), "unknown");
-            return Response.json(stats);
           }),
         },
       },

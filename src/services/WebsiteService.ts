@@ -1,7 +1,7 @@
 import { ServerError } from "@/errors/ServerError";
+import { WebsiteError } from "@/errors/WebsiteError";
 import { ZodProblem } from "@/helpers/ZodIssues";
 import { Stats } from "@/models/Stats";
-import { TimeSeries } from "@/models/TimeSeries";
 import { Website } from "@/models/Website";
 import { WebsiteRM } from "@/models/WebsiteRM";
 import { WebsiteRepository } from "@/repositories/WebsiteRepository";
@@ -17,25 +17,34 @@ export class WebsiteService {
 
   public async query(): Promise<WebsiteRM[]> {
     const websites = await this.websiteRepository.query();
-    const results = await Promise.all(
-      websites.map(async (website): Promise<WebsiteRM> => {
-        const stats = await this.statsService.query({
-          website: website.id,
-          fields: [Stats.Field.visitorsTimeSeries],
-          from: Temporal.Now.instant().subtract({ hours: 30 * 24 }),
-        });
-        return {
-          ...website,
-          visitorsTimeSeries30d: stats.visitorsTimeSeries ?? { tUnit: "day", yUnit: "visitor", data: [] },
-        };
+    return await Promise.all(websites.map((w) => this.enrich(w)));
+  }
+
+  public async find(ref: string): Promise<WebsiteRM> {
+    const website = await this.websiteRepository.find(ref, () =>
+      WebsiteError.not_found({
+        ref,
       }),
     );
-    return results;
+    return await this.enrich(website);
   }
 
   public async create(unknown: z.output<typeof WebsiteService.Upsert>): Promise<Website> {
     const { hostname } = WebsiteService.Upsert.parse(unknown);
     throw new Error("not implemented");
+  }
+
+  private async enrich(website: Website): Promise<WebsiteRM> {
+    const { visitorsTimeSeries } = await this.statsService.query({
+      website: website.id,
+      fields: [Stats.Field.visitorsTimeSeries],
+      from: Temporal.Now.instant().subtract({ hours: 30 * 24 }),
+    });
+    return {
+      ...website,
+      visitorsTotal: visitorsTimeSeries!.data.reduce((sum, datapoint) => sum + datapoint.y, 0),
+      visitorsTimeSeries30d: visitorsTimeSeries!,
+    };
   }
 }
 

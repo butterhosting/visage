@@ -5,6 +5,7 @@ import z from "zod/v4";
 
 // read model
 export type WebsiteRM = Website & {
+  visitorsTotal: number;
   visitorsTimeSeries30d: TimeSeries;
 };
 
@@ -13,6 +14,7 @@ export namespace WebsiteRM {
     .ensureSchemaMatchesType(() =>
       Website.parse.SCHEMA.and(
         z.object({
+          visitorsTotal: z.number(),
           visitorsTimeSeries30d: TimeSeries.parse.SCHEMA,
         }),
       ),
