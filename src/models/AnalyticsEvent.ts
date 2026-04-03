@@ -31,10 +31,10 @@ export type AnalyticsEvent = {
     viewportHeight: number;
   };
   device: {
-    osName?: string;
-    osVersion?: string;
     browserName?: string;
     browserVersion?: string;
+    osName?: string;
+    osVersion?: string;
   };
   locale: {
     language?: string;

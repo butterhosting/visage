@@ -10,7 +10,8 @@ export type StatsQuery = {
   to?: Temporal.Instant;
   path?: string;
   source?: string;
-  device?: string;
+  screen?: string;
+  browser?: string;
   os?: string;
   country?: string;
   city?: string;
@@ -35,7 +36,8 @@ export namespace StatsQuery {
           .optional(),
         path: z.string().optional(),
         source: z.string().optional(),
-        device: z.string().optional(),
+        screen: z.string().optional(),
+        browser: z.string().optional(),
         os: z.string().optional(),
         country: z.string().optional(),
         city: z.string().optional(),

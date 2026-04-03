@@ -9,7 +9,8 @@ export type Stats = Partial<{
   [Stats.Field.pageviewsTimeSeries]: TimeSeries;
   [Stats.Field.pathDistribution]: DistributionPoint[];
   [Stats.Field.sourceDistribution]: DistributionPoint[];
-  [Stats.Field.deviceDistribution]: DistributionPoint[];
+  [Stats.Field.screenDistribution]: DistributionPoint[];
+  [Stats.Field.browserDistribution]: DistributionPoint[];
   [Stats.Field.osDistribution]: DistributionPoint[];
   [Stats.Field.countryDistribution]: DistributionPoint[];
   [Stats.Field.cityDistribution]: DistributionPoint[];
@@ -24,7 +25,8 @@ export namespace Stats {
     pageviewsTimeSeries = "pageviewsTimeSeries",
     pathDistribution = "pathDistribution",
     sourceDistribution = "sourceDistribution",
-    deviceDistribution = "deviceDistribution",
+    screenDistribution = "screenDistribution",
+    browserDistribution = "browserDistribution",
     osDistribution = "osDistribution",
     countryDistribution = "countryDistribution",
     cityDistribution = "cityDistribution",

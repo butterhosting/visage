@@ -136,7 +136,7 @@ export class Server {
         },
 
         /**
-         * Client script and data ingestion
+         * Public endpoints and "public" API
          */
         "/vis.js": {
           GET: this.handleRoute(async () => {
@@ -155,6 +155,12 @@ export class Server {
               await this.ingestionService.ingest(ip.address, await request.json());
             }
             return new Response();
+          }),
+        },
+        "/api/stats": {
+          GET: this.handleRoute(async (request) => {
+            const stats = await this.statsService.query(this.searchParams(request));
+            return Response.json(stats);
           }),
         },
       },
