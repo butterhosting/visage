@@ -1,12 +1,14 @@
 import { DistributionPoint } from "@/models/DistributionPoint";
 import { Stats } from "@/models/Stats";
 import { TimeSeries } from "@/models/TimeSeries";
+import { useState } from "react";
 import { useParams } from "react-router";
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { StatsClient } from "../clients/StatsClient";
 import { WebsiteClient } from "../clients/WebsiteClient";
 import { Paper } from "../comps/Paper";
 import { Skeleton } from "../comps/Skeleton";
+import { Spinner } from "../comps/Spinner";
 import { useDocumentTitle } from "../hooks/useDocumentTitle";
 import { useRegistry } from "../hooks/useRegistry";
 import { useYesQuery } from "../hooks/useYesQuery";
@@ -65,7 +67,13 @@ function CustomTooltip({
 }
 
 function TimeSeriesChart({ timeSeries }: { timeSeries?: TimeSeries }) {
-  if (!timeSeries) return null;
+  if (!timeSeries) {
+    return (
+      <div className="h-[320px] flex items-center justify-center">
+        <Spinner />
+      </div>
+    );
+  }
   const { tUnit, yUnit } = timeSeries;
   const chartData = timeSeries.data.map((d) => ({
     date: formatTimestamp(d.t as unknown as string, tUnit),
@@ -73,8 +81,8 @@ function TimeSeriesChart({ timeSeries }: { timeSeries?: TimeSeries }) {
   }));
 
   return (
-    <ResponsiveContainer width="100%" height={380}>
-      <AreaChart data={chartData} margin={{ top: 5, right: 10, left: -10, bottom: 0 }} tabIndex={-1}>
+    <ResponsiveContainer width="100%" height={320}>
+      <AreaChart data={chartData} margin={{ top: 5, right: 10, left: 10, bottom: 0 }} tabIndex={-1}>
         <defs>
           <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%" stopColor="#4647d2" stopOpacity={0.15} />
@@ -99,6 +107,7 @@ function TimeSeriesChart({ timeSeries }: { timeSeries?: TimeSeries }) {
           fill="url(#chartGradient)"
           activeDot={{ r: 5, fill: "#4647d2", stroke: "#fff", strokeWidth: 2 }}
           dot={false}
+          isAnimationActive={false}
         />
       </AreaChart>
     </ResponsiveContainer>
@@ -126,10 +135,19 @@ function DistributionTable({ title, data }: { title: string; data?: Distribution
   );
 }
 
+type ActiveStat = "visitors" | "pageviews" | "duration";
+
+const STAT_TO_TIME_SERIES: Record<ActiveStat, Stats.Field> = {
+  visitors: Stats.Field.visitorsTimeSeries,
+  pageviews: Stats.Field.pageviewsTimeSeries,
+  duration: Stats.Field.durationTimeSeries,
+};
+
 export function websites$idPage() {
   const { id } = useParams();
   const websiteClient = useRegistry(WebsiteClient);
   const statsClient = useRegistry(StatsClient);
+  const [activeStat, setActiveStat] = useState<ActiveStat>("visitors");
 
   const { data: websites } = useYesQuery({ queryFn: () => websiteClient.query() });
   const website = websites?.find((w) => w.id === id);
@@ -144,7 +162,7 @@ export function websites$idPage() {
                 Stats.Field.visitorsTotal,
                 Stats.Field.pageviewsTotal,
                 Stats.Field.durationMedian,
-                Stats.Field.visitorsTimeSeries,
+                STAT_TO_TIME_SERIES[activeStat],
                 Stats.Field.sourceDistribution,
                 Stats.Field.pathDistribution,
                 Stats.Field.screenDistribution,
@@ -154,34 +172,42 @@ export function websites$idPage() {
             })
           : undefined,
     },
-    [website?.id],
+    [website?.id, activeStat],
   );
 
   useDocumentTitle(website ? `${website.hostname} | Visage` : "Visage");
 
-  const statCards = [
-    { label: "VISITORS", value: stats?.visitorsTotal },
-    { label: "PAGEVIEWS", value: stats?.pageviewsTotal },
-    { label: "DURATION", value: stats?.durationMedian, format: formatDuration },
+  const statCards: { key: ActiveStat; label: string; value?: number; format?: (n: number) => string }[] = [
+    { key: "visitors", label: "VISITORS", value: stats?.visitorsTotal },
+    { key: "pageviews", label: "PAGEVIEWS", value: stats?.pageviewsTotal },
+    { key: "duration", label: "VISIT DURATION", value: stats?.durationMedian, format: formatDuration },
   ];
+
+  const activeTimeSeries = stats?.[STAT_TO_TIME_SERIES[activeStat] as keyof Stats] as TimeSeries | undefined;
 
   return (
     <Skeleton className="grid grid-cols-1 gap-5">
-      {/* Stats row */}
-      <Paper className="col-span-full flex divide-x divide-black/10">
-        {statCards.map((stat) => (
-          <div key={stat.label} className="px-6 py-5 text-left">
-            <div className="text-xs font-bold tracking-wide mb-1 text-c-primary">{stat.label}</div>
-            <span className="text-3xl font-extrabold text-c-dark">
-              {stat.value != null ? (stat.format ? stat.format(stat.value) : formatNumber(stat.value)) : "\u2014"}
-            </span>
-          </div>
-        ))}
-      </Paper>
-
-      {/* Chart */}
-      <Paper className="col-span-full p-6 pt-8">
-        <TimeSeriesChart timeSeries={stats?.visitorsTimeSeries} />
+      {/* Stats + Chart */}
+      <Paper className="col-span-full">
+        <div className="flex divide-x divide-black/10">
+          {statCards.map((stat) => (
+            <button
+              key={stat.key}
+              onClick={() => setActiveStat(stat.key)}
+              className={`px-6 py-5 text-left cursor-pointer hover:bg-c-primary/5 transition-colors ${activeStat === stat.key ? "border-b-2 border-c-primary" : "border-b-2 border-transparent"}`}
+            >
+              <div className={`text-xs font-bold tracking-wide mb-1 ${activeStat === stat.key ? "text-c-primary" : "text-c-dark/50"}`}>
+                {stat.label}
+              </div>
+              <span className="text-3xl font-extrabold text-c-dark">
+                {stat.value != null ? (stat.format ? stat.format(stat.value) : formatNumber(stat.value)) : "\u2014"}
+              </span>
+            </button>
+          ))}
+        </div>
+        <div className="p-6 pt-4">
+          <TimeSeriesChart timeSeries={activeTimeSeries} />
+        </div>
       </Paper>
 
       {/* Distribution tables */}
