@@ -3,21 +3,32 @@ import { TimeSeries } from "@/models/TimeSeries";
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { Spinner } from "./Spinner";
 
+function sparseTicks(count: number, max: number): Set<number> {
+  if (count <= max) return new Set(Array.from({ length: count }, (_, i) => i));
+  const indices = new Set<number>();
+  indices.add(0);
+  indices.add(count - 1);
+  const step = (count - 1) / (max - 1);
+  for (let i = 1; i < max - 1; i++) {
+    indices.add(Math.round(i * step));
+  }
+  return indices;
+}
+
 function CustomTooltip({
   yUnit,
   active,
   payload,
-  label,
 }: {
   yUnit: TimeSeries["yUnit"];
   active?: boolean;
-  payload?: { value: number }[];
+  payload?: { value: number; payload: { tooltipLabel: string } }[];
   label?: string;
 }) {
   if (!active || !payload?.length) return null;
   return (
     <div className="bg-c-dark text-white rounded-xl px-5 py-4 shadow-xl">
-      <div className="text-xs font-bold tracking-wide mb-2 text-white/70">{label}</div>
+      <div className="text-xs font-bold tracking-wide mb-2 text-white/70">{payload[0].payload.tooltipLabel}</div>
       <div className="flex items-center gap-3">
         {Prettify.yValue(payload[0].value, yUnit)} {Prettify.yUnitLabel(yUnit)}
       </div>
@@ -50,8 +61,11 @@ export function TimeSeriesChart({ timeSeries, gradientId = "chartGradient", mini
   }
 
   const { tUnit, yUnit } = timeSeries;
-  const chartData = timeSeries.data.map((d) => ({
-    date: Prettify.chartTimestamp(d.t, tUnit),
+  const maxTicks = 10;
+  const tickIndices = sparseTicks(timeSeries.data.length, maxTicks);
+  const chartData = timeSeries.data.map((d, i) => ({
+    axisLabel: Prettify.chartAxisLabel(d.t, tUnit),
+    tooltipLabel: Prettify.chartTooltipLabel(d.t, tUnit),
     y: d.y,
   }));
 
@@ -65,7 +79,17 @@ export function TimeSeriesChart({ timeSeries, gradientId = "chartGradient", mini
           </linearGradient>
         </defs>
         {!minimal && <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e5e5" />}
-        {!minimal && <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fontSize: 13, fontWeight: 600, fill: "#2d2c32" }} dy={12} />}
+        {!minimal && (
+          <XAxis
+            dataKey="axisLabel"
+            axisLine={false}
+            tickLine={false}
+            tick={{ fontSize: 13, fontWeight: 600, fill: "#2d2c32" }}
+            dy={12}
+            interval={0}
+            tickFormatter={(value: string, index: number) => (tickIndices.has(index) ? value : "")}
+          />
+        )}
         {!minimal && (
           <YAxis
             axisLine={false}

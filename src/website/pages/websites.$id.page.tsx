@@ -2,10 +2,12 @@ import { Prettify } from "@/helpers/Prettify";
 import { Stats } from "@/models/Stats";
 import { StatsQuery } from "@/models/StatsQuery";
 import { TimeSeries } from "@/models/TimeSeries";
+import { Temporal } from "@js-temporal/polyfill";
 import { useState } from "react";
 import { useParams } from "react-router";
 import { StatsClient } from "../clients/StatsClient";
 import { WebsiteClient } from "../clients/WebsiteClient";
+import { DateRangePicker } from "../comps/DateRangePicker";
 import { DistributionPanel } from "../comps/DistributionPanel";
 import { Paper } from "../comps/Paper";
 import { Skeleton } from "../comps/Skeleton";
@@ -13,6 +15,7 @@ import { TimeSeriesChart } from "../comps/TimeSeriesChart";
 import { useDocumentTitle } from "../hooks/useDocumentTitle";
 import { useRegistry } from "../hooks/useRegistry";
 import { useYesQuery } from "../hooks/useYesQuery";
+import { DialogClient } from "../clients/DialogClient";
 
 type ActiveStat = "visitors" | "pageviews" | "duration";
 
@@ -28,8 +31,17 @@ export function websites$idPage() {
   const { id } = useParams();
   const websiteClient = useRegistry(WebsiteClient);
   const statsClient = useRegistry(StatsClient);
+  const dialogClient = useRegistry(DialogClient);
   const [activeStat, setActiveStat] = useState<ActiveStat>("visitors");
   const [filters, setFilters] = useState<Filters>({});
+  const [dateRangeKey, setDateRangeKey] = useState("30d");
+  const [dateRange, setDateRange] = useState<{ from?: Temporal.Instant; to?: Temporal.Instant } | undefined>(() => {
+    const today = Temporal.Now.plainDateISO();
+    return {
+      from: today.subtract({ days: 30 }).toZonedDateTime("UTC").toInstant(),
+      to: today.add({ days: 1 }).toZonedDateTime("UTC").toInstant(),
+    };
+  });
 
   const { data: website } = useYesQuery({
     queryFn: () => websiteClient.find(id!),
@@ -53,10 +65,12 @@ export function websites$idPage() {
             Stats.Field.countryDistribution,
             Stats.Field.cityDistribution,
           ],
+          from: dateRange?.from,
+          to: dateRange?.to,
           ...filters,
         }),
     },
-    [website?.id, activeStat, JSON.stringify(filters)],
+    [website?.id, activeStat, dateRangeKey, JSON.stringify(filters)],
   );
 
   useDocumentTitle(website ? `${website.hostname} | Websites | Visage` : "Websites | Visage");
@@ -93,7 +107,7 @@ export function websites$idPage() {
     [
       { title: "SCREENS", field: Stats.Field.screenDistribution, filterKey: StatsQuery.Filter.screen },
       { title: "BROWSERS", field: Stats.Field.browserDistribution, filterKey: StatsQuery.Filter.browser },
-      { title: "OS", field: Stats.Field.osDistribution, filterKey: StatsQuery.Filter.os },
+      { title: "OPERATING SYSTEMS", field: Stats.Field.osDistribution, filterKey: StatsQuery.Filter.os },
     ],
   ];
 
@@ -138,6 +152,16 @@ export function websites$idPage() {
               </span>
             </button>
           ))}
+          <div className="ml-auto flex items-center px-5">
+            <DateRangePicker
+              activeKey={dateRangeKey}
+              dateRange={dateRange}
+              onChange={(key, range) => {
+                setDateRangeKey(key);
+                setDateRange(range);
+              }}
+            />
+          </div>
         </div>
         <div className="p-6 pt-4">
           <TimeSeriesChart timeSeries={activeTimeSeries} />

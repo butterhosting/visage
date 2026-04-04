@@ -42,10 +42,22 @@ export class Prettify {
     return "";
   }
 
-  public static chartTimestamp(t: Temporal.Instant, tUnit: TimeSeries["tUnit"]): string {
+  public static shortDate(instant: Temporal.Instant): string {
+    const d = new Date(instant.epochMilliseconds);
+    return d.toLocaleDateString("en", { day: "numeric", month: "long" });
+  }
+
+  public static chartAxisLabel(t: Temporal.Instant, tUnit: TimeSeries["tUnit"]): string {
     const d = new Date(t.epochMilliseconds);
-    if (tUnit === "month") return d.toLocaleDateString("en", { month: "short", year: "2-digit" });
+    if (tUnit === "month") return d.toLocaleDateString("en", { month: "short", year: "numeric" });
     if (tUnit === "day") return d.toLocaleDateString("en", { day: "numeric", month: "short" });
+    return d.toLocaleTimeString("en", { hour: "2-digit", minute: "2-digit" });
+  }
+
+  public static chartTooltipLabel(t: Temporal.Instant, tUnit: TimeSeries["tUnit"]): string {
+    const d = new Date(t.epochMilliseconds);
+    if (tUnit === "month") return d.toLocaleDateString("en", { month: "long", year: "numeric" });
+    if (tUnit === "day") return d.toLocaleDateString("en", { day: "numeric", month: "long", year: "numeric" });
     return d.toLocaleTimeString("en", { hour: "2-digit", minute: "2-digit" });
   }
 }
