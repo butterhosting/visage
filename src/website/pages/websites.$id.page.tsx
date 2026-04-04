@@ -91,7 +91,7 @@ export function websites$idPage() {
   const statCards: { key: ActiveStat; label: string; value?: number; format?: (n: number) => string }[] = [
     { key: "visitors", label: "TOTAL VISITORS", value: stats?.visitorsTotal },
     { key: "pageviews", label: "TOTAL PAGEVIEWS", value: stats?.pageviewsTotal },
-    { key: "duration", label: "MEDIAN PAGE TIME", value: stats?.durationMedian, format: Prettify.duration },
+    { key: "duration", label: "MEDIAN TIME ON PAGE", value: stats?.durationMedian, format: Prettify.duration },
   ];
 
   const activeTimeSeries = stats?.[STAT_TO_TIME_SERIES[activeStat] as keyof Stats] as TimeSeries | undefined;

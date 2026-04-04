@@ -27,24 +27,26 @@ export class StatsService {
     );
 
     const where = this.buildWhere(website.id, q);
+    const whereForMedian = gte($analyticsEvent.durationSeconds, 5);
+
     const stats: Stats = {};
     if (q.fields.includes(Stats.Field.visitorsTotal)) {
-      stats.visitorsTotal = await this.countWhere(where, eq($analyticsEvent.isVisitor, true));
+      stats.visitorsTotal = await this.count([...where, eq($analyticsEvent.isVisitor, true)]);
     }
     if (q.fields.includes(Stats.Field.pageviewsTotal)) {
-      stats.pageviewsTotal = await this.countWhere(where);
+      stats.pageviewsTotal = await this.count(where);
     }
     if (q.fields.includes(Stats.Field.durationMedian)) {
-      stats.durationMedian = await this.median(where);
+      stats.durationMedian = await this.median([...where, whereForMedian]);
     }
     if (q.fields.includes(Stats.Field.visitorsTimeSeries)) {
-      stats.visitorsTimeSeries = await this.timeSeries(where, q, "visitor", eq($analyticsEvent.isVisitor, true));
+      stats.visitorsTimeSeries = await this.timeSeries([...where, eq($analyticsEvent.isVisitor, true)], q, "visitor");
     }
     if (q.fields.includes(Stats.Field.pageviewsTimeSeries)) {
       stats.pageviewsTimeSeries = await this.timeSeries(where, q, "pageview");
     }
     if (q.fields.includes(Stats.Field.durationTimeSeries)) {
-      stats.durationTimeSeries = await this.durationTimeSeries(where, q);
+      stats.durationTimeSeries = await this.durationTimeSeries([...where, whereForMedian], q);
     }
     if (q.fields.includes(Stats.Field.pageDistribution)) {
       stats.pageDistribution = await this.distribution(where, $analyticsEvent.urlPath);
@@ -122,7 +124,7 @@ export class StatsService {
     const rows = await this.sqlite
       .select({ bucket, duration: $analyticsEvent.durationSeconds })
       .from($analyticsEvent)
-      .where(and(...where, isNotNull($analyticsEvent.durationSeconds)))
+      .where(and(...where))
       .orderBy(bucket, $analyticsEvent.durationSeconds);
 
     const buckets = new Map<string, number[]>();
@@ -142,14 +144,14 @@ export class StatsService {
     };
   }
 
-  private async timeSeries(where: SQL[], q: StatsQuery, yUnit: "visitor" | "pageview", ...extra: SQL[]): Promise<TimeSeries> {
+  private async timeSeries(where: SQL[], q: StatsQuery, yUnit: "visitor" | "pageview"): Promise<TimeSeries> {
     const unit = await this.pickTimeUnit(where, q);
     const fmt = this.strftimeFormat(unit);
     const bucket = sql<string>`strftime(${fmt}, ${$analyticsEvent.created})`;
     const rows = await this.sqlite
       .select({ bucket, count: count() })
       .from($analyticsEvent)
-      .where(and(...where, ...extra))
+      .where(and(...where))
       .groupBy(bucket)
       .orderBy(bucket);
     return {
@@ -163,28 +165,27 @@ export class StatsService {
   }
 
   private async median(where: SQL[]): Promise<number> {
-    const withDuration = [...where, isNotNull($analyticsEvent.durationSeconds)];
     const [{ total }] = await this.sqlite
       .select({ total: count() })
       .from($analyticsEvent)
-      .where(and(...withDuration));
+      .where(and(...where));
     if (total === 0) return 0;
     const offset = Math.floor(total / 2);
     const result = await this.sqlite
       .select({ value: $analyticsEvent.durationSeconds })
       .from($analyticsEvent)
-      .where(and(...withDuration))
+      .where(and(...where))
       .orderBy($analyticsEvent.durationSeconds)
       .limit(1)
       .offset(offset);
     return result[0].value ?? 0;
   }
 
-  private async countWhere(where: SQL[], ...extra: SQL[]): Promise<number> {
+  private async count(where: SQL[]): Promise<number> {
     const result = await this.sqlite
       .select({ count: count() })
       .from($analyticsEvent)
-      .where(and(...where, ...extra));
+      .where(and(...where));
     return result[0].count;
   }
 
