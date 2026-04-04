@@ -106,8 +106,6 @@ export class StatsService {
 
   private strftimeFormat(unit: TimeSeries["tUnit"]): string {
     switch (unit) {
-      case "minute":
-        return "%Y-%m-%dT%H:%M:00Z";
       case "hour":
         return "%Y-%m-%dT%H:00:00Z";
       case "day":
