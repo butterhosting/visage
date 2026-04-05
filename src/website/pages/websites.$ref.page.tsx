@@ -15,11 +15,10 @@ import { TimeSeriesChart } from "../comps/TimeSeriesChart";
 import { useDocumentTitle } from "../hooks/useDocumentTitle";
 import { useRegistry } from "../hooks/useRegistry";
 import { useYesQuery } from "../hooks/useYesQuery";
-import { DialogClient } from "../clients/DialogClient";
 
-type ActiveStat = "visitors" | "pageviews" | "duration";
+type Graph = "visitors" | "pageviews" | "duration";
 
-const STAT_TO_TIME_SERIES: Record<ActiveStat, Stats.Field> = {
+const STAT_TO_TIME_SERIES: Record<Graph, Stats.Field> = {
   visitors: Stats.Field.visitorsTimeSeries,
   pageviews: Stats.Field.pageviewsTimeSeries,
   duration: Stats.Field.durationTimeSeries,
@@ -27,12 +26,12 @@ const STAT_TO_TIME_SERIES: Record<ActiveStat, Stats.Field> = {
 
 type Filters = Partial<Record<StatsQuery.StringFilter, string>>;
 
-export function websites$idPage() {
-  const { id } = useParams();
+export function websites$refPage() {
+  const { ref } = useParams();
   const websiteClient = useRegistry(WebsiteClient);
   const statsClient = useRegistry(StatsClient);
-  const dialogClient = useRegistry(DialogClient);
-  const [activeStat, setActiveStat] = useState<ActiveStat>("visitors");
+
+  const [graph, setGraph] = useState<Graph>("visitors");
   const [filters, setFilters] = useState<Filters>({});
   const [dateRangeKey, setDateRangeKey] = useState("30d");
   const [dateRange, setDateRange] = useState<{ from?: Temporal.Instant; to?: Temporal.Instant } | undefined>(() => {
@@ -44,19 +43,19 @@ export function websites$idPage() {
   });
 
   const { data: website } = useYesQuery({
-    queryFn: () => websiteClient.find(id!),
+    queryFn: () => websiteClient.find(ref!),
   });
 
   const { data: stats } = useYesQuery(
     {
       queryFn: () =>
         statsClient.query({
-          website: id!,
+          website: ref!,
           fields: [
             Stats.Field.visitorsTotal,
             Stats.Field.pageviewsTotal,
             Stats.Field.durationMedian,
-            STAT_TO_TIME_SERIES[activeStat],
+            STAT_TO_TIME_SERIES[graph],
             Stats.Field.sourceDistribution,
             Stats.Field.pageDistribution,
             Stats.Field.screenDistribution,
@@ -70,7 +69,7 @@ export function websites$idPage() {
           ...filters,
         }),
     },
-    [website?.id, activeStat, dateRangeKey, JSON.stringify(filters)],
+    [website?.id, graph, dateRange?.from, dateRange?.to, JSON.stringify(filters)],
   );
 
   useDocumentTitle(website ? `${website.hostname} | Websites | Visage` : "Websites | Visage");
@@ -88,13 +87,13 @@ export function websites$idPage() {
 
   const activeFilterCount = Object.keys(filters).length;
 
-  const statCards: { key: ActiveStat; label: string; value?: number; format?: (n: number) => string }[] = [
+  const statCards: { key: Graph; label: string; value?: number; format?: (n: number) => string }[] = [
     { key: "visitors", label: "TOTAL VISITORS", value: stats?.visitorsTotal },
     { key: "pageviews", label: "TOTAL PAGEVIEWS", value: stats?.pageviewsTotal },
     { key: "duration", label: "MEDIAN TIME ON PAGE", value: stats?.durationMedian, format: Prettify.duration },
   ];
 
-  const activeTimeSeries = stats?.[STAT_TO_TIME_SERIES[activeStat] as keyof Stats] as TimeSeries | undefined;
+  const activeTimeSeries = stats?.[STAT_TO_TIME_SERIES[graph] as keyof Stats] as TimeSeries | undefined;
 
   type Tab = { title: string; field: keyof Stats; filterKey: StatsQuery.StringFilter };
   const panels: Tab[][] = [
@@ -141,10 +140,10 @@ export function websites$idPage() {
           {statCards.map((stat) => (
             <button
               key={stat.key}
-              onClick={() => setActiveStat(stat.key)}
-              className={`px-6 py-5 text-left cursor-pointer hover:bg-c-primary/5 transition-colors ${activeStat === stat.key ? "border-b-2 border-c-primary" : "border-b-2 border-transparent"}`}
+              onClick={() => setGraph(stat.key)}
+              className={`px-6 py-5 text-left cursor-pointer hover:bg-c-primary/5 transition-colors ${graph === stat.key ? "border-b-2 border-c-primary" : "border-b-2 border-transparent"}`}
             >
-              <div className={`text-xs font-bold tracking-wide mb-1 ${activeStat === stat.key ? "text-c-primary" : "text-c-dark/50"}`}>
+              <div className={`text-xs font-bold tracking-wide mb-1 ${graph === stat.key ? "text-c-primary" : "text-c-dark/50"}`}>
                 {stat.label}
               </div>
               <span className="text-3xl font-extrabold text-c-dark">

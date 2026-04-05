@@ -6,7 +6,6 @@ import { TimeSeriesChart } from "./TimeSeriesChart";
 type Props = {
   website: WebsiteRM;
 };
-
 export function WebsiteCard({ website }: Props) {
   return (
     <Paper className="overflow-hidden hover:shadow-lg">

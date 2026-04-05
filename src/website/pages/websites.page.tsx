@@ -17,7 +17,7 @@ export function websitesPage() {
   return (
     <Skeleton className="grid grid-cols-3 gap-5">
       {websites?.map((website) => (
-        <Link key={website.id} to={Route.websites(website.id)}>
+        <Link key={website.id} to={Route.websites(website.hostname)}>
           <WebsiteCard website={website} />
         </Link>
       ))}
