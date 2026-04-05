@@ -1,6 +1,6 @@
 export const Route = {
-  websites(id?: string) {
-    return id ? `/websites/${id}` : "/websites";
+  websites(ref?: string) {
+    return ref ? `/websites/${ref}` : "/websites";
   },
   api() {
     return "/api";

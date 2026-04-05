@@ -3,7 +3,7 @@ import { Stats } from "@/models/Stats";
 import { StatsQuery } from "@/models/StatsQuery";
 import { TimeSeries } from "@/models/TimeSeries";
 import { Temporal } from "@js-temporal/polyfill";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router";
 import { StatsClient } from "../clients/StatsClient";
 import { WebsiteClient } from "../clients/WebsiteClient";
@@ -15,8 +15,10 @@ import { TimeSeriesChart } from "../comps/TimeSeriesChart";
 import { useDocumentTitle } from "../hooks/useDocumentTitle";
 import { useRegistry } from "../hooks/useRegistry";
 import { useYesQuery } from "../hooks/useYesQuery";
-
-type Graph = "visitors" | "pageviews" | "duration";
+import { useSearchParams } from "react-router";
+import { Graph } from "./tempmodels/Graph";
+import { Period } from "./tempmodels/Period";
+import { time } from "drizzle-orm/singlestore-core";
 
 const STAT_TO_TIME_SERIES: Record<Graph, Stats.Field> = {
   visitors: Stats.Field.visitorsTimeSeries,
@@ -31,16 +33,87 @@ export function websites$refPage() {
   const websiteClient = useRegistry(WebsiteClient);
   const statsClient = useRegistry(StatsClient);
 
-  const [graph, setGraph] = useState<Graph>("visitors");
-  const [filters, setFilters] = useState<Filters>({});
-  const [dateRangeKey, setDateRangeKey] = useState("30d");
-  const [dateRange, setDateRange] = useState<{ from?: Temporal.Instant; to?: Temporal.Instant } | undefined>(() => {
-    const today = Temporal.Now.plainDateISO();
-    return {
-      from: today.subtract({ days: 30 }).toZonedDateTime("UTC").toInstant(),
-      to: today.add({ days: 1 }).toZonedDateTime("UTC").toInstant(),
-    };
+  const [params, setParams] = useSearchParams();
+
+  function syncToParams(paramType: "graph", graph: Graph): void;
+  function syncToParams(paramType: "period", period: Period): void;
+  function syncToParams(paramType: "graph" | "period", object: Graph | Period): void {
+    switch (paramType) {
+      case "graph": {
+        const graph = object as Graph;
+        return setParams((params) => {
+          if (graph === graphDefault) {
+            params.delete("graph");
+          } else {
+            params.set("graph", graph);
+          }
+          return params;
+        });
+      }
+      case "period": {
+        const period = object as Period;
+        return setParams((params) => {
+          if (period.preset === periodPresetDefault) {
+            params.delete("period");
+            params.delete("from");
+            params.delete("to");
+          } else {
+            params.set("period", period.preset);
+            if (period.preset === Period.Preset.custom) {
+              if (period.from) {
+                params.set("from", period.from.toZonedDateTimeISO("UTC").toPlainDate().toString());
+              }
+              if (period.to) {
+                // apply "-1 days" because the instant is exclusive ...
+                params.set("to", period.to.toZonedDateTimeISO("UTC").toPlainDate().subtract({ days: 1 }).toString());
+              }
+            }
+          }
+          return params;
+        });
+      }
+      default: {
+        paramType satisfies never;
+      }
+    }
+  }
+
+  const graphDefault = Graph.visitors;
+  const [graph, setGraph] = useState<Graph>(() => {
+    const graphParam = params.get("graph") as Graph;
+    return Object.values(Graph).includes(graphParam) ? graphParam : graphDefault;
   });
+  useEffect(() => syncToParams("graph", graph), [graph]);
+
+  const periodPresetDefault = Period.Preset.last30d;
+  const [period, setPeriod] = useState<Period>(() => {
+    const presetParam = params.get("period") as Period.Preset;
+    if (Object.values(Period.Preset).includes(presetParam)) {
+      if (presetParam === Period.Preset.custom) {
+        const fromParam = params.get("from") || undefined;
+        const toParam = params.get("to") || undefined;
+        if (fromParam && toParam) {
+          // in custom ranges, both "from" and "to" must be specified via the UI
+          try {
+            return {
+              preset: presetParam,
+              from: Temporal.PlainDate.from(fromParam).toZonedDateTime("UTC").toInstant(),
+              to: Temporal.PlainDate.from(toParam).add({ days: 1 }).toZonedDateTime("UTC").toInstant(),
+            };
+          } catch (e) {
+            // ignore and fall through
+          }
+        }
+        // fall through
+      } else {
+        return Period.forPreset(presetParam);
+      }
+    }
+    return Period.forPreset(Period.Preset.last30d);
+  });
+  useEffect(() => syncToParams("period", period), [JSON.stringify(period)]);
+
+  const [filters, setFilters] = useState<Filters>({});
 
   const { data: website } = useYesQuery({
     queryFn: () => websiteClient.find(ref!),
@@ -64,12 +137,12 @@ export function websites$refPage() {
             Stats.Field.countryDistribution,
             Stats.Field.cityDistribution,
           ],
-          from: dateRange?.from,
-          to: dateRange?.to,
+          from: period.from,
+          to: period.to,
           ...filters,
         }),
     },
-    [website?.id, graph, dateRange?.from, dateRange?.to, JSON.stringify(filters)],
+    [website?.id, graph, period.from?.toString(), period.to?.toString(), JSON.stringify(filters)],
   );
 
   useDocumentTitle(website ? `${website.hostname} | Websites | Visage` : "Websites | Visage");
@@ -88,9 +161,9 @@ export function websites$refPage() {
   const activeFilterCount = Object.keys(filters).length;
 
   const statCards: { key: Graph; label: string; value?: number; format?: (n: number) => string }[] = [
-    { key: "visitors", label: "TOTAL VISITORS", value: stats?.visitorsTotal },
-    { key: "pageviews", label: "TOTAL PAGEVIEWS", value: stats?.pageviewsTotal },
-    { key: "duration", label: "MEDIAN TIME ON PAGE", value: stats?.durationMedian, format: Prettify.duration },
+    { key: Graph.visitors, label: "TOTAL VISITORS", value: stats?.visitorsTotal },
+    { key: Graph.pageviews, label: "TOTAL PAGEVIEWS", value: stats?.pageviewsTotal },
+    { key: Graph.duration, label: "MEDIAN TIME ON PAGE", value: stats?.durationMedian, format: Prettify.duration },
   ];
 
   const activeTimeSeries = stats?.[STAT_TO_TIME_SERIES[graph] as keyof Stats] as TimeSeries | undefined;
@@ -152,14 +225,7 @@ export function websites$refPage() {
             </button>
           ))}
           <div className="ml-auto flex items-center px-5">
-            <DateRangePicker
-              activeKey={dateRangeKey}
-              dateRange={dateRange}
-              onChange={(key, range) => {
-                setDateRangeKey(key);
-                setDateRange(range);
-              }}
-            />
+            <DateRangePicker period={period} onChange={setPeriod} />
           </div>
         </div>
         <div className="p-6 pt-4">
