@@ -4,6 +4,7 @@ import { useSearchParams } from "react-router";
 import { DistributionFilter } from "../pages/tempmodels/DistributionFilter";
 import { Graph } from "../pages/tempmodels/Graph";
 import { Period } from "../pages/tempmodels/Period";
+import { Stats } from "@/models/Stats";
 
 export function useDashboardStateWithUrlSynchronization() {
   const [params, setParams] = useSearchParams();
@@ -73,6 +74,22 @@ export function useDashboardStateWithUrlSynchronization() {
   });
   useEffect(() => syncToParams("graph", graph), [graph]);
 
+  let graphTimeSeriesField: Stats.Field.visitorsTimeSeries | Stats.Field.pageviewsTimeSeries | Stats.Field.durationTimeSeries;
+  switch (graph) {
+    case Graph.visitors: {
+      graphTimeSeriesField = Stats.Field.visitorsTimeSeries;
+      break;
+    }
+    case Graph.pageviews: {
+      graphTimeSeriesField = Stats.Field.pageviewsTimeSeries;
+      break;
+    }
+    case Graph.duration: {
+      graphTimeSeriesField = Stats.Field.durationTimeSeries;
+      break;
+    }
+  }
+
   const periodPresetDefault = Period.Preset.last30d;
   const [period, setPeriod] = useState<Period>(() => {
     let presetParam = params.get("period") as Period.Preset;
@@ -118,6 +135,7 @@ export function useDashboardStateWithUrlSynchronization() {
 
   return {
     graph,
+    graphTimeSeriesField: graphTimeSeriesField,
     setGraph,
     period,
     setPeriod,

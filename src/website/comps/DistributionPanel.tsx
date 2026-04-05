@@ -1,38 +1,31 @@
 import { DistributionPoint } from "@/models/DistributionPoint";
-import { StatsQuery } from "@/models/StatsQuery";
 import { Stats } from "@/models/Stats";
 import { useState } from "react";
+import { DistributionFilter } from "../pages/tempmodels/DistributionFilter";
+import { PanelTab } from "../pages/tempmodels/PanelTab";
 import { DistributionTable } from "./DistributionTable";
 import { Paper } from "./Paper";
-import { DistributionFilter } from "../pages/tempmodels/DistributionFilter";
-
-type Tab = {
-  title: string;
-  field: keyof Stats;
-  filterKey: DistributionFilter.Key;
-};
 
 type Props = {
-  tabs: Tab[];
+  panel: PanelTab[];
   stats?: Stats;
   filters: DistributionFilter[];
   toggleFilter: (key: DistributionFilter.Key, value: string) => void;
 };
-
-export function DistributionPanel({ tabs, stats, filters, toggleFilter: onFilter }: Props) {
+export function DistributionPanel({ panel, stats, filters, toggleFilter: onFilter }: Props) {
   const [activeIndex, setActiveIndex] = useState(0);
-  const activeTab = tabs[activeIndex];
+  const activeTab = panel[activeIndex];
 
   return (
     <Paper>
-      {tabs.length > 1 && (
+      {panel.length > 1 && (
         <div className="flex border-b border-black/10">
-          {tabs.map((tab, i) => {
+          {panel.map((tab, i) => {
             const isActive = i === activeIndex;
             const hasFilter = filters.some(({ key }) => key === tab.filterKey);
             return (
               <button
-                key={tab.title}
+                key={tab.label}
                 onClick={() => setActiveIndex(i)}
                 className={`px-5 py-3 text-xs font-bold tracking-wide cursor-pointer transition-colors ${
                   isActive
@@ -40,18 +33,18 @@ export function DistributionPanel({ tabs, stats, filters, toggleFilter: onFilter
                     : "border-b-2 border-transparent text-c-dark/50 hover:text-c-dark/70"
                 }`}
               >
-                {tab.title}
+                {tab.label}
                 {hasFilter && <span className="inline-block w-2 h-2 rounded-full bg-red-500 ml-1.5" />}
               </button>
             );
           })}
         </div>
       )}
-      {tabs.length === 1 && (
+      {panel.length === 1 && (
         <div className="px-5 pt-5">
           <h3 className="text-xs font-bold tracking-wide text-c-dark/50 flex items-center gap-1.5">
-            {tabs[0].title}
-            {filters.some(({ key }) => key === tabs[0].filterKey) && <span className="inline-block w-2 h-2 rounded-full bg-red-500" />}
+            {panel[0].label}
+            {filters.some(({ key }) => key === panel[0].filterKey) && <span className="inline-block w-2 h-2 rounded-full bg-red-500" />}
           </h3>
         </div>
       )}
