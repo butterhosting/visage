@@ -34,7 +34,8 @@ export function websites$refPage() {
 
   function syncToParams(paramType: "graph", graph: Graph): void;
   function syncToParams(paramType: "period", period: Period): void;
-  function syncToParams(paramType: "graph" | "period", object: Graph | Period): void {
+  function syncToParams(paramType: "filters", filters: DistributionFilter[]): void;
+  function syncToParams(paramType: "graph" | "period" | "filters", object: Graph | Period | DistributionFilter[]): void {
     switch (paramType) {
       case "graph": {
         const graph = object as Graph;
@@ -66,6 +67,20 @@ export function websites$refPage() {
               }
             }
           }
+          return params;
+        });
+      }
+      case "filters": {
+        const filters = object as DistributionFilter[];
+        return setParams((params) => {
+          Object.values(DistributionFilter.Key).forEach((targetKey) => {
+            const activeFilter = filters.find(({ key }) => key === targetKey);
+            if (activeFilter) {
+              params.set(targetKey, activeFilter.value);
+            } else {
+              params.delete(targetKey);
+            }
+          });
           return params;
         });
       }
@@ -113,7 +128,17 @@ export function websites$refPage() {
   });
   useEffect(() => syncToParams("period", period), [JSON.stringify(period)]);
 
-  const [filters, setFilters] = useState<Array<{ property: DistributionFilter; value: string }>>([]);
+  const [filters, setFilters] = useState<DistributionFilter[]>(() => {
+    const result: DistributionFilter[] = [];
+    Object.values(DistributionFilter.Key).forEach((key) => {
+      const value = params.get(key);
+      if (typeof value === "string") {
+        result.push({ key, value });
+      }
+    });
+    return result;
+  });
+  useEffect(() => syncToParams("filters", filters), [JSON.stringify(filters)]);
 
   const { data: website } = useYesQuery({
     queryFn: () => websiteClient.find(ref!),
@@ -139,7 +164,7 @@ export function websites$refPage() {
           ],
           from: period.from,
           to: period.to,
-          ...filters.reduce((previous, { property, value }) => ({ ...previous, [property]: value }), {}),
+          ...filters.reduce((previous, { key, value }) => ({ ...previous, [key]: value }), {}),
         }),
     },
     [website?.id, graph, period.from?.toString(), period.to?.toString(), JSON.stringify(filters)],
@@ -147,12 +172,12 @@ export function websites$refPage() {
 
   useDocumentTitle(website ? `${website.hostname} | Websites | Visage` : "Websites | Visage");
 
-  function toggleFilter(prop: DistributionFilter, value: string) {
+  function toggleFilter(targetKey: DistributionFilter.Key, targetValue: string) {
     setFilters((previous) => {
-      if (previous.some(({ property }) => property === prop)) {
-        return previous.filter(({ property }) => property !== prop);
+      if (previous.some(({ key, value }) => key === targetKey)) {
+        return previous.filter(({ key }) => key !== targetKey);
       }
-      return [...previous, { property: prop, value }];
+      return [...previous, { key: targetKey, value: targetValue }];
     });
   }
 
@@ -166,7 +191,7 @@ export function websites$refPage() {
 
   const activeTimeSeries = stats?.[STAT_TO_TIME_SERIES[graph] as keyof Stats] as TimeSeries | undefined;
 
-  type Tab = { title: string; field: keyof Stats; filterKey: DistributionFilter };
+  type Tab = { title: string; field: keyof Stats; filterKey: DistributionFilter.Key };
   const panels: Tab[][] = [
     [{ title: "PAGES", field: Stats.Field.pageDistribution, filterKey: StatsQuery.Filter.page }],
     [{ title: "SOURCES", field: Stats.Field.sourceDistribution, filterKey: StatsQuery.Filter.source }],
@@ -186,13 +211,13 @@ export function websites$refPage() {
       {/* Active filters bar */}
       {activeFilterCount > 0 && (
         <div className="col-span-full flex items-center gap-2 flex-wrap">
-          {filters.map(({ property, value }) => (
+          {filters.map(({ key, value }) => (
             <button
-              key={property}
-              onClick={() => toggleFilter(property, value)}
+              key={key}
+              onClick={() => toggleFilter(key, value)}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-c-primary/10 text-c-primary text-sm font-semibold cursor-pointer hover:bg-c-primary/20 transition-colors"
             >
-              <span className="text-c-dark/50">{property}:</span> {value}
+              <span className="text-c-dark/50">{key}:</span> {value}
               <span className="ml-1 text-c-primary/50">&times;</span>
             </button>
           ))}
@@ -234,7 +259,7 @@ export function websites$refPage() {
       {/* Distribution panels */}
       <div className="col-span-full grid grid-cols-2 gap-5">
         {panels.map((tabs, i) => (
-          <DistributionPanel key={i} tabs={tabs} stats={stats} filters={filters} onFilter={toggleFilter} />
+          <DistributionPanel key={i} tabs={tabs} stats={stats} filters={filters} toggleFilter={toggleFilter} />
         ))}
       </div>
     </Skeleton>

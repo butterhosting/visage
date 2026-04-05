@@ -9,17 +9,17 @@ import { DistributionFilter } from "../pages/tempmodels/DistributionFilter";
 type Tab = {
   title: string;
   field: keyof Stats;
-  filterKey: DistributionFilter;
+  filterKey: DistributionFilter.Key;
 };
 
 type Props = {
   tabs: Tab[];
   stats?: Stats;
-  filters: Array<{ property: DistributionFilter; value: string }>;
-  onFilter: (property: DistributionFilter, value: string) => void;
+  filters: DistributionFilter[];
+  toggleFilter: (key: DistributionFilter.Key, value: string) => void;
 };
 
-export function DistributionPanel({ tabs, stats, filters, onFilter }: Props) {
+export function DistributionPanel({ tabs, stats, filters, toggleFilter: onFilter }: Props) {
   const [activeIndex, setActiveIndex] = useState(0);
   const activeTab = tabs[activeIndex];
 
@@ -29,7 +29,7 @@ export function DistributionPanel({ tabs, stats, filters, onFilter }: Props) {
         <div className="flex border-b border-black/10">
           {tabs.map((tab, i) => {
             const isActive = i === activeIndex;
-            const hasFilter = filters.some(({ property }) => property === tab.filterKey);
+            const hasFilter = filters.some(({ key }) => key === tab.filterKey);
             return (
               <button
                 key={tab.title}
@@ -51,9 +51,7 @@ export function DistributionPanel({ tabs, stats, filters, onFilter }: Props) {
         <div className="px-5 pt-5">
           <h3 className="text-xs font-bold tracking-wide text-c-dark/50 flex items-center gap-1.5">
             {tabs[0].title}
-            {filters.some(({ property }) => property === tabs[0].filterKey) && (
-              <span className="inline-block w-2 h-2 rounded-full bg-red-500" />
-            )}
+            {filters.some(({ key }) => key === tabs[0].filterKey) && <span className="inline-block w-2 h-2 rounded-full bg-red-500" />}
           </h3>
         </div>
       )}
@@ -61,8 +59,8 @@ export function DistributionPanel({ tabs, stats, filters, onFilter }: Props) {
         <DistributionTable
           data={stats?.[activeTab.field] as DistributionPoint[] | undefined}
           filterKey={activeTab.filterKey}
-          activeValue={filters.find(({ property }) => property === activeTab.filterKey)?.value}
-          onFilter={onFilter}
+          activeValue={filters.find(({ key }) => key === activeTab.filterKey)?.value}
+          toggleFilter={onFilter}
         />
       </div>
     </Paper>

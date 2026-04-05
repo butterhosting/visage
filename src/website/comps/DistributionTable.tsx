@@ -5,12 +5,12 @@ import { DistributionFilter } from "../pages/tempmodels/DistributionFilter";
 
 type Props = {
   data?: DistributionPoint[];
-  filterKey: DistributionFilter;
+  filterKey: DistributionFilter.Key;
   activeValue?: string;
-  onFilter: (key: DistributionFilter, value: string) => void;
+  toggleFilter: (key: DistributionFilter.Key, value: string) => void;
 };
 
-export function DistributionTable({ data, filterKey, activeValue, onFilter }: Props) {
+export function DistributionTable({ data, filterKey, activeValue, toggleFilter: onFilter }: Props) {
   const max = data?.[0]?.value ?? 0;
   if (!data || data.length === 0) {
     return (
