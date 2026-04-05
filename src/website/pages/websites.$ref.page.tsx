@@ -4,7 +4,7 @@ import { StatsQuery } from "@/models/StatsQuery";
 import { TimeSeries } from "@/models/TimeSeries";
 import { Temporal } from "@js-temporal/polyfill";
 import { useEffect, useState } from "react";
-import { useParams } from "react-router";
+import { useParams, useSearchParams } from "react-router";
 import { StatsClient } from "../clients/StatsClient";
 import { WebsiteClient } from "../clients/WebsiteClient";
 import { DateRangePicker } from "../comps/DateRangePicker";
@@ -15,10 +15,8 @@ import { TimeSeriesChart } from "../comps/TimeSeriesChart";
 import { useDocumentTitle } from "../hooks/useDocumentTitle";
 import { useRegistry } from "../hooks/useRegistry";
 import { useYesQuery } from "../hooks/useYesQuery";
-import { useSearchParams } from "react-router";
 import { Graph } from "./tempmodels/Graph";
 import { Period } from "./tempmodels/Period";
-import { time } from "drizzle-orm/singlestore-core";
 
 const STAT_TO_TIME_SERIES: Record<Graph, Stats.Field> = {
   visitors: Stats.Field.visitorsTimeSeries,
@@ -58,7 +56,7 @@ export function websites$refPage() {
             params.delete("from");
             params.delete("to");
           } else {
-            params.set("period", period.preset);
+            params.set("period", /^last\d+d$/.test(period.preset) ? period.preset.slice("last".length) : period.preset);
             if (period.preset === Period.Preset.custom) {
               if (period.from) {
                 params.set("from", period.from.toZonedDateTimeISO("UTC").toPlainDate().toString());
@@ -87,7 +85,10 @@ export function websites$refPage() {
 
   const periodPresetDefault = Period.Preset.last30d;
   const [period, setPeriod] = useState<Period>(() => {
-    const presetParam = params.get("period") as Period.Preset;
+    let presetParam = params.get("period") as Period.Preset;
+    if (/^\d+d$/.test(presetParam)) {
+      presetParam = `last${presetParam}` as Period.Preset; // keep the `last` prefix out for nicer query params
+    }
     if (Object.values(Period.Preset).includes(presetParam)) {
       if (presetParam === Period.Preset.custom) {
         const fromParam = params.get("from") || undefined;
