@@ -1,10 +1,10 @@
 import { DistributionPoint } from "@/models/DistributionPoint";
 import { Stats } from "@/models/Stats";
 import { useState } from "react";
-import { DistributionFilter } from "../pages/tempmodels/DistributionFilter";
-import { PanelTab } from "../pages/tempmodels/PanelTab";
+import { DistributionFilter } from "../../femodels/DistributionFilter";
+import { PanelTab } from "../../femodels/PanelTab";
 import { DistributionTable } from "./DistributionTable";
-import { Paper } from "./Paper";
+import { Paper } from "../Paper";
 
 type Props = {
   panel: PanelTab[];

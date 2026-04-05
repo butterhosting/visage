@@ -4,18 +4,18 @@ import { StatsQuery } from "@/models/StatsQuery";
 import { useParams } from "react-router";
 import { StatsClient } from "../clients/StatsClient";
 import { WebsiteClient } from "../clients/WebsiteClient";
-import { DateRangePicker } from "../comps/DateRangePicker";
-import { DistributionPanel } from "../comps/DistributionPanel";
+import { DateRangePicker } from "../comps/dashboard/DateRangePicker";
+import { DistributionPanel } from "../comps/dashboard/DistributionPanel";
+import { TimeSeriesChart } from "../comps/dashboard/TimeSeriesChart";
 import { Paper } from "../comps/Paper";
 import { Skeleton } from "../comps/Skeleton";
-import { TimeSeriesChart } from "../comps/TimeSeriesChart";
-import { useDashboardStateWithUrlSynchronization } from "../hooks/useDashboardStateWithUrlSynchronization";
+import { DistributionFilter } from "../femodels/DistributionFilter";
+import { Graph } from "../femodels/Graph";
+import { PanelTab } from "../femodels/PanelTab";
+import { useDashboardStateWithUrlSynchronization } from "../hooks/dashboard/useDashboardStateWithUrlSynchronization";
 import { useDocumentTitle } from "../hooks/useDocumentTitle";
 import { useRegistry } from "../hooks/useRegistry";
 import { useYesQuery } from "../hooks/useYesQuery";
-import { DistributionFilter } from "./tempmodels/DistributionFilter";
-import { Graph } from "./tempmodels/Graph";
-import { PanelTab } from "./tempmodels/PanelTab";
 
 export function websites$refPage() {
   const { ref } = useParams();

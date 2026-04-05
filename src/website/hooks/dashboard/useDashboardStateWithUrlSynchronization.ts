@@ -1,10 +1,10 @@
 import { Temporal } from "@js-temporal/polyfill";
 import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router";
-import { DistributionFilter } from "../pages/tempmodels/DistributionFilter";
-import { Graph } from "../pages/tempmodels/Graph";
-import { Period } from "../pages/tempmodels/Period";
 import { Stats } from "@/models/Stats";
+import { DistributionFilter } from "@/website/femodels/DistributionFilter";
+import { Graph } from "@/website/femodels/Graph";
+import { Period } from "@/website/femodels/Period";
 
 export function useDashboardStateWithUrlSynchronization() {
   const [params, setParams] = useSearchParams();

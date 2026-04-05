@@ -1,7 +1,7 @@
 import { Prettify } from "@/helpers/Prettify";
 import { WebsiteRM } from "@/models/WebsiteRM";
 import { Paper } from "./Paper";
-import { TimeSeriesChart } from "./TimeSeriesChart";
+import { TimeSeriesChart } from "./dashboard/TimeSeriesChart";
 
 type Props = {
   website: WebsiteRM;

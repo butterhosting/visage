@@ -1,7 +1,7 @@
 import { Prettify } from "@/helpers/Prettify";
 import { TimeSeries } from "@/models/TimeSeries";
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { Spinner } from "./Spinner";
+import { Spinner } from "../Spinner";
 
 function sparseTicks(count: number, max: number): Set<number> {
   if (count <= max) return new Set(Array.from({ length: count }, (_, i) => i));
@@ -71,7 +71,11 @@ export function TimeSeriesChart({ timeSeries, gradientId = "chartGradient", mini
 
   return (
     <ResponsiveContainer width="100%" height={height}>
-      <AreaChart data={chartData} margin={minimal ? { top: 5, right: 0, left: 0, bottom: 0 } : { top: 5, right: 10, left: 10, bottom: 0 }} tabIndex={-1}>
+      <AreaChart
+        data={chartData}
+        margin={minimal ? { top: 5, right: 0, left: 0, bottom: 0 } : { top: 5, right: 10, left: 10, bottom: 0 }}
+        tabIndex={-1}
+      >
         <defs>
           <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%" stopColor="#4647d2" stopOpacity={0.15} />
@@ -99,7 +103,9 @@ export function TimeSeriesChart({ timeSeries, gradientId = "chartGradient", mini
             dx={-4}
           />
         )}
-        {!minimal && <Tooltip content={<CustomTooltip yUnit={yUnit} />} cursor={{ stroke: "#4647d2", strokeWidth: 1, strokeDasharray: "4 4" }} />}
+        {!minimal && (
+          <Tooltip content={<CustomTooltip yUnit={yUnit} />} cursor={{ stroke: "#4647d2", strokeWidth: 1, strokeDasharray: "4 4" }} />
+        )}
         <Area
           type="linear"
           dataKey="y"

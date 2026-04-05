@@ -1,7 +1,6 @@
 import { Prettify } from "@/helpers/Prettify";
 import { DistributionPoint } from "@/models/DistributionPoint";
-import { StatsQuery } from "@/models/StatsQuery";
-import { DistributionFilter } from "../pages/tempmodels/DistributionFilter";
+import { DistributionFilter } from "../../femodels/DistributionFilter";
 
 type Props = {
   data?: DistributionPoint[];
@@ -9,7 +8,6 @@ type Props = {
   activeValue?: string;
   toggleFilter: (key: DistributionFilter.Key, value: string) => void;
 };
-
 export function DistributionTable({ data, filterKey, activeValue, toggleFilter: onFilter }: Props) {
   const max = data?.[0]?.value ?? 0;
   if (!data || data.length === 0) {

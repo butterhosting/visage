@@ -1,8 +1,8 @@
 import { Prettify } from "@/helpers/Prettify";
 import { useEffect, useRef, useState } from "react";
-import { DialogClient } from "../clients/DialogClient";
-import { useRegistry } from "../hooks/useRegistry";
-import { Period } from "../pages/tempmodels/Period";
+import { DialogClient } from "../../clients/DialogClient";
+import { useRegistry } from "../../hooks/useRegistry";
+import { Period } from "../../femodels/Period";
 
 type Props = {
   period: Period;
