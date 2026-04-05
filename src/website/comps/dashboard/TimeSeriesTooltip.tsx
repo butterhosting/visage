@@ -9,7 +9,6 @@ export function TimeSeriesTooltip({
   yUnit: TimeSeries["yUnit"];
   active?: boolean;
   payload?: { value: number; payload: { tooltipLabel: string } }[];
-  label?: string;
 }) {
   if (!active || !payload?.length) return null;
   return (

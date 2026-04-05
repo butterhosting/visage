@@ -82,7 +82,14 @@ export function TimeSeriesChart({ timeSeries, gradientId = "chartGradient", mini
           />
         )}
         {!minimal && (
-          <Tooltip content={<TimeSeriesTooltip yUnit={yUnit} />} cursor={{ stroke: "#4647d2", strokeWidth: 1, strokeDasharray: "4 4" }} />
+          <Tooltip
+            content={<TimeSeriesTooltip yUnit={yUnit} />}
+            cursor={{
+              stroke: "#4647d2",
+              strokeWidth: 1,
+              strokeDasharray: "4 4",
+            }}
+          />
         )}
         <Area
           type="linear"

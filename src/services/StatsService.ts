@@ -99,8 +99,8 @@ export class StatsService {
       if (!to) to = Temporal.Instant.from(latest);
     }
     const hours = (to.epochMilliseconds - from.epochMilliseconds) / (1000 * 60 * 60);
-    if (hours <= 24) return "hour";
-    if (hours / 24 <= 90) return "day";
+    if (hours <= 24 * 10) return "hour"; // less than 10 days
+    if (hours / 24 <= 30 * 10) return "day"; // less than 10 months
     return "month";
   }
 
