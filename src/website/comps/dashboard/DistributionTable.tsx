@@ -6,7 +6,7 @@ type Props = {
   data?: DistributionPoint[];
   filterKey: DistributionFilter.Key;
   activeValue?: string;
-  toggleFilter: (key: DistributionFilter.Key, value: string) => void;
+  toggleFilter: DistributionFilter.ToggleFn;
 };
 export function DistributionTable({ data, filterKey, activeValue, toggleFilter: onFilter }: Props) {
   const max = data?.[0]?.value ?? 0;

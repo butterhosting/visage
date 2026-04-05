@@ -16,4 +16,6 @@ export namespace DistributionFilter {
     country: StatsQuery.Filter.country,
     city: StatsQuery.Filter.city,
   };
+
+  export type ToggleFn = (key: Key, value: string) => void;
 }

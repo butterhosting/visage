@@ -8,7 +8,7 @@ type Props = {
   period: Period;
   onChange: (period: Period) => void;
 };
-export function DateRangePicker({ period, onChange }: Props) {
+export function PeriodPicker({ period, onChange }: Props) {
   const [open, setOpen] = useState(false);
   const dialogClient = useRegistry(DialogClient);
   const ref = useRef<HTMLDivElement>(null);

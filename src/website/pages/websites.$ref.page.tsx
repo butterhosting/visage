@@ -4,7 +4,8 @@ import { StatsQuery } from "@/models/StatsQuery";
 import { useParams } from "react-router";
 import { StatsClient } from "../clients/StatsClient";
 import { WebsiteClient } from "../clients/WebsiteClient";
-import { DateRangePicker } from "../comps/dashboard/DateRangePicker";
+import { ActiveFiltersBar } from "../comps/dashboard/ActiveFiltersBar";
+import { PeriodPicker } from "../comps/dashboard/PeriodPicker";
 import { DistributionPanel } from "../comps/dashboard/DistributionPanel";
 import { TimeSeriesChart } from "../comps/dashboard/TimeSeriesChart";
 import { Paper } from "../comps/Paper";
@@ -103,28 +104,9 @@ export function websites$refPage() {
   return (
     <Skeleton className="grid grid-cols-1 gap-5">
       {/* Active filters section */}
-      {Object.entries(filters).length > 0 && (
-        <div className="col-span-full flex items-center gap-2 flex-wrap">
-          {filters.map(({ key, value }) => (
-            <button
-              key={key}
-              onClick={() => toggleFilter(key, value)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-c-primary/10 text-c-primary text-sm font-semibold cursor-pointer hover:bg-c-primary/20 transition-colors"
-            >
-              <span className="text-c-dark/50">{key}:</span> {value}
-              <span className="ml-1 text-c-primary/50">&times;</span>
-            </button>
-          ))}
-          <button
-            onClick={() => setFilters([])}
-            className="px-3 py-1.5 rounded-lg text-sm font-semibold text-c-dark/50 hover:text-c-dark cursor-pointer transition-colors"
-          >
-            Clear all
-          </button>
-        </div>
-      )}
+      <ActiveFiltersBar filters={filters} toggle={toggleFilter} reset={() => setFilters([])} />
 
-      {/* Aggregate stats + Chart */}
+      {/* Aggregate stats + chart */}
       <Paper className="col-span-full">
         <div className="flex divide-x divide-black/10">
           {aggregateStats().map(({ label, value, correspondingGraph }) => (
@@ -140,7 +122,7 @@ export function websites$refPage() {
             </button>
           ))}
           <div className="ml-auto flex items-center px-5">
-            <DateRangePicker period={period} onChange={setPeriod} />
+            <PeriodPicker period={period} onChange={setPeriod} />
           </div>
         </div>
         <div className="p-6 pt-4">

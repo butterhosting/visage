@@ -10,7 +10,7 @@ type Props = {
   panel: PanelTab[];
   stats?: Stats;
   filters: DistributionFilter[];
-  toggleFilter: (key: DistributionFilter.Key, value: string) => void;
+  toggleFilter: DistributionFilter.ToggleFn;
 };
 export function DistributionPanel({ panel, stats, filters, toggleFilter: onFilter }: Props) {
   const [activeIndex, setActiveIndex] = useState(0);
