@@ -2,6 +2,7 @@ import { Prettify } from "@/helpers/Prettify";
 import { TimeSeries } from "@/models/TimeSeries";
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { Spinner } from "../Spinner";
+import { TimeSeriesTooltip } from "./TimeSeriesTooltip";
 
 function sparseTicks(count: number, max: number): Set<number> {
   if (count <= max) return new Set(Array.from({ length: count }, (_, i) => i));
@@ -15,34 +16,12 @@ function sparseTicks(count: number, max: number): Set<number> {
   return indices;
 }
 
-function CustomTooltip({
-  yUnit,
-  active,
-  payload,
-}: {
-  yUnit: TimeSeries["yUnit"];
-  active?: boolean;
-  payload?: { value: number; payload: { tooltipLabel: string } }[];
-  label?: string;
-}) {
-  if (!active || !payload?.length) return null;
-  return (
-    <div className="bg-c-dark text-white rounded-xl px-5 py-4 shadow-xl">
-      <div className="text-xs font-bold tracking-wide mb-2 text-white/70">{payload[0].payload.tooltipLabel}</div>
-      <div className="flex items-center gap-3">
-        {Prettify.yValue(payload[0].value, yUnit)} {Prettify.yUnitLabel(yUnit)}
-      </div>
-    </div>
-  );
-}
-
 type Props = {
   timeSeries?: TimeSeries;
   gradientId?: string;
   minimal?: boolean;
   height?: number | `${number}%`;
 };
-
 export function TimeSeriesChart({ timeSeries, gradientId = "chartGradient", minimal, height = 320 }: Props) {
   if (!timeSeries) {
     return (
@@ -51,7 +30,6 @@ export function TimeSeriesChart({ timeSeries, gradientId = "chartGradient", mini
       </div>
     );
   }
-
   if (timeSeries.data.length === 0) {
     return (
       <div style={{ height }} className="flex items-center justify-center">
@@ -63,10 +41,10 @@ export function TimeSeriesChart({ timeSeries, gradientId = "chartGradient", mini
   const { tUnit, yUnit } = timeSeries;
   const maxTicks = 10;
   const tickIndices = sparseTicks(timeSeries.data.length, maxTicks);
-  const chartData = timeSeries.data.map((d, i) => ({
-    axisLabel: Prettify.chartAxisLabel(d.t, tUnit),
-    tooltipLabel: Prettify.chartTooltipLabel(d.t, tUnit),
-    y: d.y,
+  const chartData = timeSeries.data.map(({ t, y }) => ({
+    axisLabel: Prettify.chartAxisLabel(t, tUnit),
+    tooltipLabel: Prettify.chartTooltipLabel(t, tUnit),
+    y,
   }));
 
   return (
@@ -104,11 +82,11 @@ export function TimeSeriesChart({ timeSeries, gradientId = "chartGradient", mini
           />
         )}
         {!minimal && (
-          <Tooltip content={<CustomTooltip yUnit={yUnit} />} cursor={{ stroke: "#4647d2", strokeWidth: 1, strokeDasharray: "4 4" }} />
+          <Tooltip content={<TimeSeriesTooltip yUnit={yUnit} />} cursor={{ stroke: "#4647d2", strokeWidth: 1, strokeDasharray: "4 4" }} />
         )}
         <Area
           type="linear"
-          dataKey="y"
+          dataKey={"y" satisfies keyof TimeSeries["data"][number]}
           stroke="#4647d2"
           strokeWidth={minimal ? 1.5 : 2}
           fill={`url(#${gradientId})`}
