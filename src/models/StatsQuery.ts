@@ -29,7 +29,6 @@ export namespace StatsQuery {
     country = "country",
     city = "city",
   }
-  export type StringFilter = Exclude<Filter, Filter.from | Filter.to>;
   export const parse = ZodParser.forType<StatsQuery>()
     .ensureSchemaMatchesType(() =>
       z.object({

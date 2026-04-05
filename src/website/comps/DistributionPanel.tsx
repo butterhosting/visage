@@ -4,18 +4,19 @@ import { Stats } from "@/models/Stats";
 import { useState } from "react";
 import { DistributionTable } from "./DistributionTable";
 import { Paper } from "./Paper";
+import { DistributionFilter } from "../pages/tempmodels/DistributionFilter";
 
 type Tab = {
   title: string;
   field: keyof Stats;
-  filterKey: StatsQuery.StringFilter;
+  filterKey: DistributionFilter;
 };
 
 type Props = {
   tabs: Tab[];
   stats?: Stats;
-  filters: Partial<Record<StatsQuery.StringFilter, string>>;
-  onFilter: (key: StatsQuery.StringFilter, value: string) => void;
+  filters: Array<{ property: DistributionFilter; value: string }>;
+  onFilter: (property: DistributionFilter, value: string) => void;
 };
 
 export function DistributionPanel({ tabs, stats, filters, onFilter }: Props) {
@@ -28,13 +29,15 @@ export function DistributionPanel({ tabs, stats, filters, onFilter }: Props) {
         <div className="flex border-b border-black/10">
           {tabs.map((tab, i) => {
             const isActive = i === activeIndex;
-            const hasFilter = filters[tab.filterKey] != null;
+            const hasFilter = filters.some(({ property }) => property === tab.filterKey);
             return (
               <button
                 key={tab.title}
                 onClick={() => setActiveIndex(i)}
                 className={`px-5 py-3 text-xs font-bold tracking-wide cursor-pointer transition-colors ${
-                  isActive ? "border-b-2 border-c-primary text-c-primary" : "border-b-2 border-transparent text-c-dark/50 hover:text-c-dark/70"
+                  isActive
+                    ? "border-b-2 border-c-primary text-c-primary"
+                    : "border-b-2 border-transparent text-c-dark/50 hover:text-c-dark/70"
                 }`}
               >
                 {tab.title}
@@ -48,7 +51,9 @@ export function DistributionPanel({ tabs, stats, filters, onFilter }: Props) {
         <div className="px-5 pt-5">
           <h3 className="text-xs font-bold tracking-wide text-c-dark/50 flex items-center gap-1.5">
             {tabs[0].title}
-            {filters[tabs[0].filterKey] != null && <span className="inline-block w-2 h-2 rounded-full bg-red-500" />}
+            {filters.some(({ property }) => property === tabs[0].filterKey) && (
+              <span className="inline-block w-2 h-2 rounded-full bg-red-500" />
+            )}
           </h3>
         </div>
       )}
@@ -56,7 +61,7 @@ export function DistributionPanel({ tabs, stats, filters, onFilter }: Props) {
         <DistributionTable
           data={stats?.[activeTab.field] as DistributionPoint[] | undefined}
           filterKey={activeTab.filterKey}
-          activeValue={filters[activeTab.filterKey]}
+          activeValue={filters.find(({ property }) => property === activeTab.filterKey)?.value}
           onFilter={onFilter}
         />
       </div>

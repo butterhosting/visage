@@ -15,6 +15,7 @@ import { TimeSeriesChart } from "../comps/TimeSeriesChart";
 import { useDocumentTitle } from "../hooks/useDocumentTitle";
 import { useRegistry } from "../hooks/useRegistry";
 import { useYesQuery } from "../hooks/useYesQuery";
+import { DistributionFilter } from "./tempmodels/DistributionFilter";
 import { Graph } from "./tempmodels/Graph";
 import { Period } from "./tempmodels/Period";
 
@@ -23,8 +24,6 @@ const STAT_TO_TIME_SERIES: Record<Graph, Stats.Field> = {
   pageviews: Stats.Field.pageviewsTimeSeries,
   duration: Stats.Field.durationTimeSeries,
 };
-
-type Filters = Partial<Record<StatsQuery.StringFilter, string>>;
 
 export function websites$refPage() {
   const { ref } = useParams();
@@ -114,7 +113,7 @@ export function websites$refPage() {
   });
   useEffect(() => syncToParams("period", period), [JSON.stringify(period)]);
 
-  const [filters, setFilters] = useState<Filters>({});
+  const [filters, setFilters] = useState<Array<{ property: DistributionFilter; value: string }>>([]);
 
   const { data: website } = useYesQuery({
     queryFn: () => websiteClient.find(ref!),
@@ -140,7 +139,7 @@ export function websites$refPage() {
           ],
           from: period.from,
           to: period.to,
-          ...filters,
+          ...filters.reduce((previous, { property, value }) => ({ ...previous, [property]: value }), {}),
         }),
     },
     [website?.id, graph, period.from?.toString(), period.to?.toString(), JSON.stringify(filters)],
@@ -148,14 +147,12 @@ export function websites$refPage() {
 
   useDocumentTitle(website ? `${website.hostname} | Websites | Visage` : "Websites | Visage");
 
-  function toggleFilter(key: StatsQuery.StringFilter, value: string) {
-    setFilters((prev) => {
-      if (prev[key] === value) {
-        const next = { ...prev };
-        delete next[key];
-        return next;
+  function toggleFilter(prop: DistributionFilter, value: string) {
+    setFilters((previous) => {
+      if (previous.some(({ property }) => property === prop)) {
+        return previous.filter(({ property }) => property !== prop);
       }
-      return { ...prev, [key]: value };
+      return [...previous, { property: prop, value }];
     });
   }
 
@@ -169,7 +166,7 @@ export function websites$refPage() {
 
   const activeTimeSeries = stats?.[STAT_TO_TIME_SERIES[graph] as keyof Stats] as TimeSeries | undefined;
 
-  type Tab = { title: string; field: keyof Stats; filterKey: StatsQuery.StringFilter };
+  type Tab = { title: string; field: keyof Stats; filterKey: DistributionFilter };
   const panels: Tab[][] = [
     [{ title: "PAGES", field: Stats.Field.pageDistribution, filterKey: StatsQuery.Filter.page }],
     [{ title: "SOURCES", field: Stats.Field.sourceDistribution, filterKey: StatsQuery.Filter.source }],
@@ -189,18 +186,18 @@ export function websites$refPage() {
       {/* Active filters bar */}
       {activeFilterCount > 0 && (
         <div className="col-span-full flex items-center gap-2 flex-wrap">
-          {Object.entries(filters).map(([key, value]) => (
+          {filters.map(({ property, value }) => (
             <button
-              key={key}
-              onClick={() => toggleFilter(key as StatsQuery.StringFilter, value!)}
+              key={property}
+              onClick={() => toggleFilter(property, value)}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-c-primary/10 text-c-primary text-sm font-semibold cursor-pointer hover:bg-c-primary/20 transition-colors"
             >
-              <span className="text-c-dark/50">{key}:</span> {value}
+              <span className="text-c-dark/50">{property}:</span> {value}
               <span className="ml-1 text-c-primary/50">&times;</span>
             </button>
           ))}
           <button
-            onClick={() => setFilters({})}
+            onClick={() => setFilters([])}
             className="px-3 py-1.5 rounded-lg text-sm font-semibold text-c-dark/50 hover:text-c-dark cursor-pointer transition-colors"
           >
             Clear all

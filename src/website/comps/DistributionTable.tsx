@@ -1,12 +1,13 @@
 import { Prettify } from "@/helpers/Prettify";
 import { DistributionPoint } from "@/models/DistributionPoint";
 import { StatsQuery } from "@/models/StatsQuery";
+import { DistributionFilter } from "../pages/tempmodels/DistributionFilter";
 
 type Props = {
   data?: DistributionPoint[];
-  filterKey: StatsQuery.StringFilter;
+  filterKey: DistributionFilter;
   activeValue?: string;
-  onFilter: (key: StatsQuery.StringFilter, value: string) => void;
+  onFilter: (key: DistributionFilter, value: string) => void;
 };
 
 export function DistributionTable({ data, filterKey, activeValue, onFilter }: Props) {
