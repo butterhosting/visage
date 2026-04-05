@@ -16,50 +16,59 @@ export function useDashboardStateWithUrlSynchronization() {
     switch (paramType) {
       case "graph": {
         const graph = object as Graph;
-        return setParams((params) => {
-          if (graph === graphDefault) {
-            params.delete("graph");
-          } else {
-            params.set("graph", graph);
-          }
-          return params;
-        });
+        return setParams(
+          (params) => {
+            if (graph === graphDefault) {
+              params.delete("graph");
+            } else {
+              params.set("graph", graph);
+            }
+            return params;
+          },
+          { replace: true },
+        );
       }
       case "period": {
         const period = object as Period;
-        return setParams((params) => {
-          if (period.preset === periodPresetDefault) {
-            params.delete("period");
-            params.delete("from");
-            params.delete("to");
-          } else {
-            params.set("period", /^last\d+d$/.test(period.preset) ? period.preset.slice("last".length) : period.preset);
-            if (period.preset === Period.Preset.custom) {
-              if (period.from) {
-                params.set("from", period.from.toZonedDateTimeISO("UTC").toPlainDate().toString());
-              }
-              if (period.to) {
-                // apply "-1 days" because the instant is exclusive ...
-                params.set("to", period.to.toZonedDateTimeISO("UTC").toPlainDate().subtract({ days: 1 }).toString());
+        return setParams(
+          (params) => {
+            if (period.preset === periodPresetDefault) {
+              params.delete("period");
+              params.delete("from");
+              params.delete("to");
+            } else {
+              params.set("period", /^last\d+d$/.test(period.preset) ? period.preset.slice("last".length) : period.preset);
+              if (period.preset === Period.Preset.custom) {
+                if (period.from) {
+                  params.set("from", period.from.toZonedDateTimeISO("UTC").toPlainDate().toString());
+                }
+                if (period.to) {
+                  // apply "-1 days" because the instant is exclusive ...
+                  params.set("to", period.to.toZonedDateTimeISO("UTC").toPlainDate().subtract({ days: 1 }).toString());
+                }
               }
             }
-          }
-          return params;
-        });
+            return params;
+          },
+          { replace: true },
+        );
       }
       case "filters": {
         const filters = object as DistributionFilter[];
-        return setParams((params) => {
-          Object.values(DistributionFilter.Key).forEach((targetKey) => {
-            const activeFilter = filters.find(({ key }) => key === targetKey);
-            if (activeFilter) {
-              params.set(targetKey, activeFilter.value);
-            } else {
-              params.delete(targetKey);
-            }
-          });
-          return params;
-        });
+        return setParams(
+          (params) => {
+            Object.values(DistributionFilter.Key).forEach((targetKey) => {
+              const activeFilter = filters.find(({ key }) => key === targetKey);
+              if (activeFilter) {
+                params.set(targetKey, activeFilter.value);
+              } else {
+                params.delete(targetKey);
+              }
+            });
+            return params;
+          },
+          { replace: true },
+        );
       }
       default: {
         paramType satisfies never;

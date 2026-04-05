@@ -3,8 +3,8 @@ import { Stats } from "@/models/Stats";
 import { useState } from "react";
 import { DistributionFilter } from "../../femodels/DistributionFilter";
 import { PanelTab } from "../../femodels/PanelTab";
-import { DistributionTable } from "./DistributionTable";
 import { Paper } from "../Paper";
+import { DistributionTable } from "./DistributionTable";
 
 type Props = {
   panel: PanelTab[];
@@ -12,10 +12,9 @@ type Props = {
   filters: DistributionFilter[];
   toggleFilter: DistributionFilter.ToggleFn;
 };
-export function DistributionPanel({ panel, stats, filters, toggleFilter: onFilter }: Props) {
+export function DistributionPanel({ panel, stats, filters, toggleFilter }: Props) {
   const [activeIndex, setActiveIndex] = useState(0);
   const activeTab = panel[activeIndex];
-
   return (
     <Paper>
       {panel.length > 1 && (
@@ -50,10 +49,10 @@ export function DistributionPanel({ panel, stats, filters, toggleFilter: onFilte
       )}
       <div className="p-5">
         <DistributionTable
-          data={stats?.[activeTab.field] as DistributionPoint[] | undefined}
+          data={stats?.[activeTab.field] as DistributionPoint[]}
           filterKey={activeTab.filterKey}
-          activeValue={filters.find(({ key }) => key === activeTab.filterKey)?.value}
-          toggleFilter={onFilter}
+          filterValue={filters.find(({ key }) => key === activeTab.filterKey)?.value}
+          toggleFilter={toggleFilter}
         />
       </div>
     </Paper>

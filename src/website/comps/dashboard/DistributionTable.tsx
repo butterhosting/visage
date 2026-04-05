@@ -5,10 +5,10 @@ import { DistributionFilter } from "../../femodels/DistributionFilter";
 type Props = {
   data?: DistributionPoint[];
   filterKey: DistributionFilter.Key;
-  activeValue?: string;
+  filterValue?: string;
   toggleFilter: DistributionFilter.ToggleFn;
 };
-export function DistributionTable({ data, filterKey, activeValue, toggleFilter: onFilter }: Props) {
+export function DistributionTable({ data, filterKey, filterValue, toggleFilter }: Props) {
   const max = data?.[0]?.value ?? 0;
   if (!data || data.length === 0) {
     return (
@@ -20,11 +20,11 @@ export function DistributionTable({ data, filterKey, activeValue, toggleFilter: 
   return (
     <div className="flex flex-col gap-2">
       {data.slice(0, 10).map((point) => {
-        const isActive = activeValue === point.label;
+        const isActive = filterValue === point.label;
         return (
           <button
             key={point.label}
-            onClick={() => onFilter(filterKey, point.label)}
+            onClick={() => toggleFilter(filterKey, point.label)}
             className="flex items-center gap-3 cursor-pointer text-left"
           >
             <div className={`relative flex-1 h-7 rounded overflow-hidden ${isActive ? "bg-c-primary/15" : "bg-c-primary/5"}`}>

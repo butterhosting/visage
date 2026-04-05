@@ -1,6 +1,7 @@
 import { TimeSeries } from "@/models/TimeSeries";
 import { Temporal } from "@js-temporal/polyfill";
 
+// TODO: this has gotten out of control a bit .. simplify
 export class Prettify {
   private static readonly monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
@@ -42,9 +43,9 @@ export class Prettify {
     return "";
   }
 
-  public static shortDate(instant: Temporal.Instant): string {
+  public static longDate(instant: Temporal.Instant): string {
     const d = new Date(instant.epochMilliseconds);
-    return d.toLocaleDateString("en", { day: "numeric", month: "long" });
+    return d.toLocaleDateString("en", { day: "numeric", month: "long", year: "numeric" });
   }
 
   public static chartAxisLabel(t: Temporal.Instant, tUnit: TimeSeries["tUnit"]): string {

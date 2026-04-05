@@ -25,7 +25,7 @@ export function PeriodPicker({ period, onChange }: Props) {
 
   let activeLabel: string;
   if (period.preset === Period.Preset.custom && period?.from && period?.to) {
-    activeLabel = `${Prettify.shortDate(period.from)} \u2013 ${Prettify.shortDate(period.to)}`;
+    activeLabel = `${Prettify.longDate(period.from)} \u2013 ${Prettify.longDate(period.to)}`;
   } else {
     activeLabel = period.preset;
   }
