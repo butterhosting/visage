@@ -26,7 +26,7 @@ export namespace Period {
     return date.toZonedDateTime("UTC").add({ days: 1 }).toInstant();
   }
   export function forPreset(preset: Exclude<Preset, Preset.custom>): Period {
-    const today = Temporal.Now.plainDateISO(); // TODO: timezone
+    const today = Temporal.Now.plainDateISO(); // TODO: timezone?
     switch (preset) {
       case Preset.today:
         return {
