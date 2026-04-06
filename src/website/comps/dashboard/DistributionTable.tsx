@@ -1,16 +1,16 @@
 import { Prettify } from "@/helpers/Prettify";
-import { DistributionPoint } from "@/models/DistributionPoint";
+import { Distribution } from "@/models/Distribution";
 import { DistributionFilter } from "../../femodels/DistributionFilter";
 
 type Props = {
-  data?: DistributionPoint[];
+  distribution?: Distribution;
   pageviewsTotal?: number;
   filterKey: DistributionFilter.Key;
   filterValue?: string | null;
   toggleFilter: DistributionFilter.ToggleFn;
 };
-export function DistributionTable({ data, pageviewsTotal, filterKey, filterValue, toggleFilter }: Props) {
-  if (!data || data.length === 0 || typeof pageviewsTotal !== "number") {
+export function DistributionTable({ distribution, pageviewsTotal, filterKey, filterValue, toggleFilter }: Props) {
+  if (!distribution || distribution.data.length === 0 || typeof pageviewsTotal !== "number") {
     return (
       <div className="py-6 text-center">
         <span className="text-sm font-bold text-c-dark/20 tracking-wide">NO DATA</span>
@@ -19,7 +19,7 @@ export function DistributionTable({ data, pageviewsTotal, filterKey, filterValue
   }
   return (
     <div className="flex flex-col gap-2">
-      {data.map((point) => {
+      {distribution.data.map((point) => {
         const isActive = filterValue === point.value;
         const percentage = Math.round((point.count / pageviewsTotal) * 1000) / 10;
 

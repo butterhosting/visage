@@ -1,4 +1,4 @@
-import { DistributionPoint } from "@/models/DistributionPoint";
+import { Distribution } from "@/models/Distribution";
 import { Stats } from "@/models/Stats";
 import { useState } from "react";
 import { DistributionFilter } from "../../femodels/DistributionFilter";
@@ -49,7 +49,7 @@ export function DistributionPanel({ panel, stats, filters, toggleFilter }: Props
       )}
       <div className="p-5">
         <DistributionTable
-          data={stats?.[activeTab.field] as DistributionPoint[]}
+          distribution={stats?.[activeTab.field] as Distribution}
           pageviewsTotal={stats?.pageviewsTotal}
           filterKey={activeTab.filterKey}
           filterValue={filters.find(({ key }) => key === activeTab.filterKey)?.value}

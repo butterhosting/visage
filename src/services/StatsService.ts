@@ -1,7 +1,7 @@
 import { $analyticsEvent } from "@/drizzle/schema";
 import { Sqlite } from "@/drizzle/sqlite";
 import { WebsiteError } from "@/errors/WebsiteError";
-import { DistributionPoint } from "@/models/DistributionPoint";
+import { Distribution } from "@/models/Distribution";
 import { Stats } from "@/models/Stats";
 import { StatsQuery } from "@/models/StatsQuery";
 import { TimeSeries } from "@/models/TimeSeries";
@@ -317,7 +317,7 @@ export class StatsService {
     return sql`${StatsService.SCREEN_LABEL} = ${screen}`;
   }
 
-  private async distribution(where: SQL[], column: SQLiteColumn | "screen", limit = 10, offset = 0): Promise<DistributionPoint[]> {
+  private async distribution(where: SQL[], column: SQLiteColumn | "screen", limit = 10, offset = 0): Promise<Distribution> {
     const c = count();
     const rows =
       column === "screen"
@@ -327,7 +327,7 @@ export class StatsService {
             .where(and(...where))
             .groupBy(StatsService.SCREEN_LABEL)
             .orderBy(desc(c))
-            .limit(limit)
+            .limit(limit + 1)
             .offset(offset)
         : await this.sqlite
             .select({ value: column, count: c })
@@ -335,8 +335,10 @@ export class StatsService {
             .where(and(...where))
             .groupBy(column)
             .orderBy(desc(c))
-            .limit(limit)
+            .limit(limit + 1)
             .offset(offset);
-    return rows.map((row) => ({ value: row.value ?? null, count: row.count }));
+    const hasMore = rows.length > limit;
+    const data = rows.slice(0, limit).map((row) => ({ value: row.value ?? null, count: row.count }));
+    return { limit, offset, hasMore, data };
   }
 }
