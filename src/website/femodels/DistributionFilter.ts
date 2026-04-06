@@ -2,7 +2,7 @@ import { StatsQuery } from "@/models/StatsQuery";
 
 export type DistributionFilter = {
   key: DistributionFilter.Key;
-  value: string;
+  value: string | null;
 };
 
 export namespace DistributionFilter {
@@ -17,5 +17,5 @@ export namespace DistributionFilter {
     city: StatsQuery.Filter.city,
   };
 
-  export type ToggleFn = (key: Key, value: string) => void;
+  export type ToggleFn = (key: Key, value: string | null) => void;
 }

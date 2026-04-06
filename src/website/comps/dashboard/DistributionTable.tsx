@@ -6,7 +6,7 @@ type Props = {
   data?: DistributionPoint[];
   pageviewsTotal?: number;
   filterKey: DistributionFilter.Key;
-  filterValue?: string;
+  filterValue?: string | null;
   toggleFilter: DistributionFilter.ToggleFn;
 };
 export function DistributionTable({ data, pageviewsTotal, filterKey, filterValue, toggleFilter }: Props) {
@@ -21,12 +21,25 @@ export function DistributionTable({ data, pageviewsTotal, filterKey, filterValue
     <div className="flex flex-col gap-2">
       {data.slice(0, 10).map((point) => {
         // TODO: fix frontend slicing!
-        const isActive = filterValue === point.label;
-        const percentage = Math.round((point.value / pageviewsTotal) * 1000) / 10;
+        const isActive = filterValue === point.value;
+        const percentage = Math.round((point.count / pageviewsTotal) * 1000) / 10;
+
+        let displayValue = point.value;
+        if (displayValue === null) {
+          const translatedNullValues: Record<string, string> = {
+            [DistributionFilter.Key.source]: "(direct)",
+            [DistributionFilter.Key.browser]: "(unknown)",
+            [DistributionFilter.Key.os]: "(unknown)",
+            [DistributionFilter.Key.country]: "(unknown)",
+            [DistributionFilter.Key.city]: "(unknown)",
+          };
+          displayValue = translatedNullValues[filterKey] || "";
+        }
+
         return (
           <button
-            key={point.label}
-            onClick={() => toggleFilter(filterKey, point.label)}
+            key={point.value}
+            onClick={() => toggleFilter(filterKey, point.value)}
             className="flex items-center gap-3 cursor-pointer text-left"
           >
             <div className="text-c-dark w-12">{percentage === 0 ? "<0.1" : percentage}%</div>
@@ -36,10 +49,10 @@ export function DistributionTable({ data, pageviewsTotal, filterKey, filterValue
                 style={{ width: `${percentage}%` }}
               />
               <span className={`relative px-2 text-sm leading-7 truncate ${isActive ? "font-semibold text-c-primary" : "text-c-dark"}`}>
-                {point.label}
+                {displayValue}
               </span>
             </div>
-            <div className="text-xs text-c-dark tabular-nums w-14">{Prettify.number(point.value)} pvs</div>
+            <div className="text-xs text-c-dark tabular-nums w-14">{Prettify.number(point.count)} pvs</div>
           </button>
         );
       })}

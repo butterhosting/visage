@@ -60,7 +60,7 @@ export function useDashboardStateWithUrlSynchronization() {
             Object.values(DistributionFilter.Key).forEach((targetKey) => {
               const activeFilter = filters.find(({ key }) => key === targetKey);
               if (activeFilter) {
-                params.set(targetKey, activeFilter.value);
+                params.set(targetKey, activeFilter.value === null ? "@null" : activeFilter.value); // TODO: centralize this @null stuff
               } else {
                 params.delete(targetKey);
               }
@@ -135,7 +135,7 @@ export function useDashboardStateWithUrlSynchronization() {
     Object.values(DistributionFilter.Key).forEach((key) => {
       const value = params.get(key);
       if (typeof value === "string") {
-        result.push({ key, value });
+        result.push({ key, value: value === "@null" ? null : value }); // TODO ... centralize this @null stuff
       }
     });
     return result;

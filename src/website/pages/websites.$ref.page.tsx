@@ -57,7 +57,7 @@ export function websites$refPage() {
 
   useDocumentTitle(website ? `${website.hostname} | Websites | Visage` : "Websites | Visage");
 
-  function toggleFilter(targetKey: DistributionFilter.Key, targetValue: string) {
+  function toggleFilter(targetKey: DistributionFilter.Key, targetValue: string | null) {
     setFilters((previous) => {
       if (previous.some(({ key }) => key === targetKey)) {
         return previous.filter(({ key }) => key !== targetKey);

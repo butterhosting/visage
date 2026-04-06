@@ -7,7 +7,7 @@ import { StatsQuery } from "@/models/StatsQuery";
 import { TimeSeries } from "@/models/TimeSeries";
 import { WebsiteRepository } from "@/repositories/WebsiteRepository";
 import { Temporal } from "@js-temporal/polyfill";
-import { and, between, count, desc, eq, gte, isNotNull, lte, max, min, sql, SQL } from "drizzle-orm";
+import { and, between, count, desc, eq, gte, isNotNull, isNull, lte, max, min, sql, SQL } from "drizzle-orm";
 import { SQLiteColumn } from "drizzle-orm/sqlite-core";
 
 export class StatsService {
@@ -79,15 +79,33 @@ export class StatsService {
 
   private buildWhere(websiteId: string, q: StatsQuery): SQL[] {
     const where: SQL[] = [eq($analyticsEvent.websiteId, websiteId)];
-    if (q.from) where.push(gte($analyticsEvent.created, q.from.toString()));
-    if (q.to) where.push(lte($analyticsEvent.created, q.to.toString()));
-    if (q.page) where.push(eq($analyticsEvent.urlPath, q.page));
-    if (q.source) where.push(eq($analyticsEvent.utmSource, q.source));
-    if (q.screen) where.push(this.screenClassification(q.screen));
-    if (q.browser) where.push(eq($analyticsEvent.deviceBrowserName, q.browser));
-    if (q.os) where.push(eq($analyticsEvent.deviceOsName, q.os));
-    if (q.country) where.push(eq($analyticsEvent.geoCountryCode, q.country));
-    if (q.city) where.push(eq($analyticsEvent.geoCityName, q.city));
+    if (q.from !== undefined) {
+      where.push(gte($analyticsEvent.created, q.from.toString()));
+    }
+    if (q.to !== undefined) {
+      where.push(lte($analyticsEvent.created, q.to.toString()));
+    }
+    if (q.page !== undefined) {
+      where.push(eq($analyticsEvent.urlPath, q.page));
+    }
+    if (q.source !== undefined) {
+      where.push(q.source === null ? isNull($analyticsEvent.utmSource) : eq($analyticsEvent.utmSource, q.source));
+    }
+    if (q.screen !== undefined) {
+      where.push(this.screenClassification(q.screen));
+    }
+    if (q.browser !== undefined) {
+      where.push(q.browser === null ? isNull($analyticsEvent.deviceBrowserName) : eq($analyticsEvent.deviceBrowserName, q.browser));
+    }
+    if (q.os !== undefined) {
+      where.push(q.os === null ? isNull($analyticsEvent.deviceOsName) : eq($analyticsEvent.deviceOsName, q.os));
+    }
+    if (q.country !== undefined) {
+      where.push(q.country === null ? isNull($analyticsEvent.geoCountryCode) : eq($analyticsEvent.geoCountryCode, q.country));
+    }
+    if (q.city !== undefined) {
+      where.push(q.city === null ? isNull($analyticsEvent.geoCityName) : eq($analyticsEvent.geoCityName, q.city));
+    }
     return where;
   }
 
@@ -282,22 +300,22 @@ export class StatsService {
   private async screenDistribution(where: SQL[]): Promise<DistributionPoint[]> {
     const c = count();
     const rows = await this.sqlite
-      .select({ label: StatsService.SCREEN_LABEL, count: c })
+      .select({ value: StatsService.SCREEN_LABEL, count: c })
       .from($analyticsEvent)
       .where(and(...where))
       .groupBy(StatsService.SCREEN_LABEL)
       .orderBy(desc(c));
-    return rows.map((r) => ({ label: r.label, value: r.count }));
+    return rows.map((row) => ({ value: row.value, count: row.count }));
   }
 
   private async distribution(where: SQL[], column: SQLiteColumn): Promise<DistributionPoint[]> {
     const c = count();
     const rows = await this.sqlite
-      .select({ label: column, count: c })
+      .select({ value: column, count: c })
       .from($analyticsEvent)
-      .where(and(...where, isNotNull(column)))
+      .where(and(...where))
       .groupBy(column)
       .orderBy(desc(c));
-    return rows.map((r) => ({ label: r.label!, value: r.count }));
+    return rows.map((row) => ({ value: row.value ?? null, count: row.count }));
   }
 }

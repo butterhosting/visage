@@ -9,12 +9,12 @@ export type StatsQuery = {
   [StatsQuery.Filter.from]?: Temporal.Instant;
   [StatsQuery.Filter.to]?: Temporal.Instant;
   [StatsQuery.Filter.page]?: string;
-  [StatsQuery.Filter.source]?: string;
+  [StatsQuery.Filter.source]?: string | null;
   [StatsQuery.Filter.screen]?: string;
-  [StatsQuery.Filter.browser]?: string;
-  [StatsQuery.Filter.os]?: string;
-  [StatsQuery.Filter.country]?: string;
-  [StatsQuery.Filter.city]?: string;
+  [StatsQuery.Filter.browser]?: string | null;
+  [StatsQuery.Filter.os]?: string | null;
+  [StatsQuery.Filter.country]?: string | null;
+  [StatsQuery.Filter.city]?: string | null;
 };
 
 export namespace StatsQuery {
@@ -46,12 +46,27 @@ export namespace StatsQuery {
           .transform((t) => Temporal.Instant.from(t))
           .optional(),
         page: z.string().optional(),
-        source: z.string().optional(),
+        source: z
+          .string()
+          .transform((s) => (s === "@null" ? null : s)) // TODO: centralize this ...
+          .optional(),
         screen: z.string().optional(),
-        browser: z.string().optional(),
-        os: z.string().optional(),
-        country: z.string().optional(),
-        city: z.string().optional(),
+        browser: z
+          .string()
+          .transform((s) => (s === "@null" ? null : s)) // TODO: centralize this ...
+          .optional(),
+        os: z
+          .string()
+          .transform((s) => (s === "@null" ? null : s)) // TODO: centralize this ...
+          .optional(),
+        country: z
+          .string()
+          .transform((s) => (s === "@null" ? null : s)) // TODO: centralize this ...
+          .optional(),
+        city: z
+          .string()
+          .transform((s) => (s === "@null" ? null : s)) // TODO: centralize this ...
+          .optional(),
       }),
     )
     .ensureTypeMatchesSchema();
