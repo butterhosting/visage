@@ -38,7 +38,8 @@ export function DistributionTable({ distribution, pageviewsTotal, filterKey, fil
             onClick={() => toggleFilter(filterKey, point.value)}
             className="flex items-center gap-3 cursor-pointer text-left"
           >
-            <div className="text-c-dark w-12">{percentage === 0 ? "<0.1" : percentage}%</div>
+            {/* TODO: format percentage with 1 decimal point always (except for 100%) */}
+            <div className="text-c-dark w-18">{percentage === 0 ? "<0.1" : percentage}%</div>
             <div className={`relative flex-1 h-7 rounded overflow-hidden ${isActive ? "bg-c-primary/15" : "bg-c-primary/5"}`}>
               <div
                 className={`absolute inset-y-0 left-0 rounded ${isActive ? "bg-c-primary/25" : "bg-c-primary/10"}`}
@@ -53,7 +54,7 @@ export function DistributionTable({ distribution, pageviewsTotal, filterKey, fil
         );
       })}
       {(distribution.offset > 0 || distribution.hasMore) && (
-        <div className="flex justify-end gap-2 pt-2">
+        <div className="flex justify-center gap-2 pt-2">
           <button
             disabled={distribution.offset === 0}
             onClick={() => onPageChange(Math.max(0, distribution.offset - distribution.limit))}
