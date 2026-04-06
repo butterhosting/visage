@@ -17,6 +17,7 @@ import { useDashboardStateWithUrlSynchronization } from "../hooks/dashboard/useD
 import { useDocumentTitle } from "../hooks/useDocumentTitle";
 import { useRegistry } from "../hooks/useRegistry";
 import { useYesQuery } from "../hooks/useYesQuery";
+import clsx from "clsx";
 
 export function websites$refPage() {
   const { ref } = useParams();
@@ -82,7 +83,7 @@ export function websites$refPage() {
     setStats({ ...getStats(), [field]: result[field] });
   }
 
-  function aggregateStats(): Array<{ label: string; value: string; correspondingGraph?: Graph }> {
+  function aggregateStats(): Array<{ label: string; value: string; correspondingGraph?: Graph; live?: boolean }> {
     return [
       {
         label: "TOTAL VISITORS",
@@ -102,6 +103,7 @@ export function websites$refPage() {
       {
         label: "LIVE PAGEVIEWS",
         value: typeof stats?.livePageviewsTotal === "number" ? Prettify.number(stats.livePageviewsTotal) : "\u2014",
+        live: true,
       },
     ];
   }
@@ -130,7 +132,7 @@ export function websites$refPage() {
       {/* Aggregate stats + chart */}
       <Paper className="col-span-full">
         <div className="flex divide-x divide-black/10">
-          {aggregateStats().map(({ label, value, correspondingGraph }) => (
+          {aggregateStats().map(({ label, value, correspondingGraph, live }) => (
             <button
               key={label}
               onClick={() => (correspondingGraph ? setGraph(correspondingGraph) : null)}
@@ -139,7 +141,7 @@ export function websites$refPage() {
               <div className={`text-xs font-bold tracking-wide mb-1 ${correspondingGraph === graph ? "text-c-primary" : "text-c-dark/50"}`}>
                 {label}
               </div>
-              <span className="text-3xl font-extrabold text-c-dark">{value}</span>
+              <span className={clsx("text-3xl font-extrabold", live ? "text-red-500" : "text-c-dark")}>{value}</span>
             </button>
           ))}
           <div className="ml-auto flex items-center px-5">

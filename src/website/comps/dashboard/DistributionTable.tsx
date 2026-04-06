@@ -28,12 +28,8 @@ export function DistributionTable({ distribution, pageviewsTotal, filterKey, fil
         if (displayValue === null) {
           const translatedNullValues: Record<string, string> = {
             [DistributionFilter.Key.source]: "(direct)",
-            [DistributionFilter.Key.browser]: "(unknown)",
-            [DistributionFilter.Key.os]: "(unknown)",
-            [DistributionFilter.Key.country]: "(unknown)",
-            [DistributionFilter.Key.city]: "(unknown)",
           };
-          displayValue = translatedNullValues[filterKey] || "";
+          displayValue = translatedNullValues[filterKey] || "(unknown)";
         }
 
         return (
