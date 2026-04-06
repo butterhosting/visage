@@ -5,8 +5,8 @@ import { useParams } from "react-router";
 import { StatsClient } from "../clients/StatsClient";
 import { WebsiteClient } from "../clients/WebsiteClient";
 import { ActiveFiltersBar } from "../comps/dashboard/ActiveFiltersBar";
-import { PeriodDropdown } from "../comps/dashboard/PeriodDropdown";
 import { DistributionPanel } from "../comps/dashboard/DistributionPanel";
+import { PeriodDropdown } from "../comps/dashboard/PeriodDropdown";
 import { TimeSeriesChart } from "../comps/dashboard/TimeSeriesChart";
 import { Paper } from "../comps/Paper";
 import { Skeleton } from "../comps/Skeleton";
@@ -36,7 +36,8 @@ export function websites$refPage() {
           fields: [
             Stats.Field.visitorsTotal,
             Stats.Field.pageviewsTotal,
-            Stats.Field.durationMedian,
+            Stats.Field.pagetimeMedian,
+            Stats.Field.livePageviewsTotal,
             graphTimeSeriesField,
             Stats.Field.sourceDistribution,
             Stats.Field.pageDistribution,
@@ -65,7 +66,7 @@ export function websites$refPage() {
     });
   }
 
-  function aggregateStats() {
+  function aggregateStats(): Array<{ label: string; value: string; correspondingGraph?: Graph }> {
     return [
       {
         label: "TOTAL VISITORS",
@@ -79,8 +80,12 @@ export function websites$refPage() {
       },
       {
         label: "MEDIAN TIME ON PAGE",
-        value: typeof stats?.durationMedian === "number" ? Prettify.duration(stats.durationMedian) : "\u2014",
+        value: typeof stats?.pagetimeMedian === "number" ? Prettify.duration(stats.pagetimeMedian) : "\u2014",
         correspondingGraph: Graph.pagetime,
+      },
+      {
+        label: "LIVE PAGEVIEWS",
+        value: typeof stats?.livePageviewsTotal === "number" ? Prettify.number(stats.livePageviewsTotal) : "\u2014",
       },
     ];
   }
@@ -111,8 +116,8 @@ export function websites$refPage() {
         <div className="flex divide-x divide-black/10">
           {aggregateStats().map(({ label, value, correspondingGraph }) => (
             <button
-              key={correspondingGraph}
-              onClick={() => setGraph(correspondingGraph)}
+              key={label}
+              onClick={() => (correspondingGraph ? setGraph(correspondingGraph) : null)}
               className={`px-6 py-5 text-left cursor-pointer hover:bg-c-primary/5 transition-colors ${correspondingGraph === graph ? "border-b-2 border-c-primary" : "border-b-2 border-transparent"}`}
             >
               <div className={`text-xs font-bold tracking-wide mb-1 ${correspondingGraph === graph ? "text-c-primary" : "text-c-dark/50"}`}>

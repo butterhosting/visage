@@ -7,7 +7,7 @@ import { StatsQuery } from "@/models/StatsQuery";
 import { TimeSeries } from "@/models/TimeSeries";
 import { WebsiteRepository } from "@/repositories/WebsiteRepository";
 import { Temporal } from "@js-temporal/polyfill";
-import { and, count, desc, eq, gte, isNotNull, lte, max, min, sql, SQL } from "drizzle-orm";
+import { and, between, count, desc, eq, gte, isNotNull, lte, max, min, sql, SQL } from "drizzle-orm";
 import { SQLiteColumn } from "drizzle-orm/sqlite-core";
 
 export class StatsService {
@@ -36,8 +36,13 @@ export class StatsService {
     if (q.fields.includes(Stats.Field.pageviewsTotal)) {
       stats.pageviewsTotal = await this.count(where);
     }
-    if (q.fields.includes(Stats.Field.durationMedian)) {
-      stats.durationMedian = await this.median([...where, whereForMedian]);
+    if (q.fields.includes(Stats.Field.pagetimeMedian)) {
+      stats.pagetimeMedian = await this.median([...where, whereForMedian]);
+    }
+    if (q.fields.includes(Stats.Field.livePageviewsTotal)) {
+      const to = Temporal.Now.instant();
+      const from = to.subtract({ minutes: 10 });
+      stats.livePageviewsTotal = await this.count([between($analyticsEvent.created, from.toString(), to.toString())]);
     }
     if (q.fields.includes(Stats.Field.visitorsTimeSeries)) {
       stats.visitorsTimeSeries = await this.timeSeries([...where, eq($analyticsEvent.isVisitor, true)], q, "visitor");

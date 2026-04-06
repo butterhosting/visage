@@ -6,7 +6,8 @@ import z from "zod/v4";
 export type Stats = Partial<{
   [Stats.Field.visitorsTotal]: number;
   [Stats.Field.pageviewsTotal]: number;
-  [Stats.Field.durationMedian]: number;
+  [Stats.Field.pagetimeMedian]: number;
+  [Stats.Field.livePageviewsTotal]: number;
   [Stats.Field.visitorsTimeSeries]: TimeSeries;
   [Stats.Field.pageviewsTimeSeries]: TimeSeries;
   [Stats.Field.pagetimeTimeSeries]: TimeSeries;
@@ -23,7 +24,8 @@ export namespace Stats {
   export enum Field {
     visitorsTotal = "visitorsTotal",
     pageviewsTotal = "pageviewsTotal",
-    durationMedian = "durationMedian",
+    pagetimeMedian = "pagetimeMedian",
+    livePageviewsTotal = "livePageviewsTotal",
     visitorsTimeSeries = "visitorsTimeSeries",
     pageviewsTimeSeries = "pageviewsTimeSeries",
     pagetimeTimeSeries = "pagetimeTimeSeries",
@@ -41,7 +43,8 @@ export namespace Stats {
       z.object({
         [Field.visitorsTotal]: z.number().optional(),
         [Field.pageviewsTotal]: z.number().optional(),
-        [Field.durationMedian]: z.number().optional(),
+        [Field.pagetimeMedian]: z.number().optional(),
+        [Field.livePageviewsTotal]: z.number().optional(),
         [Field.visitorsTimeSeries]: TimeSeries.parse.SCHEMA.optional(),
         [Field.pageviewsTimeSeries]: TimeSeries.parse.SCHEMA.optional(),
         [Field.pagetimeTimeSeries]: TimeSeries.parse.SCHEMA.optional(),

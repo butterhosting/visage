@@ -50,6 +50,7 @@ export function DistributionPanel({ panel, stats, filters, toggleFilter }: Props
       <div className="p-5">
         <DistributionTable
           data={stats?.[activeTab.field] as DistributionPoint[]}
+          pageviewsTotal={stats?.pageviewsTotal}
           filterKey={activeTab.filterKey}
           filterValue={filters.find(({ key }) => key === activeTab.filterKey)?.value}
           toggleFilter={toggleFilter}
