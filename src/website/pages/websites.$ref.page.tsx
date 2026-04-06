@@ -28,7 +28,11 @@ export function websites$refPage() {
   });
 
   const statsClient = useRegistry(StatsClient);
-  const { data: stats } = useYesQuery(
+  const {
+    data: stats,
+    setData: setStats,
+    getData: getStats,
+  } = useYesQuery(
     {
       queryFn: () =>
         statsClient.query({
@@ -64,6 +68,18 @@ export function websites$refPage() {
       }
       return [...previous, { key: targetKey, value: targetValue }];
     });
+  }
+
+  async function loadDistributionPage(field: Stats.Field, offset: number) {
+    const result = await statsClient.query({
+      website: ref!,
+      fields: [field],
+      from: period.from,
+      to: period.to,
+      ...filters.reduce((prev, { key, value }) => ({ ...prev, [key]: value }), {}),
+      [`${field}Offset`]: offset,
+    });
+    setStats({ ...getStats(), [field]: result[field] });
   }
 
   function aggregateStats(): Array<{ label: string; value: string; correspondingGraph?: Graph }> {
@@ -138,7 +154,14 @@ export function websites$refPage() {
       {/* Distribution panels */}
       <div className="col-span-full grid grid-cols-2 gap-5">
         {panels().map((panel, i) => (
-          <DistributionPanel key={i} panel={panel} stats={stats} filters={filters} toggleFilter={toggleFilter} />
+          <DistributionPanel
+            key={i}
+            panel={panel}
+            stats={stats}
+            filters={filters}
+            toggleFilter={toggleFilter}
+            onPageChange={loadDistributionPage}
+          />
         ))}
       </div>
     </Skeleton>

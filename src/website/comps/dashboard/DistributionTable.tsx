@@ -8,8 +8,9 @@ type Props = {
   filterKey: DistributionFilter.Key;
   filterValue?: string | null;
   toggleFilter: DistributionFilter.ToggleFn;
+  onPageChange: (offset: number) => void;
 };
-export function DistributionTable({ distribution, pageviewsTotal, filterKey, filterValue, toggleFilter }: Props) {
+export function DistributionTable({ distribution, pageviewsTotal, filterKey, filterValue, toggleFilter, onPageChange }: Props) {
   if (!distribution || distribution.data.length === 0 || typeof pageviewsTotal !== "number") {
     return (
       <div className="py-6 text-center">
@@ -51,10 +52,32 @@ export function DistributionTable({ distribution, pageviewsTotal, filterKey, fil
                 {displayValue}
               </span>
             </div>
-            <div className="text-xs text-c-dark tabular-nums w-14">{Prettify.number(point.count)} pvs</div>
+            <div className="text-xs text-c-dark tabular-nums w-18">{Prettify.number(point.count)} pvs</div>
           </button>
         );
       })}
+      {(distribution.offset > 0 || distribution.hasMore) && (
+        <div className="flex justify-end gap-2 pt-2">
+          <button
+            disabled={distribution.offset === 0}
+            onClick={() => onPageChange(Math.max(0, distribution.offset - distribution.limit))}
+            className="p-1.5 rounded text-c-dark/50 hover:text-c-dark hover:bg-c-primary/5 disabled:opacity-20 disabled:pointer-events-none transition-colors cursor-pointer"
+          >
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M10 12L6 8L10 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </button>
+          <button
+            disabled={!distribution.hasMore}
+            onClick={() => onPageChange(distribution.offset + distribution.limit)}
+            className="p-1.5 rounded text-c-dark/50 hover:text-c-dark hover:bg-c-primary/5 disabled:opacity-20 disabled:pointer-events-none transition-colors cursor-pointer"
+          >
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M6 4L10 8L6 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </button>
+        </div>
+      )}
     </div>
   );
 }

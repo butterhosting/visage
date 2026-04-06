@@ -11,8 +11,9 @@ type Props = {
   stats?: Stats;
   filters: DistributionFilter[];
   toggleFilter: DistributionFilter.ToggleFn;
+  onPageChange: (field: Stats.Field, offset: number) => void;
 };
-export function DistributionPanel({ panel, stats, filters, toggleFilter }: Props) {
+export function DistributionPanel({ panel, stats, filters, toggleFilter, onPageChange }: Props) {
   const [activeIndex, setActiveIndex] = useState(0);
   const activeTab = panel[activeIndex];
   return (
@@ -54,6 +55,7 @@ export function DistributionPanel({ panel, stats, filters, toggleFilter }: Props
           filterKey={activeTab.filterKey}
           filterValue={filters.find(({ key }) => key === activeTab.filterKey)?.value}
           toggleFilter={toggleFilter}
+          onPageChange={(offset) => onPageChange(activeTab.field, offset)}
         />
       </div>
     </Paper>
