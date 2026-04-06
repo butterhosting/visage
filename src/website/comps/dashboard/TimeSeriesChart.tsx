@@ -4,25 +4,13 @@ import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YA
 import { Spinner } from "../Spinner";
 import { TimeSeriesTooltip } from "./TimeSeriesTooltip";
 
-function sparseTicks(count: number, max: number): Set<number> {
-  if (count <= max) return new Set(Array.from({ length: count }, (_, i) => i));
-  const indices = new Set<number>();
-  indices.add(0);
-  indices.add(count - 1);
-  const step = (count - 1) / (max - 1);
-  for (let i = 1; i < max - 1; i++) {
-    indices.add(Math.round(i * step));
-  }
-  return indices;
-}
-
 type Props = {
   timeSeries?: TimeSeries;
-  gradientId?: string;
   minimal?: boolean;
   height?: number | `${number}%`;
+  gradientId?: string;
 };
-export function TimeSeriesChart({ timeSeries, gradientId = "chartGradient", minimal, height = 320 }: Props) {
+export function TimeSeriesChart({ timeSeries, minimal, height = 400, gradientId = "chartGradient" }: Props) {
   if (!timeSeries) {
     return (
       <div style={{ height }} className="flex items-center justify-center">
@@ -39,19 +27,18 @@ export function TimeSeriesChart({ timeSeries, gradientId = "chartGradient", mini
   }
 
   const { tUnit, yUnit } = timeSeries;
-  const maxTicks = 10;
-  const tickIndices = sparseTicks(timeSeries.data.length, maxTicks);
   const chartData = timeSeries.data.map(({ t, y }) => ({
+    t,
+    y,
     axisLabel: Prettify.chartAxisLabel(t, tUnit),
     tooltipLabel: Prettify.chartTooltipLabel(t, tUnit),
-    y,
   }));
 
   return (
     <ResponsiveContainer width="100%" height={height}>
       <AreaChart
         data={chartData}
-        margin={minimal ? { top: 5, right: 0, left: 0, bottom: 0 } : { top: 5, right: 10, left: 10, bottom: 0 }}
+        margin={minimal ? { top: 5, right: 0, left: 0, bottom: 0 } : { top: 5, right: 10, left: 10, bottom: 80 }}
         tabIndex={-1}
       >
         <defs>
@@ -63,13 +50,17 @@ export function TimeSeriesChart({ timeSeries, gradientId = "chartGradient", mini
         {!minimal && <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e5e5" />}
         {!minimal && (
           <XAxis
-            dataKey="axisLabel"
+            dataKey={({ t }: TimeSeries.Point) => {
+              return Prettify.chartAxisLabel(t, tUnit);
+            }}
+            angle={-45}
+            textAnchor="end"
             axisLine={false}
             tickLine={false}
             tick={{ fontSize: 13, fontWeight: 600, fill: "#2d2c32" }}
+            minTickGap={10}
             dy={12}
-            interval={0}
-            tickFormatter={(value: string, index: number) => (tickIndices.has(index) ? value : "")}
+            interval="preserveStartEnd"
           />
         )}
         {!minimal && (

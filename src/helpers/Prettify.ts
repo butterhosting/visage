@@ -45,20 +45,20 @@ export class Prettify {
 
   public static longDate(instant: Temporal.Instant): string {
     const d = new Date(instant.epochMilliseconds);
-    return d.toLocaleDateString("en", { day: "numeric", month: "long", year: "numeric" });
+    return d.toLocaleDateString("gb", { day: "numeric", month: "long", year: "numeric" });
   }
 
   public static chartAxisLabel(t: Temporal.Instant, tUnit: TimeSeries["tUnit"]): string {
     const d = new Date(t.epochMilliseconds);
-    if (tUnit === "month") return d.toLocaleDateString("en", { month: "short", year: "numeric" });
-    if (tUnit === "day") return d.toLocaleDateString("en", { day: "numeric", month: "short" });
-    return d.toLocaleTimeString("en", { hour: "2-digit", minute: "2-digit" });
+    if (tUnit === "month") return d.toLocaleDateString("gb", { month: "short", year: "numeric" });
+    if (tUnit === "day") return d.toLocaleDateString("gb", { day: "numeric", month: "short" });
+    return d.toLocaleTimeString("gb", { hour: "2-digit", minute: "2-digit", month: "short", day: "2-digit" });
   }
 
   public static chartTooltipLabel(t: Temporal.Instant, tUnit: TimeSeries["tUnit"]): string {
     const d = new Date(t.epochMilliseconds);
-    if (tUnit === "month") return d.toLocaleDateString("en", { month: "long", year: "numeric" });
-    if (tUnit === "day") return d.toLocaleDateString("en", { day: "numeric", month: "long", year: "numeric" });
-    return d.toLocaleTimeString("en", { hour: "2-digit", minute: "2-digit" });
+    if (tUnit === "month") return d.toLocaleDateString("gb", { month: "long", year: "numeric" });
+    if (tUnit === "day") return d.toLocaleDateString("gb", { day: "numeric", month: "long", year: "numeric" });
+    return d.toLocaleTimeString("gb", { hour: "2-digit", minute: "2-digit", month: "short", day: "2-digit" });
   }
 }

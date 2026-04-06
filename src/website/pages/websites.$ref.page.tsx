@@ -5,7 +5,7 @@ import { useParams } from "react-router";
 import { StatsClient } from "../clients/StatsClient";
 import { WebsiteClient } from "../clients/WebsiteClient";
 import { ActiveFiltersBar } from "../comps/dashboard/ActiveFiltersBar";
-import { PeriodPicker } from "../comps/dashboard/PeriodPicker";
+import { PeriodDropdown } from "../comps/dashboard/PeriodDropdown";
 import { DistributionPanel } from "../comps/dashboard/DistributionPanel";
 import { TimeSeriesChart } from "../comps/dashboard/TimeSeriesChart";
 import { Paper } from "../comps/Paper";
@@ -122,7 +122,7 @@ export function websites$refPage() {
             </button>
           ))}
           <div className="ml-auto flex items-center px-5">
-            <PeriodPicker period={period} onChange={setPeriod} />
+            <PeriodDropdown period={period} onChange={setPeriod} />
           </div>
         </div>
         <div className="p-6 pt-4">

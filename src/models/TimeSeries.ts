@@ -5,13 +5,15 @@ import z from "zod/v4";
 export type TimeSeries = {
   tUnit: "hour" | "day" | "month";
   yUnit: "visitor" | "pageview" | "second";
-  data: Array<{
-    t: Temporal.Instant;
-    y: number;
-  }>;
+  data: TimeSeries.Point[];
 };
 
 export namespace TimeSeries {
+  export type Point = {
+    t: Temporal.Instant;
+    y: number;
+  };
+
   export const parse = ZodParser.forType<TimeSeries>()
     .ensureSchemaMatchesType(() =>
       z.object({

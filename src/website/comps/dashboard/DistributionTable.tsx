@@ -9,7 +9,7 @@ type Props = {
   toggleFilter: DistributionFilter.ToggleFn;
 };
 export function DistributionTable({ data, filterKey, filterValue, toggleFilter }: Props) {
-  const max = data?.[0]?.value ?? 0;
+  const max = data?.[0]?.value ?? 0; // TODO: wrong max; need to look at stats.totalPageviews
   if (!data || data.length === 0) {
     return (
       <div className="py-6 text-center">

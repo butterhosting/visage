@@ -8,7 +8,7 @@ type Props = {
   period: Period;
   onChange: (period: Period) => void;
 };
-export function PeriodPicker({ period, onChange }: Props) {
+export function PeriodDropdown({ period, onChange }: Props) {
   const [open, setOpen] = useState(false);
   const dialogClient = useRegistry(DialogClient);
   const ref = useRef<HTMLDivElement>(null);
@@ -25,14 +25,15 @@ export function PeriodPicker({ period, onChange }: Props) {
 
   let activeLabel: string;
   if (period.preset === Period.Preset.custom && period?.from && period?.to) {
-    activeLabel = `${Prettify.longDate(period.from)} \u2013 ${Prettify.longDate(period.to)}`;
+    // TODO: I have this +1/-1 logic scattered in too many places ... consolidate somewhere?
+    activeLabel = `${Prettify.longDate(period.from)} \u2013 ${Prettify.longDate(period.to?.toZonedDateTimeISO("UTC").subtract({ days: 1 }).toInstant())}`;
   } else {
     activeLabel = period.preset;
   }
 
   const onClick = (preset: Period.Preset) => {
     if (preset === Period.Preset.custom) {
-      dialogClient.pickDateTimeRange().then((result) => {
+      dialogClient.pickPeriodRange().then((result) => {
         if (result !== "cancel") {
           onChange({ preset, ...result });
         }
