@@ -19,7 +19,7 @@ export class StatsService {
   public async query(query: StatsQuery): Promise<Stats>;
   public async query(query: unknown, unknown: "unknown"): Promise<Stats>;
   public async query(query: unknown | StatsQuery, unknown?: "unknown"): Promise<Stats> {
-    let q = unknown ? StatsQuery.parse(query) : (query as StatsQuery);
+    const q = unknown ? StatsQuery.parse(query) : (query as StatsQuery);
     const website = await this.websiteRepository.find(q.website, () =>
       WebsiteError.not_found({
         ref: q.website,
@@ -30,33 +30,33 @@ export class StatsService {
     const whereForMedian = gte($analyticsEvent.durationSeconds, 5);
 
     const stats: Stats = {};
-    if (q.fields.includes(Stats.Field.visitorsTotal)) {
+    if (q.fields?.includes(Stats.Field.visitorsTotal)) {
       stats.visitorsTotal = await this.count([...where, eq($analyticsEvent.isVisitor, true)]);
     }
-    if (q.fields.includes(Stats.Field.pageviewsTotal)) {
+    if (q.fields?.includes(Stats.Field.pageviewsTotal)) {
       stats.pageviewsTotal = await this.count(where);
     }
-    if (q.fields.includes(Stats.Field.pagetimeMedian)) {
+    if (q.fields?.includes(Stats.Field.pagetimeMedian)) {
       stats.pagetimeMedian = await this.median([...where, whereForMedian]);
     }
-    if (q.fields.includes(Stats.Field.livePageviewsTotal)) {
+    if (q.fields?.includes(Stats.Field.livePageviewsTotal)) {
       const to = Temporal.Now.instant();
       const from = to.subtract({ minutes: 10 });
       stats.livePageviewsTotal = await this.count([between($analyticsEvent.created, from.toString(), to.toString())]);
     }
-    if (q.fields.includes(Stats.Field.visitorsTimeSeries)) {
+    if (q.fields?.includes(Stats.Field.visitorsTimeSeries)) {
       stats.visitorsTimeSeries = await this.timeSeries([...where, eq($analyticsEvent.isVisitor, true)], q, "visitor");
     }
-    if (q.fields.includes(Stats.Field.pageviewsTimeSeries)) {
+    if (q.fields?.includes(Stats.Field.pageviewsTimeSeries)) {
       stats.pageviewsTimeSeries = await this.timeSeries(where, q, "pageview");
     }
-    if (q.fields.includes(Stats.Field.pagetimeTimeSeries)) {
+    if (q.fields?.includes(Stats.Field.pagetimeTimeSeries)) {
       stats.pagetimeTimeSeries = await this.pagetimeTimeSeries([...where, whereForMedian], q);
     }
-    if (q.fields.includes(Stats.Field.pageDistribution)) {
+    if (q.fields?.includes(Stats.Field.pageDistribution)) {
       stats.pageDistribution = await this.distribution(where, $analyticsEvent.urlPath, q.pageDistributionLimit, q.pageDistributionOffset);
     }
-    if (q.fields.includes(Stats.Field.sourceDistribution)) {
+    if (q.fields?.includes(Stats.Field.sourceDistribution)) {
       stats.sourceDistribution = await this.distribution(
         where,
         $analyticsEvent.utmSource,
@@ -64,10 +64,10 @@ export class StatsService {
         q.sourceDistributionOffset,
       );
     }
-    if (q.fields.includes(Stats.Field.screenDistribution)) {
+    if (q.fields?.includes(Stats.Field.screenDistribution)) {
       stats.screenDistribution = await this.distribution(where, "screen", q.screenDistributionLimit, q.screenDistributionOffset);
     }
-    if (q.fields.includes(Stats.Field.browserDistribution)) {
+    if (q.fields?.includes(Stats.Field.browserDistribution)) {
       stats.browserDistribution = await this.distribution(
         where,
         $analyticsEvent.deviceBrowserName,
@@ -75,10 +75,10 @@ export class StatsService {
         q.browserDistributionOffset,
       );
     }
-    if (q.fields.includes(Stats.Field.osDistribution)) {
+    if (q.fields?.includes(Stats.Field.osDistribution)) {
       stats.osDistribution = await this.distribution(where, $analyticsEvent.deviceOsName, q.osDistributionLimit, q.osDistributionOffset);
     }
-    if (q.fields.includes(Stats.Field.countryDistribution)) {
+    if (q.fields?.includes(Stats.Field.countryDistribution)) {
       stats.countryDistribution = await this.distribution(
         where,
         $analyticsEvent.geoCountryCode,
@@ -86,7 +86,7 @@ export class StatsService {
         q.countryDistributionOffset,
       );
     }
-    if (q.fields.includes(Stats.Field.cityDistribution)) {
+    if (q.fields?.includes(Stats.Field.cityDistribution)) {
       stats.cityDistribution = await this.distribution(
         where,
         $analyticsEvent.geoCityName,

@@ -7,7 +7,7 @@ export class StatsClient {
 
   public async query({ fields, from, to, ...q }: StatsQuery): Promise<Stats> {
     const searchParams: Record<string, string | undefined> = {
-      fields: fields.join(","),
+      fields: fields?.join(","),
       from: from?.toString(),
       to: to?.toString(),
     };

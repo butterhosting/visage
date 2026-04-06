@@ -19,7 +19,7 @@ export function DistributionPanel({ panel, stats, filters, toggleFilter, onPageC
   return (
     <Paper>
       {panel.length > 1 && (
-        <div className="flex border-b border-black/10">
+        <div className="flex justify-center border-b border-black/10">
           {panel.map((tab, i) => {
             const isActive = i === activeIndex;
             const hasFilter = filters.some(({ key }) => key === tab.filterKey);

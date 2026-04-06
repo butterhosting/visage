@@ -5,7 +5,7 @@ import { Stats } from "./Stats";
 
 export type StatsQuery = {
   website: string;
-  fields: Stats.Field[];
+  fields?: Stats.Field[];
   [StatsQuery.Filter.from]?: Temporal.Instant;
   [StatsQuery.Filter.to]?: Temporal.Instant;
   [StatsQuery.Filter.page]?: string;
@@ -66,7 +66,8 @@ export namespace StatsQuery {
         fields: z
           .string()
           .transform((s) => s.split(",") as Stats.Field[])
-          .refine((fields) => fields.every((f) => Object.values(Stats.Field).includes(f))),
+          .refine((fields) => fields.every((f) => Object.values(Stats.Field).includes(f)))
+          .optional(),
         from: z
           .string()
           .transform((t) => Temporal.Instant.from(t))

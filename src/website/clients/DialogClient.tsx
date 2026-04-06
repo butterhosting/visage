@@ -1,4 +1,6 @@
 import { PeriodModal } from "../comps/dashboard/PeriodModal";
+import { DeleteModal } from "../comps/data/DeleteModal";
+import { DownloadModal } from "../comps/data/DownloadModal";
 import { DialogManager } from "../comps/DialogManager";
 import { Period } from "../femodels/Period";
 
@@ -32,6 +34,32 @@ export class DialogClient {
           });
         }}
       />,
+    );
+    return promise;
+  }
+
+  public pickDownload(hostname: string): Promise<"cancel" | "analytics" | "bots"> {
+    type Result = Awaited<ReturnType<typeof this.pickDownload>>;
+    const { promise, resolve: internalResolve } = Promise.withResolvers<Result>();
+    const resolve = (result: Result) => {
+      internalResolve(result);
+      this.manager.remove({ token });
+    };
+    const { token } = this.manager.insert(
+      <DownloadModal hostname={hostname} close={() => resolve("cancel")} download={(type) => resolve(type)} />,
+    );
+    return promise;
+  }
+
+  public confirmDelete(hostname: string): Promise<"cancel" | "confirm"> {
+    type Result = Awaited<ReturnType<typeof this.confirmDelete>>;
+    const { promise, resolve: internalResolve } = Promise.withResolvers<Result>();
+    const resolve = (result: Result) => {
+      internalResolve(result);
+      this.manager.remove({ token });
+    };
+    const { token } = this.manager.insert(
+      <DeleteModal hostname={hostname} close={() => resolve("cancel")} confirm={() => resolve("confirm")} />,
     );
     return promise;
   }
