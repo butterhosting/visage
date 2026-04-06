@@ -5,21 +5,21 @@ import { Yesttp } from "yesttp";
 export class StatsClient {
   public constructor(private readonly yesttp: Yesttp) {}
 
-  public async query({ fields, from, to, source, browser, os, country, city, ...q }: StatsQuery): Promise<Stats> {
-    const { body } = await this.yesttp.get<unknown>("/stats", {
-      searchParams: {
-        fields: fields.join(","),
-        from: from?.toString(),
-        to: to?.toString(),
+  public async query({ fields, from, to, ...q }: StatsQuery): Promise<Stats> {
+    const searchParams: Record<string, string | undefined> = {
+      fields: fields.join(","),
+      from: from?.toString(),
+      to: to?.toString(),
+    };
+    for (const [key, value] of Object.entries(q)) {
+      if (value === null) {
         // TODO: centralize this @null stuff ...
-        source: source === null ? "@null" : source,
-        browser: browser === null ? "@null" : browser,
-        os: os === null ? "@null" : os,
-        country: country === null ? "@null" : country,
-        city: city === null ? "@null" : city,
-        ...q,
-      },
-    });
+        searchParams[key] = "@null";
+      } else if (value !== undefined) {
+        searchParams[key] = String(value);
+      }
+    }
+    const { body } = await this.yesttp.get<unknown>("/stats", { searchParams });
     return Stats.parse(body);
   }
 }

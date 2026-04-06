@@ -19,8 +19,7 @@ export function DistributionTable({ data, pageviewsTotal, filterKey, filterValue
   }
   return (
     <div className="flex flex-col gap-2">
-      {data.slice(0, 10).map((point) => {
-        // TODO: fix frontend slicing!
+      {data.map((point) => {
         const isActive = filterValue === point.value;
         const percentage = Math.round((point.count / pageviewsTotal) * 1000) / 10;
 

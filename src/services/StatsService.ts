@@ -7,7 +7,7 @@ import { StatsQuery } from "@/models/StatsQuery";
 import { TimeSeries } from "@/models/TimeSeries";
 import { WebsiteRepository } from "@/repositories/WebsiteRepository";
 import { Temporal } from "@js-temporal/polyfill";
-import { and, between, count, desc, eq, gte, isNotNull, isNull, lte, max, min, sql, SQL } from "drizzle-orm";
+import { and, between, count, desc, eq, gte, isNull, lte, max, min, sql, SQL } from "drizzle-orm";
 import { SQLiteColumn } from "drizzle-orm/sqlite-core";
 
 export class StatsService {
@@ -54,25 +54,45 @@ export class StatsService {
       stats.pagetimeTimeSeries = await this.pagetimeTimeSeries([...where, whereForMedian], q);
     }
     if (q.fields.includes(Stats.Field.pageDistribution)) {
-      stats.pageDistribution = await this.distribution(where, $analyticsEvent.urlPath);
+      stats.pageDistribution = await this.distribution(where, $analyticsEvent.urlPath, q.pageDistributionLimit, q.pageDistributionOffset);
     }
     if (q.fields.includes(Stats.Field.sourceDistribution)) {
-      stats.sourceDistribution = await this.distribution(where, $analyticsEvent.utmSource);
+      stats.sourceDistribution = await this.distribution(
+        where,
+        $analyticsEvent.utmSource,
+        q.sourceDistributionLimit,
+        q.sourceDistributionOffset,
+      );
     }
     if (q.fields.includes(Stats.Field.screenDistribution)) {
-      stats.screenDistribution = await this.screenDistribution(where);
+      stats.screenDistribution = await this.distribution(where, "screen", q.screenDistributionLimit, q.screenDistributionOffset);
     }
     if (q.fields.includes(Stats.Field.browserDistribution)) {
-      stats.browserDistribution = await this.distribution(where, $analyticsEvent.deviceBrowserName);
+      stats.browserDistribution = await this.distribution(
+        where,
+        $analyticsEvent.deviceBrowserName,
+        q.browserDistributionLimit,
+        q.browserDistributionOffset,
+      );
     }
     if (q.fields.includes(Stats.Field.osDistribution)) {
-      stats.osDistribution = await this.distribution(where, $analyticsEvent.deviceOsName);
+      stats.osDistribution = await this.distribution(where, $analyticsEvent.deviceOsName, q.osDistributionLimit, q.osDistributionOffset);
     }
     if (q.fields.includes(Stats.Field.countryDistribution)) {
-      stats.countryDistribution = await this.distribution(where, $analyticsEvent.geoCountryCode);
+      stats.countryDistribution = await this.distribution(
+        where,
+        $analyticsEvent.geoCountryCode,
+        q.countryDistributionLimit,
+        q.countryDistributionOffset,
+      );
     }
     if (q.fields.includes(Stats.Field.cityDistribution)) {
-      stats.cityDistribution = await this.distribution(where, $analyticsEvent.geoCityName);
+      stats.cityDistribution = await this.distribution(
+        where,
+        $analyticsEvent.geoCityName,
+        q.cityDistributionLimit,
+        q.cityDistributionOffset,
+      );
     }
     return stats;
   }
@@ -297,25 +317,26 @@ export class StatsService {
     return sql`${StatsService.SCREEN_LABEL} = ${screen}`;
   }
 
-  private async screenDistribution(where: SQL[]): Promise<DistributionPoint[]> {
+  private async distribution(where: SQL[], column: SQLiteColumn | "screen", limit = 10, offset = 0): Promise<DistributionPoint[]> {
     const c = count();
-    const rows = await this.sqlite
-      .select({ value: StatsService.SCREEN_LABEL, count: c })
-      .from($analyticsEvent)
-      .where(and(...where))
-      .groupBy(StatsService.SCREEN_LABEL)
-      .orderBy(desc(c));
-    return rows.map((row) => ({ value: row.value, count: row.count }));
-  }
-
-  private async distribution(where: SQL[], column: SQLiteColumn): Promise<DistributionPoint[]> {
-    const c = count();
-    const rows = await this.sqlite
-      .select({ value: column, count: c })
-      .from($analyticsEvent)
-      .where(and(...where))
-      .groupBy(column)
-      .orderBy(desc(c));
+    const rows =
+      column === "screen"
+        ? await this.sqlite
+            .select({ value: StatsService.SCREEN_LABEL, count: c })
+            .from($analyticsEvent)
+            .where(and(...where))
+            .groupBy(StatsService.SCREEN_LABEL)
+            .orderBy(desc(c))
+            .limit(limit)
+            .offset(offset)
+        : await this.sqlite
+            .select({ value: column, count: c })
+            .from($analyticsEvent)
+            .where(and(...where))
+            .groupBy(column)
+            .orderBy(desc(c))
+            .limit(limit)
+            .offset(offset);
     return rows.map((row) => ({ value: row.value ?? null, count: row.count }));
   }
 }

@@ -15,6 +15,20 @@ export type StatsQuery = {
   [StatsQuery.Filter.os]?: string | null;
   [StatsQuery.Filter.country]?: string | null;
   [StatsQuery.Filter.city]?: string | null;
+  [StatsQuery.Pagination.pageDistributionLimit]?: number;
+  [StatsQuery.Pagination.pageDistributionOffset]?: number;
+  [StatsQuery.Pagination.sourceDistributionLimit]?: number;
+  [StatsQuery.Pagination.sourceDistributionOffset]?: number;
+  [StatsQuery.Pagination.screenDistributionLimit]?: number;
+  [StatsQuery.Pagination.screenDistributionOffset]?: number;
+  [StatsQuery.Pagination.browserDistributionLimit]?: number;
+  [StatsQuery.Pagination.browserDistributionOffset]?: number;
+  [StatsQuery.Pagination.osDistributionLimit]?: number;
+  [StatsQuery.Pagination.osDistributionOffset]?: number;
+  [StatsQuery.Pagination.countryDistributionLimit]?: number;
+  [StatsQuery.Pagination.countryDistributionOffset]?: number;
+  [StatsQuery.Pagination.cityDistributionLimit]?: number;
+  [StatsQuery.Pagination.cityDistributionOffset]?: number;
 };
 
 export namespace StatsQuery {
@@ -28,6 +42,22 @@ export namespace StatsQuery {
     os = "os",
     country = "country",
     city = "city",
+  }
+  export enum Pagination {
+    pageDistributionLimit = "pageDistributionLimit",
+    pageDistributionOffset = "pageDistributionOffset",
+    sourceDistributionLimit = "sourceDistributionLimit",
+    sourceDistributionOffset = "sourceDistributionOffset",
+    screenDistributionLimit = "screenDistributionLimit",
+    screenDistributionOffset = "screenDistributionOffset",
+    browserDistributionLimit = "browserDistributionLimit",
+    browserDistributionOffset = "browserDistributionOffset",
+    osDistributionLimit = "osDistributionLimit",
+    osDistributionOffset = "osDistributionOffset",
+    countryDistributionLimit = "countryDistributionLimit",
+    countryDistributionOffset = "countryDistributionOffset",
+    cityDistributionLimit = "cityDistributionLimit",
+    cityDistributionOffset = "cityDistributionOffset",
   }
   export const parse = ZodParser.forType<StatsQuery>()
     .ensureSchemaMatchesType(() =>
@@ -67,6 +97,20 @@ export namespace StatsQuery {
           .string()
           .transform((s) => (s === "@null" ? null : s)) // TODO: centralize this ...
           .optional(),
+        pageDistributionLimit: z.coerce.number().optional(),
+        pageDistributionOffset: z.coerce.number().optional(),
+        sourceDistributionLimit: z.coerce.number().optional(),
+        sourceDistributionOffset: z.coerce.number().optional(),
+        screenDistributionLimit: z.coerce.number().optional(),
+        screenDistributionOffset: z.coerce.number().optional(),
+        browserDistributionLimit: z.coerce.number().optional(),
+        browserDistributionOffset: z.coerce.number().optional(),
+        osDistributionLimit: z.coerce.number().optional(),
+        osDistributionOffset: z.coerce.number().optional(),
+        countryDistributionLimit: z.coerce.number().optional(),
+        countryDistributionOffset: z.coerce.number().optional(),
+        cityDistributionLimit: z.coerce.number().optional(),
+        cityDistributionOffset: z.coerce.number().optional(),
       }),
     )
     .ensureTypeMatchesSchema();
