@@ -86,7 +86,10 @@ export class StatsService {
     return where;
   }
 
-  private async pickTimeUnit(where: SQL[], q: StatsQuery): Promise<TimeSeries["tUnit"]> {
+  private async analyzeUnitAndRange(
+    where: SQL[],
+    q: StatsQuery,
+  ): Promise<{ tUnit: TimeSeries["tUnit"]; from: Temporal.Instant; to: Temporal.Instant } | undefined> {
     let from = q.from;
     let to = q.to;
     if (!from || !to) {
@@ -94,14 +97,24 @@ export class StatsService {
         .select({ earliest: min($analyticsEvent.created), latest: max($analyticsEvent.created) })
         .from($analyticsEvent)
         .where(and(...where));
-      if (!earliest || !latest) return "day";
-      if (!from) from = Temporal.Instant.from(earliest);
-      if (!to) to = Temporal.Instant.from(latest);
+      if (!earliest || !latest) {
+        return undefined;
+      }
+      if (!from) {
+        from = Temporal.Instant.from(earliest);
+      }
+      if (!to) {
+        to = Temporal.Instant.from(latest);
+      }
     }
     const hours = (to.epochMilliseconds - from.epochMilliseconds) / (1000 * 60 * 60);
-    if (hours <= 24 * 10) return "hour"; // less than 10 days
-    if (hours / 24 <= 30 * 10) return "day"; // less than 10 months
-    return "month";
+    if (hours < 24 * 7) {
+      return { tUnit: "hour", from, to }; // less than 7 days
+    }
+    if (hours / 24 < 30 * 7) {
+      return { tUnit: "day", from, to }; // less than 10 months
+    }
+    return { tUnit: "month", from, to };
   }
 
   private strftimeFormat(unit: TimeSeries["tUnit"]): string {
@@ -116,8 +129,16 @@ export class StatsService {
   }
 
   private async durationTimeSeries(where: SQL[], q: StatsQuery): Promise<TimeSeries> {
-    const unit = await this.pickTimeUnit(where, q);
-    const fmt = this.strftimeFormat(unit);
+    const analysis = await this.analyzeUnitAndRange(where, q);
+    if (!analysis) {
+      return {
+        data: [],
+        tUnit: "day",
+        yUnit: "second",
+      };
+    }
+    const { tUnit, from, to } = analysis;
+    const fmt = this.strftimeFormat(tUnit);
     const bucket = sql<string>`strftime(${fmt}, ${$analyticsEvent.created})`;
     const rows = await this.sqlite
       .select({ bucket, duration: $analyticsEvent.durationSeconds })
@@ -132,19 +153,28 @@ export class StatsService {
       buckets.set(r.bucket, arr);
     }
 
+    const data = [...buckets.entries()].map<TimeSeries.Point>(([t, values]) => ({
+      t: Temporal.Instant.from(t),
+      y: values[Math.floor(values.length / 2)],
+    }));
     return {
-      tUnit: unit,
+      tUnit: tUnit,
       yUnit: "second",
-      data: [...buckets.entries()].map(([b, values]) => ({
-        t: Temporal.Instant.from(b),
-        y: values[Math.floor(values.length / 2)],
-      })),
+      data: this.fillGaps(data, tUnit, from, to),
     };
   }
 
   private async timeSeries(where: SQL[], q: StatsQuery, yUnit: "visitor" | "pageview"): Promise<TimeSeries> {
-    const unit = await this.pickTimeUnit(where, q);
-    const fmt = this.strftimeFormat(unit);
+    const analysis = await this.analyzeUnitAndRange(where, q);
+    if (!analysis) {
+      return {
+        data: [],
+        tUnit: "day",
+        yUnit,
+      };
+    }
+    const { tUnit, from, to } = analysis;
+    const fmt = this.strftimeFormat(tUnit);
     const bucket = sql<string>`strftime(${fmt}, ${$analyticsEvent.created})`;
     const rows = await this.sqlite
       .select({ bucket, count: count() })
@@ -152,14 +182,61 @@ export class StatsService {
       .where(and(...where))
       .groupBy(bucket)
       .orderBy(bucket);
+
+    const data = rows.map<TimeSeries.Point>((row) => ({
+      t: Temporal.Instant.from(row.bucket),
+      y: row.count,
+    }));
     return {
-      tUnit: unit,
+      tUnit: tUnit,
       yUnit,
-      data: rows.map((r) => ({
-        t: Temporal.Instant.from(r.bucket),
-        y: r.count,
-      })),
+      data: this.fillGaps(data, tUnit, from, to),
     };
+  }
+
+  private fillGaps(data: TimeSeries.Point[], unit: TimeSeries["tUnit"], from: Temporal.Instant, to: Temporal.Instant): TimeSeries.Point[] {
+    const existing = new Map<string, number>();
+    for (const p of data) {
+      existing.set(p.t.toString(), p.y);
+    }
+    const startZdt = from.toZonedDateTimeISO("UTC");
+    let current: Temporal.ZonedDateTime;
+    switch (unit) {
+      case "hour":
+        current = Temporal.ZonedDateTime.from({
+          timeZone: "UTC",
+          year: startZdt.year,
+          month: startZdt.month,
+          day: startZdt.day,
+          hour: startZdt.hour,
+        });
+        break;
+      case "day":
+        current = Temporal.ZonedDateTime.from({
+          timeZone: "UTC",
+          year: startZdt.year,
+          month: startZdt.month,
+          day: startZdt.day,
+        });
+        break;
+      case "month":
+        current = Temporal.ZonedDateTime.from({
+          timeZone: "UTC",
+          year: startZdt.year,
+          month: startZdt.month,
+          day: 1,
+        });
+        break;
+    }
+
+    const duration = unit === "hour" ? { hours: 1 } : unit === "day" ? { days: 1 } : { months: 1 };
+    const result: TimeSeries.Point[] = [];
+    while (Temporal.Instant.compare(current.toInstant(), to) <= 0) {
+      const instant = current.toInstant();
+      result.push({ t: instant, y: existing.get(instant.toString()) ?? 0 });
+      current = current.add(duration);
+    }
+    return result;
   }
 
   private async median(where: SQL[]): Promise<number> {

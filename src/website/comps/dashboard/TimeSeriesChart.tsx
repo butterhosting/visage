@@ -53,14 +53,14 @@ export function TimeSeriesChart({ timeSeries, minimal, height = 400, gradientId 
             dataKey={({ t }: TimeSeries.Point) => {
               return Prettify.chartAxisLabel(t, tUnit);
             }}
+            dy={12}
             angle={-45}
             textAnchor="end"
             axisLine={false}
             tickLine={false}
             tick={{ fontSize: 13, fontWeight: 600, fill: "#2d2c32" }}
-            minTickGap={10}
-            dy={12}
-            interval="preserveStartEnd"
+            minTickGap={50}
+            interval="preserveStart"
           />
         )}
         {!minimal && (
