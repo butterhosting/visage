@@ -29,9 +29,21 @@ export class WebsiteService {
     return await this.enrich(website);
   }
 
-  public async create(unknown: z.output<typeof WebsiteService.Upsert>): Promise<Website> {
+  public async create(unknown: z.output<typeof WebsiteService.Upsert>): Promise<WebsiteRM> {
     const { hostname } = WebsiteService.Upsert.parse(unknown);
-    throw new Error("not implemented");
+    const website = await this.websiteRepository.create({
+      id: Bun.randomUUIDv7(),
+      object: "website",
+      created: Temporal.Now.instant(),
+      hostname,
+    });
+    return await this.enrich(website);
+  }
+
+  public async delete(ref: string): Promise<WebsiteRM> {
+    const website = await this.find(ref);
+    await this.websiteRepository.delete(website.id);
+    return website;
   }
 
   private async enrich(website: Website): Promise<WebsiteRM> {
@@ -53,7 +65,10 @@ export class WebsiteService {
 export namespace WebsiteService {
   export const Upsert = z
     .object({
-      hostname: z.string(),
+      hostname: z
+        .string()
+        .transform((s) => s.trim().toLowerCase())
+        .refine((s) => s === "localhost" || s.includes(".")),
     })
     .catch((e) => {
       throw ServerError.invalid_request_body(ZodProblem.issuesSummary(e));

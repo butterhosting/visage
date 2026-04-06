@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Modal } from "../Modal";
+import { Modal } from "./Modal";
 
 type Props = {
   hostname: string;

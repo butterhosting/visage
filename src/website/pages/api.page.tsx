@@ -20,7 +20,7 @@ export function apiPage() {
           </div>
           <p className="mt-8 text-c-dark/60">
             This endpoint can be used for querying various stats for a given website. The only mandatory parameter is{" "}
-            <code className="font-bold">?website=xxx</code> for referencing a specifiy website by its hostname or ID. Apart from that, there
+            <code className="font-bold">?website=xxx</code> for referencing a specific website by its hostname or ID. Apart from that, there
             are 3 categories of parambeters.
           </p>
           <ul className="mt-4 pl-4 text-c-dark/60 list-disc list-inside break-all">

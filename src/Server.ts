@@ -16,6 +16,7 @@ import { TrackerService } from "./services/TrackerService";
 import { WebsiteService } from "./services/WebsiteService";
 import { Socket } from "./socket/Socket";
 import { WebsiteRM } from "./models/WebsiteRM";
+import { DownloadService } from "./services/DownloadService";
 
 export class Server {
   private readonly log = new Logger(__filename);
@@ -27,6 +28,7 @@ export class Server {
     private readonly trackerService: TrackerService,
     private readonly ingestionService: IngestionService,
     private readonly statsService: StatsService,
+    private readonly downloadService: DownloadService,
     private readonly middleware: Middleware,
   ) {}
 
@@ -105,7 +107,7 @@ export class Server {
         },
 
         /**
-         * Semi-publically-accessible API
+         * Token protected API for external access
          */
         "/api/stats": {
           GET: this.handleRoute(async (request) => {
@@ -145,9 +147,20 @@ export class Server {
             const website: WebsiteRM = await this.websiteService.find(params.ref);
             return Response.json(website);
           }),
-          POST: this.handleRoute(async (request) => {
-            const website: Website = await this.websiteService.create(await request.json());
+          DELETE: this.handleRoute(async ({ params }) => {
+            const website: Website = await this.websiteService.delete(params.ref);
             return Response.json(website);
+          }),
+        },
+        "/internal-api/websites/:ref/download": {
+          POST: this.handleRoute(async (request) => {
+            const { stream, filename } = await this.downloadService.download(request.params.ref, await request.json());
+            return new Response(stream, {
+              headers: {
+                "content-type": "application/json",
+                "content-disposition": `attachment; filename="${filename}"`,
+              },
+            });
           }),
         },
 

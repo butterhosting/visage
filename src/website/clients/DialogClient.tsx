@@ -1,6 +1,8 @@
+import { Artifact } from "@/models/Artifact";
 import { PeriodModal } from "../comps/dashboard/PeriodModal";
-import { DeleteModal } from "../comps/data/DeleteModal";
-import { DownloadModal } from "../comps/data/DownloadModal";
+import { DeleteModal } from "../comps/DeleteModal";
+import { DownloadModal } from "../comps/DownloadModal";
+import { CreateWebsiteModal } from "../comps/CreateWebsiteModal";
 import { DialogManager } from "../comps/DialogManager";
 import { Period } from "../femodels/Period";
 
@@ -38,7 +40,7 @@ export class DialogClient {
     return promise;
   }
 
-  public pickDownload(hostname: string): Promise<"cancel" | "analytics" | "bots"> {
+  public pickDownload(hostname: string): Promise<"cancel" | Artifact.Enum> {
     type Result = Awaited<ReturnType<typeof this.pickDownload>>;
     const { promise, resolve: internalResolve } = Promise.withResolvers<Result>();
     const resolve = (result: Result) => {
@@ -48,6 +50,17 @@ export class DialogClient {
     const { token } = this.manager.insert(
       <DownloadModal hostname={hostname} close={() => resolve("cancel")} download={(type) => resolve(type)} />,
     );
+    return promise;
+  }
+
+  public createWebsite(): Promise<"cancel" | string> {
+    type Result = Awaited<ReturnType<typeof this.createWebsite>>;
+    const { promise, resolve: internalResolve } = Promise.withResolvers<Result>();
+    const resolve = (result: Result) => {
+      internalResolve(result);
+      this.manager.remove({ token });
+    };
+    const { token } = this.manager.insert(<CreateWebsiteModal close={() => resolve("cancel")} create={(hostname) => resolve(hostname)} />);
     return promise;
   }
 

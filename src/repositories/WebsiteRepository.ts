@@ -26,4 +26,15 @@ export class WebsiteRepository {
     }
     return undefined;
   }
+
+  // TODO: return `undefined` if `id`/`hostname` already exists
+  public async create(website: Website): Promise<Website> {
+    await this.sqlite.insert($website).values(WebsiteConverter.convert(website));
+    return website;
+  }
+
+  public async delete(id: string): Promise<Website | undefined> {
+    const [website] = await this.sqlite.delete($website).where(eq($website.id, id)).returning();
+    return website ? WebsiteConverter.convert(website) : undefined;
+  }
 }
