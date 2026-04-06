@@ -83,7 +83,7 @@ export function useDashboardStateWithUrlSynchronization() {
   });
   useEffect(() => syncToParams("graph", graph), [graph]);
 
-  let graphTimeSeriesField: Stats.Field.visitorsTimeSeries | Stats.Field.pageviewsTimeSeries | Stats.Field.durationTimeSeries;
+  let graphTimeSeriesField: Stats.Field.visitorsTimeSeries | Stats.Field.pageviewsTimeSeries | Stats.Field.pagetimeTimeSeries;
   switch (graph) {
     case Graph.visitors: {
       graphTimeSeriesField = Stats.Field.visitorsTimeSeries;
@@ -93,8 +93,8 @@ export function useDashboardStateWithUrlSynchronization() {
       graphTimeSeriesField = Stats.Field.pageviewsTimeSeries;
       break;
     }
-    case Graph.duration: {
-      graphTimeSeriesField = Stats.Field.durationTimeSeries;
+    case Graph.pagetime: {
+      graphTimeSeriesField = Stats.Field.pagetimeTimeSeries;
       break;
     }
   }

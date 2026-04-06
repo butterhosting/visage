@@ -9,7 +9,7 @@ export type Stats = Partial<{
   [Stats.Field.durationMedian]: number;
   [Stats.Field.visitorsTimeSeries]: TimeSeries;
   [Stats.Field.pageviewsTimeSeries]: TimeSeries;
-  [Stats.Field.durationTimeSeries]: TimeSeries;
+  [Stats.Field.pagetimeTimeSeries]: TimeSeries;
   [Stats.Field.pageDistribution]: DistributionPoint[];
   [Stats.Field.sourceDistribution]: DistributionPoint[];
   [Stats.Field.screenDistribution]: DistributionPoint[];
@@ -26,7 +26,7 @@ export namespace Stats {
     durationMedian = "durationMedian",
     visitorsTimeSeries = "visitorsTimeSeries",
     pageviewsTimeSeries = "pageviewsTimeSeries",
-    durationTimeSeries = "durationTimeSeries",
+    pagetimeTimeSeries = "pagetimeTimeSeries",
     pageDistribution = "pageDistribution",
     sourceDistribution = "sourceDistribution",
     screenDistribution = "screenDistribution",
@@ -44,7 +44,7 @@ export namespace Stats {
         [Field.durationMedian]: z.number().optional(),
         [Field.visitorsTimeSeries]: TimeSeries.parse.SCHEMA.optional(),
         [Field.pageviewsTimeSeries]: TimeSeries.parse.SCHEMA.optional(),
-        [Field.durationTimeSeries]: TimeSeries.parse.SCHEMA.optional(),
+        [Field.pagetimeTimeSeries]: TimeSeries.parse.SCHEMA.optional(),
         [Field.pageDistribution]: z.array(DistributionPoint.parse.SCHEMA).optional(),
         [Field.sourceDistribution]: z.array(DistributionPoint.parse.SCHEMA).optional(),
         [Field.screenDistribution]: z.array(DistributionPoint.parse.SCHEMA).optional(),

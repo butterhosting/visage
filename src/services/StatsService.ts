@@ -45,8 +45,8 @@ export class StatsService {
     if (q.fields.includes(Stats.Field.pageviewsTimeSeries)) {
       stats.pageviewsTimeSeries = await this.timeSeries(where, q, "pageview");
     }
-    if (q.fields.includes(Stats.Field.durationTimeSeries)) {
-      stats.durationTimeSeries = await this.durationTimeSeries([...where, whereForMedian], q);
+    if (q.fields.includes(Stats.Field.pagetimeTimeSeries)) {
+      stats.pagetimeTimeSeries = await this.pagetimeTimeSeries([...where, whereForMedian], q);
     }
     if (q.fields.includes(Stats.Field.pageDistribution)) {
       stats.pageDistribution = await this.distribution(where, $analyticsEvent.urlPath);
@@ -128,7 +128,7 @@ export class StatsService {
     }
   }
 
-  private async durationTimeSeries(where: SQL[], q: StatsQuery): Promise<TimeSeries> {
+  private async pagetimeTimeSeries(where: SQL[], q: StatsQuery): Promise<TimeSeries> {
     const analysis = await this.analyzeUnitAndRange(where, q);
     if (!analysis) {
       return {

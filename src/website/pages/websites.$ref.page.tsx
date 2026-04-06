@@ -80,7 +80,7 @@ export function websites$refPage() {
       {
         label: "MEDIAN TIME ON PAGE",
         value: typeof stats?.durationMedian === "number" ? Prettify.duration(stats.durationMedian) : "\u2014",
-        correspondingGraph: Graph.duration,
+        correspondingGraph: Graph.pagetime,
       },
     ];
   }
