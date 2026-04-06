@@ -33,7 +33,7 @@ export function PeriodDropdown({ period, onChange }: Props) {
 
   const onClick = (preset: Period.Preset) => {
     if (preset === Period.Preset.custom) {
-      dialogClient.pickPeriodRange().then((result) => {
+      dialogClient.pickPeriodRange(period.preset === Period.Preset.custom ? period : {}).then((result) => {
         if (result !== "cancel") {
           onChange({ preset, ...result });
         }

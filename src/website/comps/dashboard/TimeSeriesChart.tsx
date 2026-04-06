@@ -38,7 +38,7 @@ export function TimeSeriesChart({ timeSeries, minimal, height = 400, gradientId 
     <ResponsiveContainer width="100%" height={height}>
       <AreaChart
         data={chartData}
-        margin={minimal ? { top: 5, right: 0, left: 0, bottom: 0 } : { top: 5, right: 10, left: 10, bottom: 80 }}
+        margin={minimal ? { top: 5, right: 0, left: 0, bottom: 5 } : { top: 5, right: 10, left: 10, bottom: 80 }}
         tabIndex={-1}
       >
         <defs>

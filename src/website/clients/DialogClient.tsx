@@ -14,7 +14,7 @@ export class DialogClient {
     this._manager = manager;
   }
 
-  public pickPeriodRange(): Promise<"cancel" | Period.Range> {
+  public pickPeriodRange(defaultPeriodRange: Period.Range = {}): Promise<"cancel" | Period.Range> {
     type Result = Awaited<ReturnType<typeof this.pickPeriodRange>>;
     const { promise, resolve: internalResolve } = Promise.withResolvers<Result>();
     const resolve = (result: Result) => {
@@ -23,6 +23,7 @@ export class DialogClient {
     };
     const { token } = this.manager.insert(
       <PeriodModal
+        defaultPeriodRange={defaultPeriodRange}
         close={() => resolve("cancel")}
         apply={(from, to) => {
           resolve({
