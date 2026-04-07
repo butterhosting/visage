@@ -2,7 +2,7 @@ import { $analyticsEvent, $botEvent } from "@/drizzle/schema";
 import { Sqlite } from "@/drizzle/sqlite";
 import { Env } from "@/Env";
 import { AnalyticsEvent } from "@/models/AnalyticsEvent";
-import { and, eq, isNull, sql } from "drizzle-orm";
+import { and, eq, isNotNull, sql } from "drizzle-orm";
 import { AnalyticsEventConverter } from "./converters/AnalyticsEventConverter";
 
 export class AnalyticsEventRepository {
@@ -18,7 +18,7 @@ export class AnalyticsEventRepository {
   public async create(analyticsEvent: AnalyticsEvent, bot?: "bot"): Promise<void> {
     if (bot === "bot") {
       await this.sqlite.insert($botEvent).values({
-        id: Bun.randomUUIDv7(),
+        id: analyticsEvent.id,
         websiteId: analyticsEvent.websiteId,
         json: JSON.stringify(analyticsEvent),
       });
@@ -29,11 +29,14 @@ export class AnalyticsEventRepository {
     }
   }
 
-  public async update(id: string, durationSeconds: number): Promise<void> {
+  public async update(clientPageId: string, durationSeconds: number): Promise<void> {
     await this.sqlite
       .update($analyticsEvent)
-      .set({ durationSeconds })
-      .where(and(eq($analyticsEvent.id, id), isNull($analyticsEvent.durationSeconds)));
+      .set({ clientPageId: null, durationSeconds })
+      // TODO: dual index on `website,created`
+      // TODO: index on `client_page_id`
+      // TODO: only allow updates if they occurred in the last 30d
+      .where(and(eq($analyticsEvent.clientPageId, clientPageId), isNotNull($analyticsEvent.clientPageId)));
   }
 
   private async deleteOldestBotEvents(): Promise<void> {

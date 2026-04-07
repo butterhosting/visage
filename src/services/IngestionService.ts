@@ -23,10 +23,21 @@ export class IngestionService {
     try {
       const event = BrowserTrackingEvent.parse(unknown);
       switch (event.t) {
-        case "s":
-          return await this.ingestStart(ipAddress, event);
-        case "e":
-          return await this.ingestEnd(event);
+        case "s": {
+          await this.ingestStart(ipAddress, event).catch((err) => {
+            this.log.debug("Failed to handle ingest START event", err);
+          });
+          return;
+        }
+        case "e": {
+          await this.ingestEnd(event).catch((err) => {
+            this.log.debug("Failed to handle ingest END event", err);
+          });
+          return;
+        }
+        default: {
+          event satisfies never;
+        }
       }
     } catch (e) {
       this.log.debug("Failed to ingest tracking event", e);
@@ -45,9 +56,10 @@ export class IngestionService {
     const isVisitor = (!referrerUrl || referrerUrl.hostname !== url.hostname) && payload.sc === 0;
 
     const analyticsEvent: AnalyticsEvent = {
-      id: payload.i,
+      id: Bun.randomUUIDv7(),
       object: "analytics_event",
       websiteId: website.id,
+      clientPageId: payload.cpi,
       created: Temporal.Now.instant(),
       url: {
         hostname: url.hostname,
@@ -79,7 +91,6 @@ export class IngestionService {
       locale: this.parseLocale(payload.l),
       geo: await this.maxMindGeoService.lookup(ipAddress),
     };
-
     if (await this.botDetectionService.isBot(analyticsEvent)) {
       await this.analyticsEventRepository.create(analyticsEvent, "bot");
     } else {
@@ -90,7 +101,7 @@ export class IngestionService {
   private async ingestEnd(payload: BrowserTrackingEvent.End): Promise<void> {
     if (payload.dms > 0) {
       await this.analyticsEventRepository.update(
-        payload.i,
+        payload.cpi,
         Temporal.Duration.from({ milliseconds: payload.dms }).round("seconds").total("seconds"),
       );
     }

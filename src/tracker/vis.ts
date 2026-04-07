@@ -6,10 +6,18 @@ const originalReplaceState = history.replaceState.bind(history);
 const skipLocalhostCollection = "{{SKIP_LOCALHOST_COLLECTION}}" as "true" | "false";
 
 let spaCount = 0;
-let pageId = crypto.randomUUID();
-let startTime = Date.now();
-let msHidden = 0;
-let hiddenSince: number | null = null;
+let cpi: string;
+let startTime: number;
+let msHidden: number;
+let hiddenSince: number | null;
+
+function resetPage(): void {
+  cpi = crypto.randomUUID();
+  startTime = Date.now();
+  msHidden = 0;
+  hiddenSince = null;
+}
+resetPage();
 
 function shouldSkipRequest(): boolean {
   if (skipLocalhostCollection === "true" && window.location.hostname === "localhost") {
@@ -25,7 +33,7 @@ function submitStart(): void {
   }
   const event: BrowserTrackingEvent.Start = {
     t: "s",
-    i: pageId,
+    cpi,
     u: window.location.href,
     r: document.referrer || undefined,
     ua: navigator.userAgent,
@@ -50,17 +58,10 @@ function submitEnd(): void {
   }
   const event: BrowserTrackingEvent.End = {
     t: "e",
-    i: pageId,
+    cpi,
     dms: Math.max(0, Date.now() - startTime - msHidden),
   };
   navigator.sendBeacon(ingestionEndpoint, JSON.stringify(event));
-}
-
-function resetPage(): void {
-  pageId = crypto.randomUUID();
-  startTime = Date.now();
-  msHidden = 0;
-  hiddenSince = null;
 }
 
 function navigate(): void {

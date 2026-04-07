@@ -10,9 +10,9 @@ export namespace BrowserTrackingEvent {
      */
     t: "s";
     /**
-     * ID
+     * Client page ID
      */
-    i: string;
+    cpi: string;
     /**
      * URL
      */
@@ -59,7 +59,7 @@ export namespace BrowserTrackingEvent {
     /**
      * ID
      */
-    i: string;
+    cpi: string;
     /**
      * Duration (ms)
      */
@@ -71,7 +71,7 @@ export namespace BrowserTrackingEvent {
       z.discriminatedUnion("t", [
         z.object({
           t: z.literal("s"),
-          i: z.uuid(),
+          cpi: z.uuid(),
           u: z.url().max(2048),
           r: z.url().max(2048).optional(),
           sc: z.int().nonnegative().max(10_000),
@@ -84,7 +84,7 @@ export namespace BrowserTrackingEvent {
         }),
         z.object({
           t: z.literal("e"),
-          i: z.uuid(),
+          cpi: z.uuid(),
           dms: z.int().nonnegative().max(86_400_000),
         }),
       ]),

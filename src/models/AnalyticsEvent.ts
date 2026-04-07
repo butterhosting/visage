@@ -3,8 +3,9 @@ import { Temporal } from "@js-temporal/polyfill";
 export type AnalyticsEvent = {
   id: string;
   object: "analytics_event";
-  websiteId: string;
   created: Temporal.Instant;
+  websiteId: string;
+  clientPageId?: string;
   durationSeconds?: number;
   url: {
     hostname: string;

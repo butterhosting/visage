@@ -2,8 +2,9 @@ import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 
 export const $analyticsEvent = sqliteTable("analytics_event", {
   id: text().primaryKey(),
-  websiteId: text().notNull(),
   created: text().notNull(),
+  websiteId: text().notNull(),
+  clientPageId: text(),
   durationSeconds: integer(),
   urlHostname: text().notNull(),
   urlPath: text().notNull(),
