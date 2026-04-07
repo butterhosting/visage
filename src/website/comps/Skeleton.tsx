@@ -91,10 +91,16 @@ export namespace Skeleton {
               <Spinner />
             ) : (
               <div className="flex gap-4">
-                <button onClick={seed} className="cursor-pointer text-c-dark border border-c-dark hover:bg-c-dark/10 p-2 rounded-lg">
+                <button
+                  onClick={seed}
+                  className="cursor-pointer text-c-dark border border-c-dark bg-white hover:bg-purple-50 p-2 rounded-lg"
+                >
                   Seed
                 </button>
-                <button onClick={purge} className="cursor-pointer text-c-dark border border-c-dark hover:bg-c-dark/10 p-2 rounded-lg">
+                <button
+                  onClick={purge}
+                  className="cursor-pointer text-c-dark border border-c-dark bg-white hover:bg-purple-50 p-2 rounded-lg"
+                >
                   Purge
                 </button>
               </div>

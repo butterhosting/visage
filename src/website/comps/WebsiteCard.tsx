@@ -10,11 +10,11 @@ type Props = {
 };
 export function WebsiteCard({ website, className }: Props) {
   return (
-    <Paper className={clsx("overflow-hidden", className)}>
+    <Paper className={clsx("overflow-hidden flex flex-col", className)}>
       <div className="px-5 pt-5 pb-3">
         <div className="text-sm font-semibold text-c-dark tracking-wide">{website.hostname}</div>
       </div>
-      <div className="h-30 pointer-events-none">
+      <div className="flex-1 min-h-0 pointer-events-none">
         <TimeSeriesChart timeSeries={website.visitorsTimeSeries30d} gradientId={`miniGradient-${website.id}`} minimal height="100%" />
       </div>
       <div className="px-5 pb-4 pt-2 flex items-center gap-5 text-sm text-c-dark/50">

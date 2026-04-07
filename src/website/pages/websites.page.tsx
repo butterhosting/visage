@@ -26,18 +26,18 @@ export function websitesPage() {
   }
 
   return (
-    <Skeleton className="grid grid-cols-3 sm:grid-cols-1 md:grid-cols-2 gap-5 content-start">
+    <Skeleton className="grid grid-cols-3 sm:grid-cols-1 md:grid-cols-2 grid-rows-[200px] auto-rows-[200px] gap-5 content-start">
       {[...websites, "new" as const].map((website) => {
         if (typeof website === "object") {
           return (
-            <Link key={website.id} to={Route.websites(website.hostname)}>
-              <WebsiteCard className="hover:shadow-lg" website={website} />
+            <Link key={website.id} to={Route.websites(website.hostname)} className="h-full">
+              <WebsiteCard className="hover:shadow-xl h-full" website={website} />
             </Link>
           );
         }
         return (
-          <button onClick={handleCreate} className="hover:shadow-lg cursor-pointer">
-            <Paper className="h-full flex items-center justify-center">
+          <button onClick={handleCreate} className="group cursor-pointer">
+            <Paper className="h-full flex items-center justify-center group-hover:shadow-xl ">
               <svg
                 width="32"
                 height="32"

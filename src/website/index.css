@@ -57,9 +57,11 @@
         font-size: 14px; /* 80% of default 16px */
     }
     body {
-        font-optical-sizing: auto;
-        background-image: radial-gradient(ellipse at 30% 0%, #faf4ff 0%, #faf4ff 80%);
         @apply relative min-w-[320px] min-h-screen font-f-everywhere text-c-primary;
+        font-optical-sizing: auto;
+        background-image: url("./images/background/bgdots.svg");
+        background-position: top center;
+        background-size: 2rem;
     }
     #root {
         @apply min-h-screen flex flex-col w-full max-w-6xl px-3 mx-auto;
