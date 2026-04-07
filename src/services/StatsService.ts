@@ -319,26 +319,36 @@ export class StatsService {
 
   private async distribution(where: SQL[], column: SQLiteColumn | "screen", limit = 10, offset = 0): Promise<Distribution> {
     const c = count();
-    const rows =
-      column === "screen"
-        ? await this.sqlite
-            .select({ value: StatsService.SCREEN_LABEL, count: c })
-            .from($analyticsEvent)
-            .where(and(...where))
-            .groupBy(StatsService.SCREEN_LABEL)
-            .orderBy(desc(c))
-            .limit(limit + 1)
-            .offset(offset)
-        : await this.sqlite
-            .select({ value: column, count: c })
-            .from($analyticsEvent)
-            .where(and(...where))
-            .groupBy(column)
-            .orderBy(desc(c))
-            .limit(limit + 1)
-            .offset(offset);
+    let rows: Distribution["data"];
+    if (column === "screen") {
+      rows = await this.sqlite
+        .select({ value: StatsService.SCREEN_LABEL, count: c })
+        .from($analyticsEvent)
+        .where(and(...where))
+        .groupBy(StatsService.SCREEN_LABEL)
+        .orderBy(desc(c))
+        .limit(limit + 1)
+        .offset(offset);
+    } else if (column.name === $analyticsEvent.geoCityName.name) {
+      rows = await this.sqlite
+        .select({ value: column, count: c, meta: { country: $analyticsEvent.geoCountryCode } })
+        .from($analyticsEvent)
+        .where(and(...where))
+        .groupBy(column)
+        .orderBy(desc(c))
+        .limit(limit + 1)
+        .offset(offset);
+    } else {
+      rows = await this.sqlite
+        .select({ value: column, count: c })
+        .from($analyticsEvent)
+        .where(and(...where))
+        .groupBy(column)
+        .orderBy(desc(c))
+        .limit(limit + 1)
+        .offset(offset);
+    }
     const hasMore = rows.length > limit;
-    const data = rows.slice(0, limit).map((row) => ({ value: row.value ?? null, count: row.count }));
-    return { limit, offset, hasMore, data };
+    return { limit, offset, hasMore, data: rows.slice(0, limit) };
   }
 }

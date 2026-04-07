@@ -1,6 +1,10 @@
 import { Prettify } from "@/helpers/Prettify";
 import { Distribution } from "@/models/Distribution";
+import { hasFlag } from "country-flag-icons";
 import { DistributionFilter } from "../../femodels/DistributionFilter";
+import { CountryFlag } from "../CountryFlag";
+import { useMemo } from "react";
+import { StatsQuery } from "@/models/StatsQuery";
 
 type Props = {
   distribution?: Distribution;
@@ -11,6 +15,8 @@ type Props = {
   onPageChange: (offset: number) => void;
 };
 export function DistributionTable({ distribution, pageviewsTotal, filterKey, filterValue, toggleFilter, onPageChange }: Props) {
+  const countryNames = useMemo(() => new Intl.DisplayNames(["en"], { type: "region" }), []);
+
   if (!distribution || distribution.data.length === 0 || typeof pageviewsTotal !== "number") {
     return (
       <div className="py-6 text-center">
@@ -30,6 +36,8 @@ export function DistributionTable({ distribution, pageviewsTotal, filterKey, fil
             [DistributionFilter.Key.source]: "(direct)",
           };
           displayValue = translatedNullValues[filterKey] || "(unknown)";
+        } else if (filterKey === "country" && point.value) {
+          displayValue = countryNames.of(point.value) ?? point.value;
         }
 
         return (
@@ -45,7 +53,16 @@ export function DistributionTable({ distribution, pageviewsTotal, filterKey, fil
                 className={`absolute inset-y-0 left-0 rounded ${isActive ? "bg-c-primary/25" : "bg-c-primary/10"}`}
                 style={{ width: `${percentage}%` }}
               />
-              <span className={`relative px-2 text-sm leading-7 truncate ${isActive ? "font-semibold text-c-primary" : "text-c-dark"}`}>
+              <span
+                className={`relative px-2 text-sm leading-7 truncate flex items-center gap-1.5 ${isActive ? "font-semibold text-c-primary" : "text-c-dark"}`}
+              >
+                {filterKey === StatsQuery.Filter.country && point.value && hasFlag(point.value) && (
+                  <CountryFlag countryCode={point.value} className="h-3.5 rounded-[1px] shrink-0" />
+                )}
+                {filterKey === StatsQuery.Filter.city &&
+                  point.value &&
+                  typeof point.meta?.country === "string" &&
+                  hasFlag(point.meta.country) && <CountryFlag countryCode={point.meta.country} className="h-3.5 rounded-[1px] shrink-0" />}
                 {displayValue}
               </span>
             </div>

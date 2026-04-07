@@ -33,21 +33,21 @@ export class DownloadService {
 
     return new ReadableStream({
       start: async (controller) => {
-        controller.enqueue(encoder.encode("["));
+        controller.enqueue(encoder.encode('{"data":['));
         let cursor: string | undefined;
         let first = true;
         while (true) {
           const rows = await this.queryBatch(sqlite, websiteId, artifact, cursor);
           if (rows.length === 0) break;
           for (const { event } of rows) {
-            const prefix = first ? "\n" : ",\n";
+            const prefix = first ? "" : ",";
             first = false;
             controller.enqueue(encoder.encode(prefix + JSON.stringify(event)));
           }
           cursor = rows[rows.length - 1].id;
           if (rows.length < this.RECORD_BUFFER_SIZE) break;
         }
-        controller.enqueue(encoder.encode("\n]"));
+        controller.enqueue(encoder.encode("]}"));
         controller.close();
       },
     });

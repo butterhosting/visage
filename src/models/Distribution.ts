@@ -8,6 +8,7 @@ export type Distribution = {
   data: Array<{
     value: string | null;
     count: number;
+    meta?: Record<string, string | number | boolean | null>;
   }>;
 };
 
@@ -22,6 +23,7 @@ export namespace Distribution {
           z.object({
             value: z.string().nullable(),
             count: z.number(),
+            meta: z.record(z.string(), z.union([z.string(), z.number(), z.boolean(), z.null()])).optional(),
           }),
         ),
       }),
