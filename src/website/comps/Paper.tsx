@@ -6,7 +6,7 @@ type Props = ComponentProps<"div"> & {
 };
 export function Paper({ className, borderClassName, children, ...props }: Props) {
   return (
-    <div className={clsx("bg-c-light rounded-2xl relative shadow-lg", className)} {...props}>
+    <div className={clsx("bg-white rounded-2xl relative shadow-lg", className)} {...props}>
       {children}
     </div>
   );

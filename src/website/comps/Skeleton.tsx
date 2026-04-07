@@ -5,7 +5,6 @@ import { RestrictedClient } from "../clients/RestrictedClient";
 import { useRegistry } from "../hooks/useRegistry";
 import { Route } from "../Route";
 import { Paper } from "./Paper";
-import { useStackId } from "recharts/types/cartesian/BarStack";
 import { Spinner } from "./Spinner";
 
 type Props = ComponentProps<"main">;
@@ -23,31 +22,54 @@ export namespace Skeleton {
   export function Header() {
     const { pathname } = useLocation();
 
-    const navigationLinks = [
-      { title: "Websites", link: Route.websites(), rounding: "left" },
-      { title: "API", link: Route.api(), rounding: undefined },
-      { title: "Data", link: Route.data(), rounding: "right" },
-    ] as const;
+    // Detect if we're on a website detail page (e.g. /websites/example.com)
+    const websiteRef = pathname.startsWith("/websites/") ? pathname.slice("/websites/".length) : undefined;
 
     return (
-      <Paper className="mt-10">
-        <nav className="flex">
-          {navigationLinks.map(({ title, link, rounding }) => (
-            <Link
-              key={title}
-              to={link}
-              className={clsx("p-6 hover:bg-c-primary/15", {
-                "rounded-l-2xl": rounding === "left",
-                "rounded-r-2xl": rounding === "right",
-                "bg-c-primary/10": pathname.startsWith(link),
-                "ml-auto": title === "API",
-              })}
-            >
-              <span className="relative text-lg">{title}</span>
+      <nav className="mt-10 flex items-center gap-3">
+        {websiteRef ? (
+          <Paper className="px-6 py-4 flex items-center gap-3">
+            <Link to={Route.websites()} className="text-lg text-c-dark hover:text-c-primary transition-colors">
+              Websites
             </Link>
-          ))}
-        </nav>
-      </Paper>
+            <span className="text-c-dark/30">|</span>
+            <span className="text-lg text-c-primary font-medium">{websiteRef}</span>
+          </Paper>
+        ) : (
+          <Link to={Route.websites()}>
+            <Paper
+              className={clsx(
+                "px-6 py-4 text-lg transition-colors",
+                pathname.startsWith(Route.websites()) ? "text-c-primary bg-c-primary/5" : "text-c-dark hover:text-c-primary",
+              )}
+            >
+              Websites
+            </Paper>
+          </Link>
+        )}
+        <div className="ml-auto flex items-center gap-3">
+          <Link to={Route.api()}>
+            <Paper
+              className={clsx(
+                "px-6 py-4 text-lg transition-colors",
+                pathname.startsWith(Route.api()) ? "text-c-primary bg-c-primary/5" : "text-c-dark hover:text-c-primary",
+              )}
+            >
+              API
+            </Paper>
+          </Link>
+          <Link to={Route.data()}>
+            <Paper
+              className={clsx(
+                "px-6 py-4 text-lg transition-colors",
+                pathname.startsWith(Route.data()) ? "text-c-primary bg-c-primary/5" : "text-c-dark hover:text-c-primary",
+              )}
+            >
+              Data
+            </Paper>
+          </Link>
+        </div>
+      </nav>
     );
   }
 

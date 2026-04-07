@@ -83,26 +83,30 @@ export function websites$refPage() {
     setStats({ ...getStats(), [field]: result[field] });
   }
 
-  function aggregateStats(): Array<{ label: string; value: string; correspondingGraph?: Graph; live?: boolean }> {
+  function aggregateStats(): Array<{ label: string; value?: number; prettyValue: string; correspondingGraph?: Graph; live?: boolean }> {
     return [
       {
         label: "TOTAL VISITORS",
-        value: typeof stats?.visitorsTotal === "number" ? Prettify.number(stats.visitorsTotal) : "\u2014",
+        value: stats?.visitorsTotal,
+        prettyValue: typeof stats?.visitorsTotal === "number" ? Prettify.number(stats.visitorsTotal) : "\u2014",
         correspondingGraph: Graph.visitors,
       },
       {
         label: "TOTAL PAGEVIEWS",
-        value: typeof stats?.pageviewsTotal === "number" ? Prettify.number(stats.pageviewsTotal) : "\u2014",
+        value: stats?.pageviewsTotal,
+        prettyValue: typeof stats?.pageviewsTotal === "number" ? Prettify.number(stats.pageviewsTotal) : "\u2014",
         correspondingGraph: Graph.pageviews,
       },
       {
         label: "MEDIAN TIME ON PAGE",
-        value: typeof stats?.pagetimeMedian === "number" ? Prettify.duration(stats.pagetimeMedian) : "\u2014",
+        value: stats?.pagetimeMedian,
+        prettyValue: typeof stats?.pagetimeMedian === "number" ? Prettify.duration(stats.pagetimeMedian) : "\u2014",
         correspondingGraph: Graph.pagetime,
       },
       {
         label: "LIVE PAGEVIEWS",
-        value: typeof stats?.livePageviewsTotal === "number" ? Prettify.number(stats.livePageviewsTotal) : "\u2014",
+        value: stats?.livePageviewsTotal,
+        prettyValue: typeof stats?.livePageviewsTotal === "number" ? Prettify.number(stats.livePageviewsTotal) : "\u2014",
         live: true,
       },
     ];
@@ -126,30 +130,46 @@ export function websites$refPage() {
 
   return (
     <Skeleton className="grid grid-cols-1 gap-5">
-      {/* Active filters section */}
-      <ActiveFiltersBar filters={filters} toggle={toggleFilter} reset={() => setFilters([])} />
-
-      {/* Aggregate stats + chart */}
+      {/* Stats + chart + filters */}
       <Paper>
-        <div className="flex divide-x divide-black/10">
-          {aggregateStats().map(({ label, value, correspondingGraph, live }) => (
+        <div className="flex border-b border-black/10">
+          {aggregateStats().map(({ label, value, prettyValue, correspondingGraph, live }) => (
             <button
               key={label}
               onClick={() => (correspondingGraph ? setGraph(correspondingGraph) : null)}
-              className={`px-6 py-5 text-left cursor-pointer hover:bg-c-primary/5 transition-colors ${correspondingGraph === graph ? "border-b-2 border-c-primary" : "border-b-2 border-transparent"}`}
+              className={clsx(
+                "group px-6 py-5 text-left transition-colors -mb-px",
+                live
+                  ? "ml-auto border-l border-black/10"
+                  : correspondingGraph === graph
+                    ? "cursor-pointer hover:bg-c-primary/5 border-b-2 border-c-primary bg-c-primary/5"
+                    : "cursor-pointer hover:bg-c-primary/5 border-b-2 border-transparent",
+              )}
             >
-              <div className={`text-xs font-bold tracking-wide mb-1 ${correspondingGraph === graph ? "text-c-primary" : "text-c-dark/50"}`}>
+              <div
+                className={clsx(
+                  "text-xs font-bold tracking-wide mb-1",
+                  correspondingGraph === graph ? "text-c-primary" : "text-c-dark/50",
+                  live ? "" : "group-hover:text-c-primary",
+                )}
+              >
                 {label}
               </div>
-              <span className={clsx("text-3xl font-extrabold", live ? "text-red-500" : "text-c-dark")}>{value}</span>
+              <span className={clsx("text-3xl font-extrabold text-c-dark", live && "flex items-center gap-2")}>
+                {live && (
+                  <span className={clsx("size-3 rounded-full", typeof value === "number" && value > 0 ? "bg-green-500" : "bg-red-500")} />
+                )}
+                {prettyValue}
+              </span>
             </button>
           ))}
-          <div className="ml-auto flex items-center px-5">
-            <PeriodDropdown period={period} onChange={setPeriod} />
-          </div>
         </div>
-        <div className="p-6 pt-4">
+        <div className="mt-6 p-6">
           <TimeSeriesChart timeSeries={stats?.[graphTimeSeriesField]} />
+        </div>
+        <div className="px-6 pb-5 flex items-start gap-3 flex-wrap">
+          <PeriodDropdown period={period} onChange={setPeriod} />
+          <ActiveFiltersBar filters={filters} toggle={toggleFilter} reset={() => setFilters([])} />
         </div>
       </Paper>
 

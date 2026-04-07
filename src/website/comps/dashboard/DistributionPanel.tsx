@@ -34,7 +34,7 @@ export function DistributionPanel({ panel, stats, filters, toggleFilter, onPageC
                 }`}
               >
                 {tab.label}
-                {hasFilter && <span className="inline-block w-2 h-2 rounded-full bg-red-500 ml-1.5" />}
+                {hasFilter && <span className="inline-block w-2 h-2 rounded-full bg-red-500 ml-2" />}
               </button>
             );
           })}
@@ -42,9 +42,11 @@ export function DistributionPanel({ panel, stats, filters, toggleFilter, onPageC
       )}
       {panel.length === 1 && (
         <div className="px-5 pt-5">
-          <h3 className="text-xs font-bold tracking-wide text-c-dark/50 flex items-center gap-1.5">
+          <h3 className="text-xs font-bold tracking-wide text-c-dark/50 text-center">
             {panel[0].label}
-            {filters.some(({ key }) => key === panel[0].filterKey) && <span className="inline-block w-2 h-2 rounded-full bg-red-500" />}
+            {filters.some(({ key }) => key === panel[0].filterKey) && (
+              <span className="inline-block w-2 h-2 rounded-full bg-red-500 ml-2" />
+            )}
           </h3>
         </div>
       )}
