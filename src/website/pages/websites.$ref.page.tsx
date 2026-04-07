@@ -130,7 +130,7 @@ export function websites$refPage() {
       <ActiveFiltersBar filters={filters} toggle={toggleFilter} reset={() => setFilters([])} />
 
       {/* Aggregate stats + chart */}
-      <Paper className="col-span-full">
+      <Paper>
         <div className="flex divide-x divide-black/10">
           {aggregateStats().map(({ label, value, correspondingGraph, live }) => (
             <button
@@ -154,7 +154,7 @@ export function websites$refPage() {
       </Paper>
 
       {/* Distribution panels */}
-      <div className="col-span-full grid grid-cols-2 gap-5">
+      <div className="grid grid-cols-2 sm:grid-cols-1 gap-5">
         {panels().map((panel, i) => (
           <DistributionPanel
             key={i}

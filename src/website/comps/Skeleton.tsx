@@ -28,7 +28,7 @@ export namespace Skeleton {
     ] as const;
 
     return (
-      <Paper className="u-root-grid-minus-gutters mt-10">
+      <Paper className="mt-10">
         <nav className="flex">
           {navigationLinks.map(({ title, link, rounding }) => (
             <Link
@@ -50,7 +50,7 @@ export namespace Skeleton {
   }
 
   export function Main(props: Props) {
-    return <main {...props} className={clsx("u-root-grid-minus-gutters u-subgrid mt-12", props.className)} />;
+    return <main {...props} className={clsx("mt-12 flex-1", props.className)} />;
   }
 
   export function Footer() {
@@ -59,7 +59,7 @@ export namespace Skeleton {
     const purge = () => restrictedClient.purge().then(() => location.reload());
     const seed = () => restrictedClient.seed().then(() => location.reload());
     return (
-      <footer className="u-root-grid-minus-gutters my-12 flex flex-col items-center gap-4">
+      <footer className="my-12 flex flex-col items-center gap-4">
         <div className="flex items-center gap-2">
           {O_VISAGE_SUPPORTER ? (
             <svg className="size-8 -mr-1 text-c-accent" viewBox="0 0 24 24" fill="currentColor">

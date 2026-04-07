@@ -2,13 +2,15 @@ import { Prettify } from "@/helpers/Prettify";
 import { WebsiteRM } from "@/models/WebsiteRM";
 import { Paper } from "./Paper";
 import { TimeSeriesChart } from "./dashboard/TimeSeriesChart";
+import clsx from "clsx";
 
 type Props = {
   website: WebsiteRM;
+  className?: string;
 };
-export function WebsiteCard({ website }: Props) {
+export function WebsiteCard({ website, className }: Props) {
   return (
-    <Paper className="overflow-hidden hover:shadow-lg">
+    <Paper className={clsx("overflow-hidden", className)}>
       <div className="px-5 pt-5 pb-3">
         <div className="text-sm font-semibold text-c-dark tracking-wide">{website.hostname}</div>
       </div>

@@ -1,73 +1,5 @@
 @import "tailwindcss";
 
-/*
- * Necessary for preventing default colors from being tree-shaken, causing Color.ts to fail
- * See: https://tailwindcss.com/docs/detecting-classes-in-source-files
- */
-@source inline("fill-{gray,red,green}-{50,{100..900..100},950}");
-
-/**
- * Variables
- */
-:root {
-    --grid-column-count: 12;
-    --column-max-width: 76px;
-    --grid-gap: 6px;
-}
-
-/**
- * Utility class for creating a root grid system:
- *  • only used once in the DOM tree, typically on the <body> element
- *  • depends on a few CSS variables: `--grid-column-count`, `--column-max-width` and `--grid-gap`
- *  • fully responsive, by including 2 responsive "gutter" columns on each side as well
- *  • so there's `calc(--grid-column-count + 2)` columns in total
- *
- * The main idea is that the container rows WITHIN this grid are defined as SUBGRIDS.
- *
- * That way, the columns within these subgrids line up with the main grid,
- * AND the subgrid can be configured to have the actually correct number of `--grid-column-count` columns,
- * so without the 2 gutter columns on either side.
- *
- * Additionally, this utility class uses the following properties
- *  • min-height
- *  • grid-template-rows
- * in order to support a typical 3-part <header>, <main>, <footer> layout with a sticky footer.
- */
-@utility u-root-grid {
-    display: grid;
-    grid-template-columns: minmax(0px, 1fr) repeat(var(--grid-column-count), minmax(0px, var(--column-max-width))) minmax(0px, 1fr);
-    column-gap: var(--grid-gap);
-    min-height: 100vh;
-    grid-template-rows: auto 1fr auto;
-}
-
-/**
- * Rather specific utility class to only span the "important" colums of the root grid,
- * without the 2 gutter columns.
- *
- * Should only be used a few times high up in the DOM tree, probably only at these top elements:
- *  • <header>
- *  • <main>
- *  • <footer>
- */
-@utility u-root-grid-minus-gutters {
-    grid-column-start: 2;
-    grid-column-end: -2;
-}
-
-/**
- * Defines a subgrid, which lines up with the grid columns of its parent grid.
- * Must be placed on all containers which are direct children of the (usually <body>) main grid.
- *
- * The `grid-auto-rows` property makes sure that individual rows of this subgrid container aren't automatically stretched,
- * because, by default, they would stretch to fill all available vertical space.
- */
-@utility u-subgrid {
-    display: grid;
-    grid-template-columns: subgrid;
-    grid-auto-rows: min-content;
-}
-
 /**
  * Theme settings and variables
  * https://tailwindcss.com/docs/theme#theme-variable-namespaces
@@ -112,7 +44,6 @@
         font-style: normal;
         font-display: swap;
     }
-
     @font-face {
         font-family: "Inter";
         src: url("./fonts/Inter-Italic-VariableFont_opsz,wght.ttf");
@@ -125,17 +56,16 @@
     html {
         font-size: 14px; /* 80% of default 16px */
     }
+    body {
+        font-optical-sizing: auto;
+        background-image: radial-gradient(ellipse at 30% 0%, #faf4ff 0%, #faf4ff 80%);
+        @apply relative min-w-[320px] min-h-screen font-f-everywhere text-c-primary;
+    }
+    #root {
+        @apply min-h-screen flex flex-col w-full max-w-6xl px-3 mx-auto;
+    }
 
     .recharts-wrapper * {
         outline: none !important;
-    }
-
-    body {
-        font-optical-sizing: auto;
-        @apply relative min-w-[320px] min-h-screen font-f-everywhere text-c-primary;
-        background-image: radial-gradient(ellipse at 30% 0%, #faf4ff 0%, #faf4ff 80%);
-    }
-    #root {
-        @apply u-root-grid;
     }
 }

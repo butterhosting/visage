@@ -10,7 +10,7 @@ export function ActiveFiltersBar({ filters, toggle, reset }: Props) {
     return null;
   }
   return (
-    <div className="col-span-full flex items-center gap-2 flex-wrap">
+    <div className="flex items-center gap-2 flex-wrap">
       {filters.map(({ key, value }) => (
         <button
           key={key}

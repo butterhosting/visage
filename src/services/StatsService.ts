@@ -26,61 +26,72 @@ export class StatsService {
       }),
     );
 
-    const where = this.buildWhere(website.id, q);
-    const whereForMedian = gte($analyticsEvent.durationSeconds, 5);
+    const baseWhere = eq($analyticsEvent.websiteId, website.id);
+    const queryWhere = [baseWhere, ...this.queryWhere(q)];
+    const medianWhere = gte($analyticsEvent.durationSeconds, 5);
 
     const stats: Stats = {};
     if (q.fields?.includes(Stats.Field.visitorsTotal)) {
-      stats.visitorsTotal = await this.count([...where, eq($analyticsEvent.isVisitor, true)]);
+      stats.visitorsTotal = await this.count([...queryWhere, eq($analyticsEvent.isVisitor, true)]);
     }
     if (q.fields?.includes(Stats.Field.pageviewsTotal)) {
-      stats.pageviewsTotal = await this.count(where);
+      stats.pageviewsTotal = await this.count(queryWhere);
     }
     if (q.fields?.includes(Stats.Field.pagetimeMedian)) {
-      stats.pagetimeMedian = await this.median([...where, whereForMedian]);
+      stats.pagetimeMedian = await this.median([...queryWhere, medianWhere]);
     }
     if (q.fields?.includes(Stats.Field.livePageviewsTotal)) {
       const to = Temporal.Now.instant();
       const from = to.subtract({ minutes: 10 });
-      stats.livePageviewsTotal = await this.count([between($analyticsEvent.created, from.toString(), to.toString())]);
+      stats.livePageviewsTotal = await this.count([baseWhere, between($analyticsEvent.created, from.toString(), to.toString())]);
     }
     if (q.fields?.includes(Stats.Field.visitorsTimeSeries)) {
-      stats.visitorsTimeSeries = await this.timeSeries([...where, eq($analyticsEvent.isVisitor, true)], q, "visitor");
+      stats.visitorsTimeSeries = await this.timeSeries([...queryWhere, eq($analyticsEvent.isVisitor, true)], q, "visitor");
     }
     if (q.fields?.includes(Stats.Field.pageviewsTimeSeries)) {
-      stats.pageviewsTimeSeries = await this.timeSeries(where, q, "pageview");
+      stats.pageviewsTimeSeries = await this.timeSeries(queryWhere, q, "pageview");
     }
     if (q.fields?.includes(Stats.Field.pagetimeTimeSeries)) {
-      stats.pagetimeTimeSeries = await this.pagetimeTimeSeries([...where, whereForMedian], q);
+      stats.pagetimeTimeSeries = await this.pagetimeTimeSeries([...queryWhere, medianWhere], q);
     }
     if (q.fields?.includes(Stats.Field.pageDistribution)) {
-      stats.pageDistribution = await this.distribution(where, $analyticsEvent.urlPath, q.pageDistributionLimit, q.pageDistributionOffset);
+      stats.pageDistribution = await this.distribution(
+        queryWhere,
+        $analyticsEvent.urlPath,
+        q.pageDistributionLimit,
+        q.pageDistributionOffset,
+      );
     }
     if (q.fields?.includes(Stats.Field.sourceDistribution)) {
       stats.sourceDistribution = await this.distribution(
-        where,
+        queryWhere,
         $analyticsEvent.utmSource,
         q.sourceDistributionLimit,
         q.sourceDistributionOffset,
       );
     }
     if (q.fields?.includes(Stats.Field.screenDistribution)) {
-      stats.screenDistribution = await this.distribution(where, "screen", q.screenDistributionLimit, q.screenDistributionOffset);
+      stats.screenDistribution = await this.distribution(queryWhere, "screen", q.screenDistributionLimit, q.screenDistributionOffset);
     }
     if (q.fields?.includes(Stats.Field.browserDistribution)) {
       stats.browserDistribution = await this.distribution(
-        where,
+        queryWhere,
         $analyticsEvent.deviceBrowserName,
         q.browserDistributionLimit,
         q.browserDistributionOffset,
       );
     }
     if (q.fields?.includes(Stats.Field.osDistribution)) {
-      stats.osDistribution = await this.distribution(where, $analyticsEvent.deviceOsName, q.osDistributionLimit, q.osDistributionOffset);
+      stats.osDistribution = await this.distribution(
+        queryWhere,
+        $analyticsEvent.deviceOsName,
+        q.osDistributionLimit,
+        q.osDistributionOffset,
+      );
     }
     if (q.fields?.includes(Stats.Field.countryDistribution)) {
       stats.countryDistribution = await this.distribution(
-        where,
+        queryWhere,
         $analyticsEvent.geoCountryCode,
         q.countryDistributionLimit,
         q.countryDistributionOffset,
@@ -88,7 +99,7 @@ export class StatsService {
     }
     if (q.fields?.includes(Stats.Field.cityDistribution)) {
       stats.cityDistribution = await this.distribution(
-        where,
+        queryWhere,
         $analyticsEvent.geoCityName,
         q.cityDistributionLimit,
         q.cityDistributionOffset,
@@ -97,8 +108,8 @@ export class StatsService {
     return stats;
   }
 
-  private buildWhere(websiteId: string, q: StatsQuery): SQL[] {
-    const where: SQL[] = [eq($analyticsEvent.websiteId, websiteId)];
+  private queryWhere(q: StatsQuery): SQL[] {
+    const where: SQL[] = [];
     if (q.from !== undefined) {
       where.push(gte($analyticsEvent.created, q.from.toString()));
     }
