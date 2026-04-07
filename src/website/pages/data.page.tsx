@@ -42,8 +42,8 @@ export function dataPage() {
   }
 
   return (
-    <Skeleton className="grid grid-cols-1 gap-5">
-      <Paper className="divide-y divide-black/5">
+    <Skeleton>
+      <Paper>
         {websites?.map((website) => {
           const isBusy = busyId === website.id;
           return (

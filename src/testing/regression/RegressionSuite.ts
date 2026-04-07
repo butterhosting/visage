@@ -1,6 +1,6 @@
 import * as schema from "@/drizzle/schema";
 import { $analyticsEvent } from "@/drizzle/schema";
-import { initializeSqlite, Sqlite } from "@/drizzle/sqlite";
+import { Sqlite } from "@/drizzle/sqlite";
 import { Env } from "@/Env";
 import { AnalyticsEventConverter } from "@/repositories/converters/AnalyticsEventConverter";
 import { WebsiteConverter } from "@/repositories/converters/WebsiteConverter";
@@ -51,14 +51,14 @@ export namespace RegressionSuite {
       }
       const databaseCopyPath = join(Path.suiteTmp, "db.sqlite");
       await Bun.write(databaseCopyPath, file);
-      return await initializeSqlite({ X_VISAGE_DATABASE: databaseCopyPath } as Env.Private);
+      return await Sqlite.initialize({ X_VISAGE_DATABASE: databaseCopyPath } as Env.Private);
     }
     export async function insertIntoRegressionDatabase({ $analyticsEvent: analyticsEvents }: TableRecords) {
       const file = Bun.file(databasePath);
       if (await file.exists()) {
         await file.delete();
       }
-      const sqlite = await initializeSqlite({ X_VISAGE_DATABASE: databasePath } as Env.Private);
+      const sqlite = await Sqlite.initialize({ X_VISAGE_DATABASE: databasePath } as Env.Private);
       if (analyticsEvents.length > 0) {
         await sqlite.insert($analyticsEvent).values(analyticsEvents);
       }

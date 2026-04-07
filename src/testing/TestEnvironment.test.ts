@@ -1,4 +1,4 @@
-import { initializeSqlite, Sqlite } from "@/drizzle/sqlite";
+import { Sqlite } from "@/drizzle/sqlite";
 import { Env } from "@/Env";
 import { Logger } from "@/Logger";
 import { LogLevel } from "@/models/LogLevel";
@@ -76,7 +76,7 @@ export namespace TestEnvironment {
     ]);
 
     // Setup SQLite
-    const sqlite = await initializeSqlite(env);
+    const sqlite = await Sqlite.initialize(env);
     cleanupTasks.push(() => sqlite.close());
 
     // Mock registration

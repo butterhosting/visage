@@ -1,6 +1,6 @@
 import { mkdir } from "fs/promises";
 import { dirname } from "path";
-import { initializeSqlite } from "./drizzle/sqlite";
+import { Sqlite } from "./drizzle/sqlite";
 import { Env } from "./Env";
 import { Logger } from "./Logger";
 import { BasicAuthMiddleware } from "./middleware/basicauth/BasicAuthMiddleware";
@@ -30,7 +30,7 @@ await Promise.all([
 /**
  * Initialize the database
  */
-const sqlite = await initializeSqlite(env);
+const sqlite = await Sqlite.initialize(env);
 
 /**
  * Bootstrap the registry
