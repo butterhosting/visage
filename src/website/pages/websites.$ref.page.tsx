@@ -139,7 +139,7 @@ export function websites$refPage() {
             className={clsx(
               "group px-6 py-5 text-left transition-colors -mb-px",
               live
-                ? "ml-auto border-l border-black/10"
+                ? "ml-auto"
                 : correspondingGraph === graph
                   ? "cursor-pointer hover:bg-c-primary/5 border-b-3 border-c-primary bg-c-primary/5"
                   : "cursor-pointer hover:bg-c-primary/5 border-b-3 border-black/20",
