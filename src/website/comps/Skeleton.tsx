@@ -1,10 +1,12 @@
 import clsx from "clsx";
-import { ComponentProps } from "react";
+import { ComponentProps, useState } from "react";
 import { Link, useLocation } from "react-router";
 import { RestrictedClient } from "../clients/RestrictedClient";
 import { useRegistry } from "../hooks/useRegistry";
 import { Route } from "../Route";
 import { Paper } from "./Paper";
+import { useStackId } from "recharts/types/cartesian/BarStack";
+import { Spinner } from "./Spinner";
 
 type Props = ComponentProps<"main">;
 export function Skeleton(props: Props) {
@@ -56,8 +58,15 @@ export namespace Skeleton {
   export function Footer() {
     const { O_VISAGE_STAGE, O_VISAGE_SUPPORTER } = useRegistry("env");
     const restrictedClient = useRegistry(RestrictedClient);
-    const purge = () => restrictedClient.purge().then(() => location.reload());
-    const seed = () => restrictedClient.seed().then(() => location.reload());
+    const [busy, setBusy] = useState(false);
+    const purge = () => {
+      setBusy(true);
+      restrictedClient.purge().then(() => location.reload());
+    };
+    const seed = () => {
+      setBusy(true);
+      restrictedClient.seed().then(() => location.reload());
+    };
     return (
       <footer className="my-12 flex flex-col items-center gap-4">
         <div className="flex items-center gap-2">
@@ -77,14 +86,20 @@ export namespace Skeleton {
           </a>
         </div>
         {O_VISAGE_STAGE === "development" && (
-          <div className="flex gap-4">
-            <button onClick={seed} className="cursor-pointer text-c-dark border border-c-dark hover:bg-c-dark/10 p-2 rounded-lg">
-              Seed
-            </button>
-            <button onClick={purge} className="cursor-pointer text-c-dark border border-c-dark hover:bg-c-dark/10 p-2 rounded-lg">
-              Purge
-            </button>
-          </div>
+          <>
+            {busy ? (
+              <Spinner />
+            ) : (
+              <div className="flex gap-4">
+                <button onClick={seed} className="cursor-pointer text-c-dark border border-c-dark hover:bg-c-dark/10 p-2 rounded-lg">
+                  Seed
+                </button>
+                <button onClick={purge} className="cursor-pointer text-c-dark border border-c-dark hover:bg-c-dark/10 p-2 rounded-lg">
+                  Purge
+                </button>
+              </div>
+            )}
+          </>
         )}
       </footer>
     );
