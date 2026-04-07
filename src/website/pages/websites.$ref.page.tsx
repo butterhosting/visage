@@ -130,46 +130,48 @@ export function websites$refPage() {
 
   return (
     <Skeleton className="grid grid-cols-1 gap-5">
-      {/* Stats + chart + filters */}
-      <Paper>
-        <div className="flex border-b border-black/10">
-          {aggregateStats().map(({ label, value, prettyValue, correspondingGraph, live }) => (
-            <button
-              key={label}
-              onClick={() => (correspondingGraph ? setGraph(correspondingGraph) : null)}
+      {/* Stats */}
+      <Paper className="flex overflow-hidden rounded-b-none">
+        {aggregateStats().map(({ label, value, prettyValue, correspondingGraph, live }) => (
+          <button
+            key={label}
+            onClick={() => (correspondingGraph ? setGraph(correspondingGraph) : null)}
+            className={clsx(
+              "group px-6 py-5 text-left transition-colors -mb-px",
+              live
+                ? "ml-auto border-l border-black/10"
+                : correspondingGraph === graph
+                  ? "cursor-pointer hover:bg-c-primary/5 border-b-3 border-c-primary bg-c-primary/5"
+                  : "cursor-pointer hover:bg-c-primary/5 border-b-3 border-black/20",
+            )}
+          >
+            <div
               className={clsx(
-                "group px-6 py-5 text-left transition-colors -mb-px",
-                live
-                  ? "ml-auto border-l border-black/10"
-                  : correspondingGraph === graph
-                    ? "cursor-pointer hover:bg-c-primary/5 border-b-2 border-c-primary bg-c-primary/5"
-                    : "cursor-pointer hover:bg-c-primary/5 border-b-2 border-transparent",
+                "text-xs font-bold tracking-wide mb-1",
+                correspondingGraph === graph ? "text-c-primary" : "text-c-dark/50",
+                live ? "" : "group-hover:text-c-primary",
               )}
             >
-              <div
-                className={clsx(
-                  "text-xs font-bold tracking-wide mb-1",
-                  correspondingGraph === graph ? "text-c-primary" : "text-c-dark/50",
-                  live ? "" : "group-hover:text-c-primary",
-                )}
-              >
-                {label}
-              </div>
-              <span className={clsx("text-3xl font-extrabold text-c-dark", live && "flex items-center gap-2")}>
-                {live && (
-                  <span className={clsx("size-3 rounded-full", typeof value === "number" && value > 0 ? "bg-green-500" : "bg-red-500")} />
-                )}
-                {prettyValue}
-              </span>
-            </button>
-          ))}
+              {label}
+            </div>
+            <span className={clsx("text-3xl font-extrabold text-c-dark", live && "flex items-center gap-2")}>
+              {live && (
+                <span className={clsx("size-3 rounded-full", typeof value === "number" && value > 0 ? "bg-green-500" : "bg-red-500")} />
+              )}
+              {prettyValue}
+            </span>
+          </button>
+        ))}
+      </Paper>
+
+      {/* Chart + filters */}
+      <Paper className="rounded-t-none">
+        <div className="mt-6 px-6 pb-5 flex items-start gap-3 flex-wrap">
+          <PeriodDropdown period={period} onChange={setPeriod} />
+          <ActiveFiltersBar filters={filters} toggle={toggleFilter} reset={() => setFilters([])} />
         </div>
         <div className="mt-6 p-6">
           <TimeSeriesChart timeSeries={stats?.[graphTimeSeriesField]} />
-        </div>
-        <div className="px-6 pb-5 flex items-start gap-3 flex-wrap">
-          <PeriodDropdown period={period} onChange={setPeriod} />
-          <ActiveFiltersBar filters={filters} toggle={toggleFilter} reset={() => setFilters([])} />
         </div>
       </Paper>
 
