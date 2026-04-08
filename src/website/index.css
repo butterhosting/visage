@@ -62,7 +62,7 @@
         background-color: rgb(252, 252, 252);
         background-image: url("./images/background/bgdots.svg");
         background-position: top center;
-        background-size: 1.8rem;
+        background-size: 1.5rem;
     }
     #root {
         @apply min-h-screen flex flex-col w-full max-w-6xl px-3 mx-auto;

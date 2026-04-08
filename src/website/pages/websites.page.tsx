@@ -19,10 +19,9 @@ export function websitesPage() {
   });
 
   async function handleCreate() {
-    const result = await dialogClient.createWebsite();
+    const result = await dialogClient.websiteCreateOrUpdate();
     if (result === "cancel") return;
-    const website = await websiteClient.create(result);
-    navigate(Route.websites(website.hostname));
+    navigate(Route.websites(result.hostname));
   }
 
   return (
@@ -36,7 +35,7 @@ export function websitesPage() {
           );
         }
         return (
-          <button onClick={handleCreate} className="group cursor-pointer">
+          <button key="new" onClick={handleCreate} className="group cursor-pointer">
             <Paper className="h-full flex items-center justify-center group-hover:shadow-xl ">
               <svg
                 width="32"

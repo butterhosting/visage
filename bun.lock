@@ -14,11 +14,10 @@
         "drizzle-orm": "^0.45.1",
         "react": "^19",
         "react-dom": "^19",
-        "react-hook-form": "^7.71.2",
         "react-router": "^7.13.1",
         "recharts": "^3.8.1",
         "tailwindcss": "^4.2.1",
-        "yesttp": "^1.0.3",
+        "yesttp": "^2.0.0",
         "zod": "^4.1.12",
       },
       "devDependencies": {
@@ -254,8 +253,6 @@
 
     "react-dom": ["react-dom@19.2.4", "", { "dependencies": { "scheduler": "^0.27.0" }, "peerDependencies": { "react": "^19.2.4" } }, "sha512-AXJdLo8kgMbimY95O2aKQqsz2iWi9jMgKJhRBAxECE4IFxfcazB2LmzloIoibJI3C12IlY20+KFaLv+71bUJeQ=="],
 
-    "react-hook-form": ["react-hook-form@7.72.0", "", { "peerDependencies": { "react": "^16.8.0 || ^17 || ^18 || ^19" } }, "sha512-V4v6jubaf6JAurEaVnT9aUPKFbNtDgohj5CIgVGyPHvT9wRx5OZHVjz31GsxnPNI278XMu+ruFz+wGOscHaLKw=="],
-
     "react-is": ["react-is@19.2.4", "", {}, "sha512-W+EWGn2v0ApPKgKKCy/7s7WHXkboGcsrXE+2joLyVxkbyVQfO3MUEaUQDHoSmb8TFFrSKYa9mw64WZHNHSDzYA=="],
 
     "react-redux": ["react-redux@9.2.0", "", { "dependencies": { "@types/use-sync-external-store": "^0.0.6", "use-sync-external-store": "^1.4.0" }, "peerDependencies": { "@types/react": "^18.2.25 || ^19", "react": "^18.0 || ^19", "redux": "^5.0.0" }, "optionalPeers": ["@types/react", "redux"] }, "sha512-ROY9fvHhwOD9ySfrF0wmvu//bKCQ6AeZZq1nJNtbDC+kk5DuSuNX/n6YWYF/SYy7bSba4D4FSz8DJeKY/S/r+g=="],
@@ -320,7 +317,7 @@
 
     "yargs-parser": ["yargs-parser@21.1.1", "", {}, "sha512-tVpsJW7DdjecAiFpbIB1e3qxIQsE6NoPc5/eTdrbbIC4h0LVsWhnoa3g+m2HclBIujHzsxZ4VJVA+GUuc2/LBw=="],
 
-    "yesttp": ["yesttp@1.0.3", "", {}, "sha512-mgYAFHByi/uIS7Ztsg4YFVyiKT4uPeBnuPS59TAlH8HleD20YJeuDu3mlQWuJ+WSIBBzUAYSJa4YZ9EmiAniFQ=="],
+    "yesttp": ["yesttp@2.0.0", "", {}, "sha512-2mcawp+22M6AgnjMChMNbsm/I+XUnasOGUIhJD8WIQo7XJFCNUj/rZL/GQUi6h1HDyRTyc13s5+HGkMCXDOY6Q=="],
 
     "zod": ["zod@4.3.6", "", {}, "sha512-rftlrkhHZOcjDwkGlnUtZZkvaPHCsDATp4pGpuOOMDaTdDDXF91wuVDJoWoPsKX/3YPQ5fHuF3STjcYyKr+Qhg=="],
 

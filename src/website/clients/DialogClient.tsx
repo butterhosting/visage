@@ -1,9 +1,10 @@
-import { Artifact } from "@/models/Artifact";
+import { Website } from "@/models/Website";
+import { WebsiteRM } from "@/models/WebsiteRM";
 import { PeriodModal } from "../comps/dashboard/PeriodModal";
+import { DialogManager } from "../comps/DialogManager";
 import { WebsiteDeleteModal } from "../comps/WebsiteDeleteModal";
 import { WebsiteExportModal } from "../comps/WebsiteExportModal";
-import { WebsiteCreateModal } from "../comps/WebsiteCreateModal";
-import { DialogManager } from "../comps/DialogManager";
+import { WebsiteModal } from "../comps/WebsiteModal";
 import { Period } from "../femodels/Period";
 
 export class DialogClient {
@@ -40,39 +41,41 @@ export class DialogClient {
     return promise;
   }
 
-  public pickExportArtifact(hostname: string): Promise<"cancel" | Artifact.Enum> {
-    type Result = Awaited<ReturnType<typeof this.pickExportArtifact>>;
+  public websiteExport(website: Website): Promise<"cancel" | "done"> {
+    type Result = Awaited<ReturnType<typeof this.websiteExport>>;
     const { promise, resolve: internalResolve } = Promise.withResolvers<Result>();
     const resolve = (result: Result) => {
       internalResolve(result);
       this.manager.remove({ token });
     };
     const { token } = this.manager.insert(
-      <WebsiteExportModal hostname={hostname} close={() => resolve("cancel")} onSelect={(type) => resolve(type)} />,
+      <WebsiteExportModal website={website} close={() => resolve("cancel")} done={() => resolve("done")} />,
     );
     return promise;
   }
 
-  public createWebsite(): Promise<"cancel" | string> {
-    type Result = Awaited<ReturnType<typeof this.createWebsite>>;
-    const { promise, resolve: internalResolve } = Promise.withResolvers<Result>();
-    const resolve = (result: Result) => {
-      internalResolve(result);
-      this.manager.remove({ token });
-    };
-    const { token } = this.manager.insert(<WebsiteCreateModal close={() => resolve("cancel")} create={(hostname) => resolve(hostname)} />);
-    return promise;
-  }
-
-  public confirmDelete(hostname: string): Promise<"cancel" | "confirm"> {
-    type Result = Awaited<ReturnType<typeof this.confirmDelete>>;
+  public websiteCreateOrUpdate(existing?: Website): Promise<"cancel" | WebsiteRM> {
+    type Result = Awaited<ReturnType<typeof this.websiteCreateOrUpdate>>;
     const { promise, resolve: internalResolve } = Promise.withResolvers<Result>();
     const resolve = (result: Result) => {
       internalResolve(result);
       this.manager.remove({ token });
     };
     const { token } = this.manager.insert(
-      <WebsiteDeleteModal hostname={hostname} close={() => resolve("cancel")} confirm={() => resolve("confirm")} />,
+      <WebsiteModal existing={existing} close={() => resolve("cancel")} done={(website) => resolve(website)} />,
+    );
+    return promise;
+  }
+
+  public websiteDelete(website: Website): Promise<"cancel" | WebsiteRM> {
+    type Result = Awaited<ReturnType<typeof this.websiteDelete>>;
+    const { promise, resolve: internalResolve } = Promise.withResolvers<Result>();
+    const resolve = (result: Result) => {
+      internalResolve(result);
+      this.manager.remove({ token });
+    };
+    const { token } = this.manager.insert(
+      <WebsiteDeleteModal website={website} close={() => resolve("cancel")} done={(website) => resolve(website)} />,
     );
     return promise;
   }

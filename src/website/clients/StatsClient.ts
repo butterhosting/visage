@@ -19,7 +19,7 @@ export class StatsClient {
         searchParams[key] = String(value);
       }
     }
-    const { body } = await this.yesttp.get<unknown>("/stats", { searchParams });
-    return Stats.parse(body);
+    const { json } = await this.yesttp.get<unknown>("/stats", { searchParams });
+    return Stats.parse(json);
   }
 }

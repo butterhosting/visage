@@ -143,10 +143,7 @@ export function websites$refPage() {
       {/* Instructions */}
       {website && !website.hasData && (
         <Paper className="p-4 bg-amber-100! text-c-dark flex flex-col items-center gap-4">
-          <p>
-            Please add the following script to <span className="font-bold">{website.hostname}</span> to start collecting privacy-friendly
-            web analytics.
-          </p>
+          <p>Please add the following script to your website.</p>
           <code className="text-lg">&lt;script src="{window.location.origin}/vis.js" defer&gt;&lt;/script&gt;</code>
         </Paper>
       )}
