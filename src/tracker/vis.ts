@@ -1,11 +1,12 @@
 import { BrowserTrackingEvent } from "@/models/BrowserTrackingEvent";
 
+// TODO: e2e test to make sure the generated .js file is less than 1.3kb
 const ingestionEndpoint = new URL("i", document.currentScript?.getAttribute("src") as string);
 const originalPushState = history.pushState.bind(history);
 const originalReplaceState = history.replaceState.bind(history);
 const skipLocalhostCollection = "{{SKIP_LOCALHOST_COLLECTION}}" as "true" | "false";
 
-let spaCount = 0;
+let spaCount: number = 0;
 let cpi: string;
 let startTime: number;
 let msHidden: number;

@@ -17,7 +17,8 @@ export class WebsiteService {
 
   public async query(): Promise<WebsiteRM[]> {
     const websites = await this.websiteRepository.query();
-    return await Promise.all(websites.map((w) => this.enrich(w)));
+    const enrichedWebsites = await Promise.all(websites.map((w) => this.enrich(w)));
+    return enrichedWebsites.sort((w1, w2) => -Math.sign(w1.visitorsTotal30d - w2.visitorsTotal30d));
   }
 
   public async find(ref: string): Promise<WebsiteRM> {
@@ -70,7 +71,7 @@ export class WebsiteService {
     });
     return {
       ...website,
-      visitorsTotal: visitorsTimeSeries!.data.reduce((sum, datapoint) => sum + datapoint.y, 0),
+      visitorsTotal30d: visitorsTimeSeries!.data.reduce((sum, datapoint) => sum + datapoint.y, 0),
       visitorsTimeSeries30d: visitorsTimeSeries!,
     };
   }

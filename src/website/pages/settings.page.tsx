@@ -30,6 +30,10 @@ export function settingsPage() {
     }
   }
 
+  async function performUpdate({ id, hostname }: Website) {
+    throw new Error("TODO: Not implemented");
+  }
+
   async function performDelete({ id, hostname }: Website) {
     const result = await dialogClient.confirmDelete(hostname);
     if (result === "cancel") return;
@@ -59,9 +63,16 @@ export function settingsPage() {
                   <button
                     onClick={() => performExport(website)}
                     disabled={!!busyWebsiteId}
-                    className="px-4 py-2 rounded-lg text-sm font-semibold border border-black/10 text-c-dark/60 hover:text-c-dark hover:border-c-primary/30 hover:bg-c-primary/5 cursor-pointer transition-colors disabled:opacity-30 disabled:pointer-events-none"
+                    className="px-4 py-2 rounded-lg text-sm font-semibold border border-black/10 text-c-primary hover:text-c-dark hover:border-c-primary/30 hover:bg-c-primary/5 cursor-pointer transition-colors disabled:opacity-30 disabled:pointer-events-none"
                   >
                     Export
+                  </button>
+                  <button
+                    onClick={() => performUpdate(website)}
+                    disabled={!!busyWebsiteId}
+                    className="px-4 py-2 rounded-lg text-sm font-semibold border border-black/10 text-c-dark/60 hover:text-c-dark hover:border-c-primary/30 hover:bg-c-primary/5 cursor-pointer transition-colors disabled:opacity-30 disabled:pointer-events-none"
+                  >
+                    Update
                   </button>
                   <button
                     onClick={() => performDelete(website)}

@@ -12,7 +12,7 @@ export function ActiveFiltersBar({ filters, toggle, reset }: Props): ReactNode[]
       <button
         key={key}
         onClick={() => toggle(key, value)}
-        className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-c-primary/10 text-c-primary text-sm font-semibold cursor-pointer hover:bg-c-primary/20 transition-colors border border-transparent"
+        className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-c-primary text-sm cursor-pointer hover:bg-black/5 transition-colors border border-black/20 border-dashed"
       >
         {/* TODO: this `value` should also account for NULL --- see the DistributionTable component for how to construct a displayValue */}
         {/* TODO: nicer UX if we also show the country's full name here */}

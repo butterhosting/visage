@@ -1,9 +1,10 @@
-import { $analyticsEvent } from "@/drizzle/schema";
+import { $analyticsEvent, $website } from "@/drizzle/schema";
 import { Sqlite } from "@/drizzle/sqlite";
-import { AnalyticsEventConverter } from "@/repositories/converters/AnalyticsEventConverter";
 import { AnalyticsEvent } from "@/models/AnalyticsEvent";
+import { Website } from "@/models/Website";
+import { AnalyticsEventConverter } from "@/repositories/converters/AnalyticsEventConverter";
 import { Temporal } from "@js-temporal/polyfill";
-import { InferInsertModel } from "drizzle-orm";
+import { eq, InferInsertModel } from "drizzle-orm";
 import { WebsiteService } from "./WebsiteService";
 
 export class RestrictedService {
@@ -19,14 +20,14 @@ export class RestrictedService {
 
   public async seed(): Promise<void> {
     await this.purge();
-    await this.generateFakeWebsiteWithAnalytics("example.com");
-    await this.generateFakeWebsiteWithAnalytics("localhost");
+    await this.websiteService.create({ hostname: "localhost" });
+    await this.websiteService.create({ hostname: "www.example.com" }).then((website) => this.generateFakeAnalytics(website));
   }
 
-  private async generateFakeWebsiteWithAnalytics(hostname: string): Promise<void> {
-    const INSERTION_BATCH_SIZE = 500;
+  private async generateFakeAnalytics({ id: websiteId, hostname }: Website): Promise<void> {
+    await this.sqlite.update($website).set({ hasData: true }).where(eq($website.id, websiteId));
 
-    const { id: websiteId } = await this.websiteService.create({ hostname });
+    const INSERTION_BATCH_SIZE = 500;
 
     const now = Temporal.Now.instant();
     const from = now.subtract({ hours: 18 * 30 * 24 }); // ~18 months ago

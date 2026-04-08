@@ -6,7 +6,7 @@ type Props = {
   close: () => void;
   onSelect: (artifact: Artifact.Enum) => void;
 };
-export function ExportModal({ hostname, close, onSelect }: Props) {
+export function WebsiteExportModal({ hostname, close, onSelect }: Props) {
   return (
     <Modal isOpen issueCloseRequestWhenClickingBackdrop onCloseRequest={close} className="p-6">
       <div className="flex flex-col gap-5">

@@ -9,7 +9,7 @@ export class WebsiteRepository {
 
   public async query(): Promise<Website[]> {
     const websites = await this.sqlite.query.$website.findMany();
-    return websites.map(WebsiteConverter.convert);
+    return websites.map<Website>(WebsiteConverter.convert);
   }
 
   public async find(ref: string): Promise<Website | undefined>;

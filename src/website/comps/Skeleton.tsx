@@ -21,54 +21,41 @@ export function Skeleton(props: Props) {
 export namespace Skeleton {
   export function Header() {
     const { pathname } = useLocation();
-
-    // Detect if we're on a website detail page (e.g. /websites/example.com)
     const websiteRef = pathname.startsWith("/websites/") ? pathname.slice("/websites/".length) : undefined;
-
     return (
-      <nav className="mt-10 flex items-center gap-3">
-        {websiteRef ? (
-          <Paper className="px-6 py-4 flex items-center gap-3">
-            <Link to={Route.websites()} className="text-lg text-c-dark hover:text-c-primary transition-colors">
-              Websites
-            </Link>
-            <span className="text-c-dark/30">|</span>
-            <span className="text-lg text-c-primary font-medium">{websiteRef}</span>
+      <nav className="mt-10 flex flex-wrap items-center gap-3 md:items-start">
+        <Paper className="flex items-center hover:shadow-xl">
+          <Link to={Route.websites()} className="p-4 text-lg text-c-dark hover:text-c-primary transition-colors">
+            Websites
+          </Link>
+          {websiteRef && (
+            <>
+              <span className="text-c-dark">|</span>
+              <span className="p-4 text-lg text-c-primary font-medium">{websiteRef}</span>
+            </>
+          )}
+        </Paper>
+        <div className="flex-1 md:hidden" />
+        <Link to={Route.api()}>
+          <Paper
+            className={clsx(
+              "hover:shadow-xl p-4 text-lg transition-colors",
+              pathname.startsWith(Route.api()) ? "text-c-primary bg-c-primary/5" : "text-c-dark hover:text-c-primary",
+            )}
+          >
+            API
           </Paper>
-        ) : (
-          <Link to={Route.websites()}>
-            <Paper
-              className={clsx(
-                "px-6 py-4 text-lg transition-colors",
-                pathname.startsWith(Route.websites()) ? "text-c-primary bg-c-primary/5" : "text-c-dark hover:text-c-primary",
-              )}
-            >
-              Websites
-            </Paper>
-          </Link>
-        )}
-        <div className="ml-auto flex items-center gap-3">
-          <Link to={Route.api()}>
-            <Paper
-              className={clsx(
-                "px-6 py-4 text-lg transition-colors",
-                pathname.startsWith(Route.api()) ? "text-c-primary bg-c-primary/5" : "text-c-dark hover:text-c-primary",
-              )}
-            >
-              API
-            </Paper>
-          </Link>
-          <Link to={Route.settings()}>
-            <Paper
-              className={clsx(
-                "px-6 py-4 text-lg transition-colors",
-                pathname.startsWith(Route.settings()) ? "text-c-primary bg-c-primary/5" : "text-c-dark hover:text-c-primary",
-              )}
-            >
-              Settings
-            </Paper>
-          </Link>
-        </div>
+        </Link>
+        <Link to={Route.settings()}>
+          <Paper
+            className={clsx(
+              "hover:shadow-xl p-4 text-lg transition-colors",
+              pathname.startsWith(Route.settings()) ? "text-c-primary bg-c-primary/5" : "text-c-dark hover:text-c-primary",
+            )}
+          >
+            Settings
+          </Paper>
+        </Link>
       </nav>
     );
   }

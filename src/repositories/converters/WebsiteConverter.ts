@@ -9,7 +9,6 @@ export namespace WebsiteConverter {
   export function convert(website: Website): $Website;
   export function convert(website: $Website): Website;
   export function convert(website: Partial<Website>): Partial<$Website>;
-  export function convert(website: Partial<$Website>): Partial<Website>;
   export function convert(website: Partial<Website> | Partial<$Website>): Partial<Website> | Partial<$Website> {
     return "object" in website ? toDatabase(website) : fromDatabase(website as $Website);
   }

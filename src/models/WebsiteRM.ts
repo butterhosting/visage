@@ -1,11 +1,11 @@
 import { ZodParser } from "@/helpers/ZodParser";
+import z from "zod/v4";
 import { TimeSeries } from "./TimeSeries";
 import { Website } from "./Website";
-import z from "zod/v4";
 
 // read model
 export type WebsiteRM = Website & {
-  visitorsTotal: number;
+  visitorsTotal30d: number;
   visitorsTimeSeries30d: TimeSeries;
 };
 
@@ -14,7 +14,7 @@ export namespace WebsiteRM {
     .ensureSchemaMatchesType(() =>
       Website.parse.SCHEMA.and(
         z.object({
-          visitorsTotal: z.number(),
+          visitorsTotal30d: z.number(),
           visitorsTimeSeries30d: TimeSeries.parse.SCHEMA,
         }),
       ),

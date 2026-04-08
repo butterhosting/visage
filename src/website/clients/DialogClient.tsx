@@ -1,8 +1,8 @@
 import { Artifact } from "@/models/Artifact";
 import { PeriodModal } from "../comps/dashboard/PeriodModal";
-import { DeleteModal } from "../comps/DeleteModal";
-import { ExportModal } from "../comps/ExportModal";
-import { CreateWebsiteModal } from "../comps/CreateWebsiteModal";
+import { WebsiteDeleteModal } from "../comps/WebsiteDeleteModal";
+import { WebsiteExportModal } from "../comps/WebsiteExportModal";
+import { WebsiteCreateModal } from "../comps/WebsiteCreateModal";
 import { DialogManager } from "../comps/DialogManager";
 import { Period } from "../femodels/Period";
 
@@ -48,7 +48,7 @@ export class DialogClient {
       this.manager.remove({ token });
     };
     const { token } = this.manager.insert(
-      <ExportModal hostname={hostname} close={() => resolve("cancel")} onSelect={(type) => resolve(type)} />,
+      <WebsiteExportModal hostname={hostname} close={() => resolve("cancel")} onSelect={(type) => resolve(type)} />,
     );
     return promise;
   }
@@ -60,7 +60,7 @@ export class DialogClient {
       internalResolve(result);
       this.manager.remove({ token });
     };
-    const { token } = this.manager.insert(<CreateWebsiteModal close={() => resolve("cancel")} create={(hostname) => resolve(hostname)} />);
+    const { token } = this.manager.insert(<WebsiteCreateModal close={() => resolve("cancel")} create={(hostname) => resolve(hostname)} />);
     return promise;
   }
 
@@ -72,7 +72,7 @@ export class DialogClient {
       this.manager.remove({ token });
     };
     const { token } = this.manager.insert(
-      <DeleteModal hostname={hostname} close={() => resolve("cancel")} confirm={() => resolve("confirm")} />,
+      <WebsiteDeleteModal hostname={hostname} close={() => resolve("cancel")} confirm={() => resolve("confirm")} />,
     );
     return promise;
   }

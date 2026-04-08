@@ -1,7 +1,7 @@
 import { Prettify } from "@/helpers/Prettify";
 import { Stats } from "@/models/Stats";
 import { StatsQuery } from "@/models/StatsQuery";
-import { useParams } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import { StatsClient } from "../clients/StatsClient";
 import { WebsiteClient } from "../clients/WebsiteClient";
 import { ActiveFiltersBar } from "../comps/dashboard/ActiveFiltersBar";
@@ -18,14 +18,24 @@ import { useDocumentTitle } from "../hooks/useDocumentTitle";
 import { useRegistry } from "../hooks/useRegistry";
 import { useYesQuery } from "../hooks/useYesQuery";
 import clsx from "clsx";
+import { ProblemDetails } from "@/models/ProblemDetails";
+import { WebsiteError } from "@/errors/WebsiteError";
+import { Route } from "../Route";
 
 export function websites$refPage() {
   const { ref } = useParams();
+  const navigate = useNavigate();
   const { graph, graphTimeSeriesField, setGraph, period, setPeriod, filters, setFilters } = useDashboardStateWithUrlSynchronization();
 
   const websiteClient = useRegistry(WebsiteClient);
   const { data: website } = useYesQuery({
-    queryFn: () => websiteClient.find(ref!),
+    queryFn: () =>
+      websiteClient.find(ref!).catch((e) => {
+        if (WebsiteError.not_found.matches(e)) {
+          navigate(Route.websites());
+        }
+        throw e;
+      }),
   });
 
   const statsClient = useRegistry(StatsClient);
@@ -130,8 +140,18 @@ export function websites$refPage() {
 
   return (
     <Skeleton className="grid grid-cols-1 gap-5">
+      {/* Instructions */}
+      {website && !website.hasData && (
+        <Paper className="p-4 bg-amber-100! text-c-dark flex flex-col items-center gap-4">
+          <p>
+            Please add the following script to <span className="font-bold">{website.hostname}</span> to start collecting privacy-friendly
+            web analytics.
+          </p>
+          <code className="text-lg">&lt;script src="{window.location.origin}/vis.js" defer&gt;&lt;/script&gt;</code>
+        </Paper>
+      )}
       {/* Stats */}
-      <Paper className="flex overflow-hidden rounded-b-none">
+      <Paper className="overflow-hidden rounded-b-none flex md:grid md:grid-cols-2">
         {aggregateStats().map(({ label, value, prettyValue, correspondingGraph, live }) => (
           <button
             key={label}
@@ -139,7 +159,7 @@ export function websites$refPage() {
             className={clsx(
               "group px-6 py-5 text-left transition-colors -mb-px",
               live
-                ? "ml-auto"
+                ? "ml-auto md:ml-0"
                 : correspondingGraph === graph
                   ? "cursor-pointer hover:bg-c-primary/5 border-b-3 border-c-primary bg-c-primary/5"
                   : "cursor-pointer hover:bg-c-primary/5 border-b-3 border-black/20",
@@ -170,7 +190,7 @@ export function websites$refPage() {
           <PeriodDropdown period={period} onChange={setPeriod} />
           <ActiveFiltersBar filters={filters} toggle={toggleFilter} reset={() => setFilters([])} />
         </div>
-        <div className="mt-6 p-6">
+        <div className="mt-6 px-6">
           <TimeSeriesChart timeSeries={stats?.[graphTimeSeriesField]} />
         </div>
       </Paper>

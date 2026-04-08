@@ -5,19 +5,18 @@ type Props = {
   close: () => void;
   create: (hostname: string) => void;
 };
-export function CreateWebsiteModal({ close, create }: Props) {
+export function WebsiteCreateModal({ close, create }: Props) {
   const [hostname, setHostname] = useState("");
   return (
     <Modal isOpen issueCloseRequestWhenClickingBackdrop onCloseRequest={close} className="p-6">
       <div className="flex flex-col gap-5">
         <h2 className="text-lg font-bold text-c-dark">Add website</h2>
         <label className="flex flex-col gap-1.5">
-          <span className="text-xs font-bold text-c-dark/50 tracking-wide">HOSTNAME</span>
           <input
             type="text"
             value={hostname}
             onChange={(e) => setHostname(e.target.value)}
-            placeholder="example.com"
+            placeholder="Enter hostname, e.g.: www.example.com"
             className="px-3 py-2 rounded-lg border border-black/10 text-sm text-c-dark focus:outline-none focus:border-c-primary"
             onKeyDown={(e) => {
               if (e.key === "Enter" && hostname.trim()) create(hostname.trim());

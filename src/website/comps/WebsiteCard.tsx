@@ -19,7 +19,7 @@ export function WebsiteCard({ website, className }: Props) {
       </div>
       <div className="px-5 pb-4 pt-2 flex items-center gap-5 text-sm text-c-dark/50">
         <div>
-          <span className="font-semibold text-c-dark">{Prettify.number(website.visitorsTotal)}</span> visitors
+          <span className="font-semibold text-c-dark">{Prettify.number(website.visitorsTotal30d)}</span> visitors
         </div>
         <div className="ml-auto text-xs text-c-dark/40">last 30d</div>
       </div>
