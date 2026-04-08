@@ -1,12 +1,14 @@
 import { DistributionFilter } from "@/website/femodels/DistributionFilter";
+import { Period } from "@/website/femodels/Period";
 import { ReactNode } from "react";
 
 type Props = {
+  period: Period;
   filters: DistributionFilter[];
   toggle: DistributionFilter.ToggleFn;
   reset: () => unknown;
 };
-export function ActiveFiltersBar({ filters, toggle, reset }: Props): ReactNode[] {
+export function ActiveFiltersBar({ period, filters, toggle, reset }: Props): ReactNode[] {
   return [
     ...filters.map(({ key, value }) => (
       <button
@@ -20,14 +22,14 @@ export function ActiveFiltersBar({ filters, toggle, reset }: Props): ReactNode[]
         <span className="ml-1 text-c-primary/50">&times;</span>
       </button>
     )),
-    ...(filters.length > 0
+    ...(period.preset !== Period.defaultPreset() || filters.length > 0
       ? [
           <button
             key="resetbtn"
             onClick={() => reset()}
             className="py-2 rounded-lg text-sm font-semibold text-c-dark/50 hover:text-c-dark cursor-pointer transition-colors border border-transparent"
           >
-            Clear filters
+            Reset filters
           </button>,
         ]
       : []),

@@ -21,6 +21,7 @@ import clsx from "clsx";
 import { ProblemDetails } from "@/models/ProblemDetails";
 import { WebsiteError } from "@/errors/WebsiteError";
 import { Route } from "../Route";
+import { Period } from "../femodels/Period";
 
 export function websites$refPage() {
   const { ref } = useParams();
@@ -79,6 +80,13 @@ export function websites$refPage() {
       }
       return [...previous, { key: targetKey, value: targetValue }];
     });
+  }
+
+  function resetPeriodAndFilters() {
+    // TODO: bug where ... if I have "90d" active, together with some page like "/getting-started" ... reset doesn't work
+    // it only resets the `filters` but not the `period` in the URL bar ... ???
+    setPeriod(Period.forPreset(Period.defaultPreset()));
+    setFilters([]);
   }
 
   async function loadDistributionPage(field: Stats.Field, offset: number) {
@@ -185,7 +193,7 @@ export function websites$refPage() {
       <Paper className="rounded-t-none">
         <div className="mt-6 px-6 pb-5 flex items-start gap-3 flex-wrap">
           <PeriodDropdown period={period} onChange={setPeriod} />
-          <ActiveFiltersBar filters={filters} toggle={toggleFilter} reset={() => setFilters([])} />
+          <ActiveFiltersBar period={period} filters={filters} toggle={toggleFilter} reset={() => resetPeriodAndFilters()} />
         </div>
         <div className="mt-6 px-6">
           <TimeSeriesChart timeSeries={stats?.[graphTimeSeriesField]} />

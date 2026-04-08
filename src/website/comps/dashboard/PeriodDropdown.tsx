@@ -1,8 +1,8 @@
 import { Prettify } from "@/helpers/Prettify";
 import { useEffect, useRef, useState } from "react";
 import { DialogClient } from "../../clients/DialogClient";
-import { useRegistry } from "../../hooks/useRegistry";
 import { Period } from "../../femodels/Period";
+import { useRegistry } from "../../hooks/useRegistry";
 
 type Props = {
   period: Period;
@@ -12,6 +12,16 @@ export function PeriodDropdown({ period, onChange }: Props) {
   const [open, setOpen] = useState(false);
   const dialogClient = useRegistry(DialogClient);
   const ref = useRef<HTMLDivElement>(null);
+
+  const translations: Record<Period.Preset, string> = {
+    [Period.Preset.today]: "Today",
+    [Period.Preset.yesterday]: "Yesterday",
+    [Period.Preset.last7d]: "Last 7 days",
+    [Period.Preset.last30d]: "Last 30 days",
+    [Period.Preset.last90d]: "Last 90 days",
+    [Period.Preset.all]: "All time",
+    [Period.Preset.custom]: "Custom",
+  };
 
   useEffect(() => {
     function handleClick(e: MouseEvent) {
@@ -28,7 +38,7 @@ export function PeriodDropdown({ period, onChange }: Props) {
     // TODO: I have this +1/-1 logic scattered in too many places ... consolidate somewhere?
     activeLabel = `${Prettify.longDate(period.from)} \u2013 ${Prettify.longDate(period.to?.toZonedDateTimeISO("UTC").subtract({ days: 1 }).toInstant())}`;
   } else {
-    activeLabel = period.preset;
+    activeLabel = translations[period.preset];
   }
 
   const onClick = (preset: Period.Preset) => {
@@ -66,7 +76,7 @@ export function PeriodDropdown({ period, onChange }: Props) {
                 preset === period.preset ? "font-semibold text-c-primary bg-c-primary/5" : "text-c-dark hover:bg-c-primary/5"
               }`}
             >
-              {preset}
+              {translations[preset]}
             </button>
           ))}
         </div>

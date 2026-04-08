@@ -19,6 +19,10 @@ export namespace Period {
     to?: Temporal.Instant;
   };
 
+  export function defaultPreset(): Preset.last30d {
+    return Preset.last30d;
+  }
+
   function startOfDay(date: Temporal.PlainDate): Temporal.Instant {
     return date.toZonedDateTime("UTC").toInstant();
   }

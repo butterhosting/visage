@@ -1,10 +1,10 @@
-import { Temporal } from "@js-temporal/polyfill";
-import { useState, useEffect } from "react";
-import { useSearchParams } from "react-router";
 import { Stats } from "@/models/Stats";
 import { DistributionFilter } from "@/website/femodels/DistributionFilter";
 import { Graph } from "@/website/femodels/Graph";
 import { Period } from "@/website/femodels/Period";
+import { Temporal } from "@js-temporal/polyfill";
+import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router";
 
 export function useDashboardStateWithUrlSynchronization() {
   const [params, setParams] = useSearchParams();
@@ -99,7 +99,7 @@ export function useDashboardStateWithUrlSynchronization() {
     }
   }
 
-  const periodPresetDefault = Period.Preset.last30d;
+  const periodPresetDefault = Period.defaultPreset();
   const [period, setPeriod] = useState<Period>(() => {
     let presetParam = params.get("period") as Period.Preset;
     if (/^\d+d$/.test(presetParam)) {
