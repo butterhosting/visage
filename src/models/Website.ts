@@ -7,6 +7,7 @@ export type Website = {
   object: "website";
   created: Temporal.Instant;
   hostname: string;
+  hasData: boolean;
 };
 
 export namespace Website {
@@ -17,6 +18,7 @@ export namespace Website {
         object: z.literal("website"),
         created: z.string().transform((t) => Temporal.Instant.from(t)),
         hostname: z.string(),
+        hasData: z.boolean(),
       }),
     )
     .ensureTypeMatchesSchema();

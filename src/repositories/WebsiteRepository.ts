@@ -33,8 +33,20 @@ export class WebsiteRepository {
     return website;
   }
 
-  public async delete(id: string): Promise<Website | undefined> {
-    const [website] = await this.sqlite.delete($website).where(eq($website.id, id)).returning();
+  public async update(ref: string, update: Partial<Website>): Promise<Website | undefined> {
+    const [website] = await this.sqlite
+      .update($website)
+      .set(WebsiteConverter.convert(update))
+      .where(or(eq($website.id, ref), eq($website.hostname, ref)))
+      .returning();
+    return website ? WebsiteConverter.convert(website) : undefined;
+  }
+
+  public async delete(ref: string): Promise<Website | undefined> {
+    const [website] = await this.sqlite
+      .delete($website)
+      .where(or(eq($website.id, ref), eq($website.hostname, ref)))
+      .returning();
     return website ? WebsiteConverter.convert(website) : undefined;
   }
 }

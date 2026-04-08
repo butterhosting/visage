@@ -4,7 +4,7 @@ import { ClientRegistry } from "./ClientRegistry";
 import { DialogClient } from "./clients/DialogClient";
 import { SocketClient } from "./clients/SocketClient";
 import { DialogManager } from "./comps/DialogManager";
-import { dataPage } from "./pages/data.page";
+import { settingsPage } from "./pages/settings.page";
 import { apiPage } from "./pages/api.page";
 import { websites$refPage } from "./pages/websites.$ref.page";
 import { websitesPage } from "./pages/websites.page";
@@ -24,8 +24,8 @@ const router = createBrowserRouter([
     Component: apiPage,
   },
   {
-    path: Route.data(),
-    Component: dataPage,
+    path: Route.settings(),
+    Component: settingsPage,
   },
   {
     path: "*",

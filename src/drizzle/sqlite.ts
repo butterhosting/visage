@@ -7,6 +7,7 @@ import * as schema from "./schema";
 export type Sqlite = Awaited<ReturnType<typeof Sqlite.initialize>>;
 
 export namespace Sqlite {
+  // TODO: add postgres support as well
   export async function initialize(env: Env.Private) {
     const database = new Database(env.X_VISAGE_DATABASE, { create: true });
     const sqlite = drizzle(database, {

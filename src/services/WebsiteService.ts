@@ -36,7 +36,21 @@ export class WebsiteService {
       object: "website",
       created: Temporal.Now.instant(),
       hostname,
+      hasData: false,
     });
+    return await this.enrich(website);
+  }
+
+  public async update(ref: string, unknown: z.output<typeof WebsiteService.Upsert>): Promise<WebsiteRM> {
+    const { hostname } = WebsiteService.Upsert.parse(unknown);
+    const website = await this.websiteRepository
+      .update(ref, {
+        hostname,
+      })
+      .then((w) => {
+        if (!w) throw WebsiteError.not_found({ ref });
+        return w;
+      });
     return await this.enrich(website);
   }
 

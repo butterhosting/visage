@@ -4,17 +4,17 @@ import { Modal } from "./Modal";
 type Props = {
   hostname: string;
   close: () => void;
-  download: (artifact: Artifact.Enum) => void;
+  onSelect: (artifact: Artifact.Enum) => void;
 };
-export function DownloadModal({ hostname, close, download }: Props) {
+export function ExportModal({ hostname, close, onSelect }: Props) {
   return (
     <Modal isOpen issueCloseRequestWhenClickingBackdrop onCloseRequest={close} className="p-6">
       <div className="flex flex-col gap-5">
-        <h2 className="text-lg font-bold">Download data</h2>
         <div className="mt-4 flex flex-col gap-2">
+          {/* TODO: add a PeriodPicker here ... */}
           {Object.values(Artifact.Enum).map((artifact) => (
             <button
-              onClick={() => download(artifact)}
+              onClick={() => onSelect(artifact)}
               className="flex items-center gap-3 px-4 py-3 rounded-lg border border-black/10 hover:border-c-primary/30 hover:bg-c-primary/5 cursor-pointer transition-colors text-left"
             >
               <span className="font-mono text-c-dark">{Artifact.filename(artifact, hostname)}</span>

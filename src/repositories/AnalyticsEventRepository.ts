@@ -29,7 +29,7 @@ export class AnalyticsEventRepository {
     }
   }
 
-  public async update(clientPageId: string, durationSeconds: number): Promise<void> {
+  public async update(clientPageId: string, { durationSeconds }: Pick<AnalyticsEvent, "durationSeconds">): Promise<void> {
     await this.sqlite
       .update($analyticsEvent)
       .set({ clientPageId: null, durationSeconds })

@@ -24,7 +24,7 @@ export class WebsiteClient {
     await this.yesttp.delete(`/websites/${ref}`);
   }
 
-  public async download(hostname: string, artifact: Artifact.Enum): Promise<void> {
+  public async export(hostname: string, artifact: Artifact.Enum): Promise<void> {
     const response = await fetch(`/internal-api/websites/${hostname}/download`, {
       method: "POST",
       headers: { "content-type": "application/json" },

@@ -58,14 +58,14 @@ export namespace Skeleton {
               API
             </Paper>
           </Link>
-          <Link to={Route.data()}>
+          <Link to={Route.settings()}>
             <Paper
               className={clsx(
                 "px-6 py-4 text-lg transition-colors",
-                pathname.startsWith(Route.data()) ? "text-c-primary bg-c-primary/5" : "text-c-dark hover:text-c-primary",
+                pathname.startsWith(Route.settings()) ? "text-c-primary bg-c-primary/5" : "text-c-dark hover:text-c-primary",
               )}
             >
-              Data
+              Settings
             </Paper>
           </Link>
         </div>

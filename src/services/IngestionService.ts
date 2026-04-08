@@ -54,7 +54,6 @@ export class IngestionService {
 
     const referrerUrl = payload.r ? new URL(payload.r) : undefined;
     const isVisitor = (!referrerUrl || referrerUrl.hostname !== url.hostname) && payload.sc === 0;
-
     const analyticsEvent: AnalyticsEvent = {
       id: Bun.randomUUIDv7(),
       object: "analytics_event",
@@ -95,15 +94,17 @@ export class IngestionService {
       await this.analyticsEventRepository.create(analyticsEvent, "bot");
     } else {
       await this.analyticsEventRepository.create(analyticsEvent);
+      if (!website.hasData) {
+        await this.websiteRepository.update(website.id, { hasData: true });
+      }
     }
   }
 
   private async ingestEnd(payload: BrowserTrackingEvent.End): Promise<void> {
     if (payload.dms > 0) {
-      await this.analyticsEventRepository.update(
-        payload.cpi,
-        Temporal.Duration.from({ milliseconds: payload.dms }).round("seconds").total("seconds"),
-      );
+      await this.analyticsEventRepository.update(payload.cpi, {
+        durationSeconds: Temporal.Duration.from({ milliseconds: payload.dms }).round("seconds").total("seconds"),
+      });
     }
   }
 

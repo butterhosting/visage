@@ -5,7 +5,7 @@ export const Route = {
   api() {
     return "/api";
   },
-  data() {
-    return "/data";
+  settings() {
+    return "/settings";
   },
 };

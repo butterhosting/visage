@@ -8,24 +8,28 @@ export namespace WebsiteConverter {
 
   export function convert(website: Website): $Website;
   export function convert(website: $Website): Website;
-  export function convert(website: Website | $Website): Website | $Website {
-    return "object" in website ? toDatabase(website) : fromDatabase(website);
+  export function convert(website: Partial<Website>): Partial<$Website>;
+  export function convert(website: Partial<$Website>): Partial<Website>;
+  export function convert(website: Partial<Website> | Partial<$Website>): Partial<Website> | Partial<$Website> {
+    return "object" in website ? toDatabase(website) : fromDatabase(website as $Website);
   }
 
-  function toDatabase(model: Website): $Website {
+  function toDatabase(model: Partial<Website>): Partial<$Website> {
     return {
       id: model.id,
-      created: model.created.toString(),
+      created: model.created?.toString(),
       hostname: model.hostname,
+      hasData: model.hasData,
     };
   }
 
-  function fromDatabase(db: $Website): Website {
+  function fromDatabase(db: Partial<$Website>): Partial<Website> {
     return {
       id: db.id,
       object: "website",
-      created: Temporal.Instant.from(db.created),
+      created: db.created ? Temporal.Instant.from(db.created) : undefined,
       hostname: db.hostname,
+      hasData: db.hasData,
     };
   }
 }

@@ -1,7 +1,7 @@
 import { Artifact } from "@/models/Artifact";
 import { PeriodModal } from "../comps/dashboard/PeriodModal";
 import { DeleteModal } from "../comps/DeleteModal";
-import { DownloadModal } from "../comps/DownloadModal";
+import { ExportModal } from "../comps/ExportModal";
 import { CreateWebsiteModal } from "../comps/CreateWebsiteModal";
 import { DialogManager } from "../comps/DialogManager";
 import { Period } from "../femodels/Period";
@@ -40,15 +40,15 @@ export class DialogClient {
     return promise;
   }
 
-  public pickDownload(hostname: string): Promise<"cancel" | Artifact.Enum> {
-    type Result = Awaited<ReturnType<typeof this.pickDownload>>;
+  public pickExportArtifact(hostname: string): Promise<"cancel" | Artifact.Enum> {
+    type Result = Awaited<ReturnType<typeof this.pickExportArtifact>>;
     const { promise, resolve: internalResolve } = Promise.withResolvers<Result>();
     const resolve = (result: Result) => {
       internalResolve(result);
       this.manager.remove({ token });
     };
     const { token } = this.manager.insert(
-      <DownloadModal hostname={hostname} close={() => resolve("cancel")} download={(type) => resolve(type)} />,
+      <ExportModal hostname={hostname} close={() => resolve("cancel")} onSelect={(type) => resolve(type)} />,
     );
     return promise;
   }

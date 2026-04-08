@@ -10,7 +10,7 @@ import { WebsiteRepository } from "@/repositories/WebsiteRepository";
 import { and, eq, gt, SQL } from "drizzle-orm";
 import { z } from "zod/v4";
 
-export class DownloadService {
+export class ExportService {
   private readonly RECORD_BUFFER_SIZE = 5000;
 
   public constructor(
@@ -18,8 +18,8 @@ export class DownloadService {
     private readonly websiteRepository: WebsiteRepository,
   ) {}
 
-  public async download(websiteRef: string, unknown: unknown): Promise<{ stream: ReadableStream<Uint8Array>; filename: string }> {
-    const { artifact } = DownloadService.Download.parse(unknown);
+  public async export(websiteRef: string, unknown: unknown): Promise<{ stream: ReadableStream<Uint8Array>; filename: string }> {
+    const { artifact } = ExportService.Export.parse(unknown);
     const website = await this.websiteRepository.find(websiteRef, () => WebsiteError.not_found({ ref: websiteRef }));
     return {
       stream: this.streamJsonArray(website.id, artifact),
@@ -90,8 +90,8 @@ export class DownloadService {
   }
 }
 
-export namespace DownloadService {
-  export const Download = z
+export namespace ExportService {
+  export const Export = z
     .object({
       artifact: z.enum(Artifact.Enum),
     })
