@@ -1,4 +1,5 @@
 import { ReactNode, useEffect, useState } from "react";
+import { useSearchParams } from "react-router";
 import { codeToHtml } from "shiki";
 import { Paper } from "../comps/Paper";
 import { Skeleton } from "../comps/Skeleton";
@@ -12,25 +13,29 @@ enum Tab {
 
 export function apiPage() {
   useDocumentTitle("API | Visage");
-  const [activeTab, setActiveTab] = useState(Tab.example);
+
+  const [params, setParams] = useSearchParams();
+  const tabParam = params.get("tab") as Tab;
+  const activeTab = Object.values(Tab).includes(tabParam) ? tabParam : Tab.example;
+  const setActiveTab = (tab: Tab) => setParams(tab === Tab.example ? {} : { tab }, { replace: true });
 
   return (
     <Skeleton className="grid grid-cols-1 gap-5">
       <Paper>
         {/* Endpoint header */}
-        <div className="p-8 pb-0">
+        <div className="p-8 pb-0 flex flex-col gap-5">
           <div className="flex items-center gap-3">
-            <span className="px-2.5 py-1 rounded-lg bg-c-primary/10 text-c-primary text-xs font-bold tracking-wide">GET</span>
+            <span className="px-2.5 py-1 rounded-lg bg-c-primary/10 text-c-primary font-bold tracking-wide">GET</span>
             <code className="text-xl font-extrabold text-c-dark">/api/stats</code>
           </div>
-          <p className="mt-8 text-c-dark/60">
-            This endpoint can be used for querying various stats for a given website. Using the API requires access tokens, which can be
-            managed below.
+          <p className="text-c-dark/60">
+            This endpoint can be used for querying website stats like visitor totals, screen size distributions and other fields. It
+            requires access token(s) to interact with, which can be generated and managed below.
           </p>
         </div>
 
         {/* Tabs */}
-        <div className="mt-6 flex flex-wrap justify-center border-b border-black/10">
+        <div className="mt-8 flex flex-wrap justify-center border-b border-black/10">
           {Object.values(Tab).map((tab) => (
             <button
               key={tab}
@@ -66,6 +71,7 @@ function ExampleTab() {
         <CodeBlock lang="bash">
           {`
 curl ${origin}/api/stats \\
+  --user :$TOKEN \\
   --url-query website=www.example.com \\
   --url-query fields=visitorsTotal,pageviewsTotal,pageDistribution \\
   --url-query country=US \\
@@ -114,7 +120,7 @@ function ReferenceTab() {
         <div className="rounded-xl border border-black/6 overflow-hidden">
           <table className="w-full text-sm">
             <thead>
-              <tr className="bg-black/2 text-left text-xs font-bold text-c-dark/40 tracking-wide">
+              <tr className="bg-black/2 text-left font-bold text-c-dark/40 tracking-wide">
                 <th className="px-5 py-3 w-56">Parameter</th>
                 <th className="px-5 py-3">Description</th>
               </tr>
@@ -144,7 +150,7 @@ function ReferenceTab() {
         <div className="rounded-xl border border-black/6 overflow-hidden">
           <table className="w-full text-sm">
             <thead>
-              <tr className="bg-black/2 text-left text-xs font-bold text-c-dark/40 tracking-wide">
+              <tr className="bg-black/2 text-left font-bold text-c-dark/40 tracking-wide">
                 <th className="px-5 py-3 w-56">Field</th>
                 <th className="px-5 py-3">Description</th>
               </tr>
@@ -173,12 +179,12 @@ function ReferenceTab() {
       <div>
         <SectionHeading>FILTERS</SectionHeading>
         <p className="text-c-dark/60 mb-5 leading-relaxed">
-          Narrow results to a specific segment, for example <Code>?screen=tablet&country=US</Code>.
+          Narrow results to a specific segment, for example <Code>?screen=tablet&country=US</Code>
         </p>
         <div className="rounded-xl border border-black/6 overflow-hidden">
           <table className="w-full text-sm">
             <thead>
-              <tr className="bg-black/2 text-left text-xs font-bold text-c-dark/40 tracking-wide">
+              <tr className="bg-black/2 text-left font-bold text-c-dark/40 tracking-wide">
                 <th className="px-5 py-3 w-56">Parameter</th>
                 <th className="px-5 py-3">Description</th>
               </tr>
@@ -202,13 +208,13 @@ function ReferenceTab() {
       <div>
         <SectionHeading>PAGINATION</SectionHeading>
         <p className="text-c-dark/60 mb-5 leading-relaxed">
-          Distribution fields are returned as paginated results. Use their matching limit and offset parameters to navigate them, for
-          example <Code>?pageDistributionOffset=20</Code>
+          Distribution fields are returned as paginated results and can be navigated via their matching limit/offset parameters, for example{" "}
+          <Code>?pageDistributionOffset=20</Code>
         </p>
         <div className="rounded-xl border border-black/6 overflow-hidden">
           <table className="w-full text-sm">
             <thead>
-              <tr className="bg-black/2 text-left text-xs font-bold text-c-dark/40 tracking-wide">
+              <tr className="bg-black/2 text-left font-bold text-c-dark/40 tracking-wide">
                 <th className="px-5 py-3 w-56">Parameter</th>
                 <th className="px-5 py-3">Description</th>
               </tr>
@@ -223,8 +229,8 @@ function ReferenceTab() {
             </tbody>
           </table>
         </div>
-        <p className="text-xs text-c-dark/40 mt-4 leading-relaxed">
-          Where <Code>{"{field}"}</Code> is one of:{" "}
+        <p className="text-c-dark/60 mt-4 leading-relaxed">
+          Here, <Code>{"{field}"}</Code> is one of:{" "}
           {[
             "pageDistribution",
             "sourceDistribution",
@@ -235,8 +241,9 @@ function ReferenceTab() {
             "cityDistribution",
           ].map((f, i, arr) => (
             <span key={f}>
+              {i === arr.length - 1 && " or "}
               <Code>{f}</Code>
-              {i < arr.length - 1 ? ", " : "."}
+              {i < arr.length - 2 && ", "}
             </span>
           ))}
         </p>
@@ -265,7 +272,9 @@ function TokensTab() {
 }
 
 function Code({ children, className }: { children: ReactNode; className?: string }) {
-  return <code className={`px-1.5 py-0.5 rounded-md text-c-primary bg-c-dark/6 text-[0.92em] ${className ?? ""}`}>{children}</code>;
+  return (
+    <code className={`px-1.5 py-0.5 rounded-md text-c-primary bg-c-dark/6 text-[0.92em] text-nowrap ${className ?? ""}`}>{children}</code>
+  );
 }
 
 function SectionHeading({ children }: { children: ReactNode }) {

@@ -19,6 +19,7 @@ export class StatsService {
   public async query(query: StatsQuery): Promise<Stats>;
   public async query(query: unknown, unknown: "unknown"): Promise<Stats>;
   public async query(query: unknown | StatsQuery, unknown?: "unknown"): Promise<Stats> {
+    // TODO: proper error handling, because this is a public API, so we definitely need a StatsError ...
     const q = unknown ? StatsQuery.parse(query) : (query as StatsQuery);
     const website = await this.websiteRepository.find(q.website, () =>
       WebsiteError.not_found({
