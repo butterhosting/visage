@@ -1,4 +1,5 @@
 import { Prettify } from "@/helpers/Prettify";
+import clsx from "clsx";
 import { useEffect, useRef, useState } from "react";
 import { DialogClient } from "../../clients/DialogClient";
 import { Period } from "../../femodels/Period";
@@ -7,8 +8,9 @@ import { useRegistry } from "../../hooks/useRegistry";
 type Props = {
   period: Period;
   onChange: (period: Period) => void;
+  className?: string;
 };
-export function PeriodDropdown({ period, onChange }: Props) {
+export function PeriodDropdown({ period, onChange, className }: Props) {
   const [open, setOpen] = useState(false);
   const dialogClient = useRegistry(DialogClient);
   const ref = useRef<HTMLDivElement>(null);
@@ -56,7 +58,7 @@ export function PeriodDropdown({ period, onChange }: Props) {
   };
 
   return (
-    <div className="relative" ref={ref}>
+    <div className={clsx("relative", className)} ref={ref}>
       <button
         onClick={() => setOpen(!open)}
         className="px-4 py-2 rounded-lg border border-black/10 text-sm font-semibold text-c-dark cursor-pointer hover:bg-c-primary/5 transition-colors flex items-center gap-2"

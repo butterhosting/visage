@@ -1,12 +1,13 @@
-import { ReactNode, useState } from "react";
+import { ReactNode, useEffect, useState } from "react";
+import { codeToHtml } from "shiki";
 import { Paper } from "../comps/Paper";
 import { Skeleton } from "../comps/Skeleton";
 import { useDocumentTitle } from "../hooks/useDocumentTitle";
 
-const tabs = ["EXAMPLE", "FIELDS", "FILTERS", "PAGINATION", "TOKENS"] as const;
-
 export function apiPage() {
   useDocumentTitle("API | Visage");
+
+  const tabs = ["EXAMPLE", "FIELDS", "FILTERS", "PAGINATION", "TOKENS"] as const;
   const [activeTab, setActiveTab] = useState<(typeof tabs)[number]>("EXAMPLE");
 
   return (
@@ -76,13 +77,13 @@ function ExampleTab() {
     <div className="flex flex-col gap-6">
       <div>
         <SectionHeading>EXAMPLE REQUEST</SectionHeading>
-        <CodeBlock>
+        <CodeBlock lang="bash">
           {[
-            `curl "${origin}/api/stats?\\`,
-            `  website=example.com&\\`,
-            `  fields=visitorsTotal,pageviewsTotal,pageDistribution&\\`,
-            `  from=2026-01-01T00:00:00Z&\\`,
-            `  to=2026-04-01T00:00:00Z"`,
+            `curl --get ${origin}/api/stats \\`,
+            `  --data-urlencode website=www.example.com \\`,
+            `  --data-urlencode fields=visitorsTotal,pageviewsTotal,pageDistribution \\`,
+            `  --data-urlencode from=2026-01-01T00:00:00Z \\`,
+            `  --data-urlencode to=2026-04-01T00:00:00Z`,
           ].join("\n")}
         </CodeBlock>
       </div>
@@ -268,7 +269,10 @@ function PaginationTab() {
       </p>
       <div className="mt-6">
         <SectionHeading>EXAMPLE</SectionHeading>
-        <CodeBlock variant="compact">{`/api/stats?website=example.com&fields=sourceDistribution&sourceDistributionLimit=5&sourceDistributionOffset=10`}</CodeBlock>
+        <CodeBlock
+          lang="text"
+          variant="compact"
+        >{`/api/stats?website=example.com&fields=sourceDistribution&sourceDistributionLimit=5&sourceDistributionOffset=10`}</CodeBlock>
       </div>
     </div>
   );
@@ -280,7 +284,10 @@ function TokensTab() {
       <p className="text-c-dark/60 mb-5 leading-relaxed">
         Access tokens are required to authenticate with the API. Include the token as a Bearer token in the Authorization header.
       </p>
-      <CodeBlock variant="compact">{`curl -H "Authorization: Bearer YOUR_TOKEN" "${window.location.origin}/api/stats?..."`}</CodeBlock>
+      <CodeBlock
+        lang="bash"
+        variant="compact"
+      >{`curl -H "Authorization: Bearer YOUR_TOKEN" "${window.location.origin}/api/stats?..."`}</CodeBlock>
       <div className="mt-8">
         <SectionHeading>YOUR TOKENS</SectionHeading>
         <p className="text-c-dark/40 text-sm">Token management coming soon.</p>
@@ -294,11 +301,16 @@ function SectionHeading({ children }: { children: ReactNode }) {
   return <h2 className="text-xs font-bold tracking-wide text-c-dark/50 mb-4">{children}</h2>;
 }
 
-function CodeBlock({ children, variant }: { children: string; variant?: "compact" }) {
+function CodeBlock({ children, lang = "json", variant }: { children: string; lang?: string; variant?: "compact" }) {
+  const [html, setHtml] = useState("");
+  useEffect(() => {
+    codeToHtml(children, { lang, theme: "github-dark-default" }).then(setHtml);
+  }, [children, lang]);
   return (
-    <pre className={`bg-c-dark text-c-light rounded-xl leading-relaxed overflow-x-auto ${variant === "compact" ? "p-4 text-xs" : "p-5"}`}>
-      <code>{children}</code>
-    </pre>
+    <div
+      className={`[&_pre]:rounded-xl [&_pre]:leading-relaxed [&_pre]:overflow-x-auto ${variant === "compact" ? "[&_pre]:p-4 [&_pre]:text-xs" : "[&_pre]:p-5"}`}
+      dangerouslySetInnerHTML={{ __html: html }}
+    />
   );
 }
 

@@ -7,6 +7,7 @@ import { AnalyticsEvent } from "@/models/AnalyticsEvent";
 import { Artifact } from "@/models/Artifact";
 import { AnalyticsEventConverter } from "@/repositories/converters/AnalyticsEventConverter";
 import { WebsiteRepository } from "@/repositories/WebsiteRepository";
+import { Temporal } from "@js-temporal/polyfill";
 import { and, eq, gt, SQL } from "drizzle-orm";
 import { z } from "zod/v4";
 
@@ -18,16 +19,19 @@ export class ExportService {
     private readonly websiteRepository: WebsiteRepository,
   ) {}
 
-  public async export(websiteRef: string, unknown: unknown): Promise<{ stream: ReadableStream<Uint8Array>; filename: string }> {
-    const { artifact } = ExportService.Export.parse(unknown);
-    const website = await this.websiteRepository.find(websiteRef, () => WebsiteError.not_found({ ref: websiteRef }));
+  public async export(websiteRef: string, unknown: z.output<typeof ExportService.Export>): Promise<{ stream: ReadableStream<Uint8Array> }> {
+    const request = ExportService.Export.parse(unknown);
+    const website = await this.websiteRepository.find(websiteRef, () =>
+      WebsiteError.not_found({
+        ref: websiteRef,
+      }),
+    );
     return {
-      stream: this.streamJsonArray(website.id, artifact),
-      filename: `${website.hostname}.${artifact}.json`,
+      stream: this.streamJson(website.id, request),
     };
   }
 
-  private streamJsonArray(websiteId: string, artifact: Artifact.Enum): ReadableStream<Uint8Array> {
+  private streamJson(websiteId: string, request: z.output<typeof ExportService.Export>): ReadableStream<Uint8Array> {
     const sqlite = this.sqlite;
     const encoder = new TextEncoder();
 
@@ -37,7 +41,7 @@ export class ExportService {
         let cursor: string | undefined;
         let first = true;
         while (true) {
-          const rows = await this.queryBatch(sqlite, websiteId, artifact, cursor);
+          const rows = await this.queryBatch(sqlite, websiteId, request, cursor);
           if (rows.length === 0) break;
           for (const { event } of rows) {
             const prefix = first ? "" : ",";
@@ -56,9 +60,10 @@ export class ExportService {
   private async queryBatch(
     sqlite: Sqlite,
     websiteId: string,
-    artifact: Artifact.Enum,
+    { artifact, from, to }: z.output<typeof ExportService.Export>,
     cursor?: string,
   ): Promise<Array<{ id: string; event: AnalyticsEvent }>> {
+    // TODO: implement `from/to` filtering ... will need a `created` column on the bots traffic as well ...
     switch (artifact) {
       case Artifact.Enum.analytics: {
         const where: SQL[] = [eq($analyticsEvent.websiteId, websiteId)];
@@ -94,6 +99,14 @@ export namespace ExportService {
   export const Export = z
     .object({
       artifact: z.enum(Artifact.Enum),
+      from: z
+        .string()
+        .transform((s) => Temporal.Instant.from(s))
+        .optional(),
+      to: z
+        .string()
+        .transform((s) => Temporal.Instant.from(s))
+        .optional(),
     })
     .catch((e) => {
       throw ServerError.invalid_request_body(ZodProblem.issuesSummary(e));

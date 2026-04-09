@@ -9,14 +9,14 @@ import { Prettify } from "./helpers/Prettify";
 import { Logger } from "./Logger";
 import { Middleware } from "./middleware/Middleware";
 import { Website } from "./models/Website";
+import { WebsiteRM } from "./models/WebsiteRM";
+import { ExportService } from "./services/ExportService";
 import { IngestionService } from "./services/IngestionService";
 import { RestrictedService } from "./services/RestrictedService";
 import { StatsService } from "./services/StatsService";
 import { TrackerService } from "./services/TrackerService";
 import { WebsiteService } from "./services/WebsiteService";
 import { Socket } from "./socket/Socket";
-import { WebsiteRM } from "./models/WebsiteRM";
-import { ExportService } from "./services/ExportService";
 
 export class Server {
   private readonly log = new Logger(__filename);
@@ -158,11 +158,10 @@ export class Server {
         },
         "/internal-api/websites/:ref/export": {
           POST: this.handleRoute(async (request) => {
-            const { stream, filename } = await this.exportService.export(request.params.ref, await request.json());
+            const { stream } = await this.exportService.export(request.params.ref, await request.json());
             return new Response(stream, {
               headers: {
                 "content-type": "application/json",
-                "content-disposition": `attachment; filename="${filename}"`,
               },
             });
           }),

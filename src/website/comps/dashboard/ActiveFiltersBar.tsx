@@ -29,7 +29,7 @@ export function ActiveFiltersBar({ period, filters, toggle, reset }: Props): Rea
             onClick={() => reset()}
             className="py-2 rounded-lg text-sm font-semibold text-c-dark/50 hover:text-c-dark cursor-pointer transition-colors border border-transparent"
           >
-            Reset filters
+            Reset
           </button>,
         ]
       : []),

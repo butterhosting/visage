@@ -2,10 +2,11 @@ import { Artifact } from "@/models/Artifact";
 import { Website } from "@/models/Website";
 import { useState } from "react";
 import { WebsiteClient } from "../clients/WebsiteClient";
+import { Period } from "../femodels/Period";
 import { useRegistry } from "../hooks/useRegistry";
+import { PeriodDropdown } from "./dashboard/PeriodDropdown";
 import { Modal } from "./Modal";
 import { Spinner } from "./Spinner";
-import { object } from "zod/v3";
 
 type Props = {
   website: Website;
@@ -14,6 +15,7 @@ type Props = {
 };
 export function WebsiteExportModal({ website, close, done }: Props) {
   const websiteClient = useRegistry(WebsiteClient);
+  const [period, setPeriod] = useState(Period.forPreset(Period.Preset.all));
   const [error, setError] = useState<string>();
   const [busy, setBusy] = useState(false);
 
@@ -41,8 +43,9 @@ export function WebsiteExportModal({ website, close, done }: Props) {
   }
 
   return (
-    <Modal isOpen issueCloseRequestWhenClickingBackdrop onCloseRequest={() => !busy && close()} className="p-6">
+    <Modal isOpen issueCloseRequestWhenClickingBackdrop onCloseRequest={() => !busy && close()} className="p-6 overflow-visible">
       <div className="flex flex-col gap-5">
+        <PeriodDropdown period={period} onChange={setPeriod} className="self-start" />
         <div className="mt-4 flex flex-col gap-2">
           {Object.values(Artifact.Enum).map((artifact) => (
             <button
@@ -54,6 +57,7 @@ export function WebsiteExportModal({ website, close, done }: Props) {
               <span className="font-mono text-c-dark">{Artifact.filename(artifact, website.hostname)}</span>
               <span className="text-xs text-c-dark/40 ml-auto">
                 {artifact === Artifact.Enum.analytics ? "Normal traffic" : "Bot traffic"}
+                {/* TODO: bit more consistent if we use buttons here as well ... now its just a floating "cancel" without any purple CTA button */}
               </span>
             </button>
           ))}
