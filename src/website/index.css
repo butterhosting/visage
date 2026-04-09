@@ -57,7 +57,7 @@
         font-size: 14px; /* 80% of default 16px */
     }
     body {
-        @apply relative min-w-[320px] min-h-screen font-f-everywhere text-c-primary;
+        @apply relative min-w-[320px] min-h-screen font-f-everywhere text-c-dark;
         font-optical-sizing: auto;
         background-color: rgb(252, 252, 252);
         background-image: url("./images/background/bgdots.svg");
