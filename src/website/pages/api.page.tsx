@@ -4,11 +4,15 @@ import { Paper } from "../comps/Paper";
 import { Skeleton } from "../comps/Skeleton";
 import { useDocumentTitle } from "../hooks/useDocumentTitle";
 
+enum Tab {
+  example = "example",
+  reference = "reference",
+  tokens = "tokens",
+}
+
 export function apiPage() {
   useDocumentTitle("API | Visage");
-
-  const tabs = ["EXAMPLE", "FIELDS", "FILTERS", "PAGINATION", "TOKENS"] as const;
-  const [activeTab, setActiveTab] = useState<(typeof tabs)[number]>("EXAMPLE");
+  const [activeTab, setActiveTab] = useState(Tab.example);
 
   return (
     <Skeleton className="grid grid-cols-1 gap-5">
@@ -20,30 +24,14 @@ export function apiPage() {
             <code className="text-xl font-extrabold text-c-dark">/api/stats</code>
           </div>
           <p className="mt-8 text-c-dark/60">
-            This endpoint can be used for querying various stats for a given website. The only mandatory parameter is{" "}
-            <code className="font-bold">?website=xxx</code> for referencing a specific website by its hostname or ID. Apart from that, there
-            are 3 categories of parambeters.
+            This endpoint can be used for querying various stats for a given website. Using the API requires access tokens, which can be
+            managed below.
           </p>
-          <ul className="mt-4 pl-4 text-c-dark/60 list-disc list-inside break-all">
-            <li>
-              <span className="font-bold">Fields:</span> this specifies a comma separated list of fields to include in the response, like{" "}
-              <code className="font-bold">?fields=visitorsTotal,pageDistribution</code>
-            </li>
-            <li>
-              <span className="font-bold">Filters:</span> this allows filtering the response on various properties such as{" "}
-              <code className="font-bold">?screen=mobile</code>
-            </li>
-            <li>
-              <span className="font-bold">Pagination:</span> these make it possible to paginate distribution data via properties like{" "}
-              {/*<code className="font-bold">?sourceDistributionLimit=10&sourceDistributionOffset=20</code>*/}
-            </li>
-          </ul>
-          <p className="mt-4 text-c-dark/60">Using the API requires an access token: these can be managed below.</p>
         </div>
 
         {/* Tabs */}
         <div className="mt-6 flex flex-wrap justify-center border-b border-black/10">
-          {tabs.map((tab) => (
+          {Object.values(Tab).map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -53,18 +41,16 @@ export function apiPage() {
                   : "border-b-2 border-transparent text-c-dark/50 hover:text-c-dark/70"
               }`}
             >
-              {tab}
+              {tab.toUpperCase()}
             </button>
           ))}
         </div>
 
         {/* Tab content */}
         <div className="p-8">
-          {activeTab === "EXAMPLE" && <ExampleTab />}
-          {activeTab === "FIELDS" && <FieldsTab />}
-          {activeTab === "FILTERS" && <FiltersTab />}
-          {activeTab === "PAGINATION" && <PaginationTab />}
-          {activeTab === "TOKENS" && <TokensTab />}
+          {activeTab === Tab.example && <ExampleTab />}
+          {activeTab === Tab.reference && <ReferenceTab />}
+          {activeTab === Tab.tokens && <TokensTab />}
         </div>
       </Paper>
     </Skeleton>
@@ -115,165 +101,145 @@ curl ${origin}/api/stats \\
   );
 }
 
-function FieldsTab() {
+function ReferenceTab() {
   return (
-    <div className="flex flex-col gap-2">
-      <FieldGroup label="Aggregates" returnType="number">
-        <Field name="visitorsTotal">Total unique visitors in the given time range.</Field>
-        <Field name="pageviewsTotal">Total pageviews in the given time range.</Field>
-        <Field name="pagetimeMedian">Median time on page in seconds (only pages viewed for 5+ seconds).</Field>
-        <Field name="livePageviewsTotal">Number of pageviews in the last 10 minutes.</Field>
-      </FieldGroup>
-
-      <FieldGroup label="Time Series" returnType="TimeSeries">
-        <Field name="visitorsTimeSeries">Unique visitors over time.</Field>
-        <Field name="pageviewsTimeSeries">Pageviews over time.</Field>
-        <Field name="pagetimeTimeSeries">Median time on page over time.</Field>
-      </FieldGroup>
-      <div className="mb-4 -mt-1">
-        <p className="text-xs text-c-dark/40 mb-3">The time unit is automatically chosen based on the date range:</p>
-        <div className="flex gap-6 text-xs text-c-dark/40">
-          <span>
-            <code className="text-c-dark/60">hour</code> &mdash; under 7 days
-          </span>
-          <span>
-            <code className="text-c-dark/60">day</code> &mdash; under 7 months
-          </span>
-          <span>
-            <code className="text-c-dark/60">month</code> &mdash; 7 months or more
-          </span>
+    <div className="flex flex-col gap-12">
+      {/* Website */}
+      <div>
+        <SectionHeading>WEBSITE</SectionHeading>
+        <p className="text-c-dark/60 mb-5 leading-relaxed">
+          Every request must reference a website. Pass its hostname or ID as a query parameter, for example{" "}
+          <Code>?website=www.example.com</Code>
+        </p>
+        <div className="rounded-xl border border-black/6 overflow-hidden">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="bg-black/2 text-left text-xs font-bold text-c-dark/40 tracking-wide">
+                <th className="px-5 py-3 w-56">Parameter</th>
+                <th className="px-5 py-3">Description</th>
+              </tr>
+            </thead>
+            <tbody className="border-t border-black/6">
+              <tr>
+                <td className="px-5 py-4">
+                  <code className="font-bold text-c-primary">website</code>
+                  <span className="ml-2.5 px-1.5 py-0.5 rounded bg-red-400/10 text-[10px] font-bold tracking-wide text-red-400 align-middle">
+                    REQUIRED
+                  </span>
+                </td>
+                <td className="px-5 py-4 text-c-dark/60">Hostname or ID of the website to query</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
-      <CodeBlock variant="compact">
-        {JSON.stringify(
-          {
-            tUnit: "month",
-            yUnit: "visitor",
-            data: [
-              { t: "2026-01-01T00:00:00Z", y: 312 },
-              { t: "2026-02-01T00:00:00Z", y: 0 },
-              { t: "2026-03-01T00:00:00Z", y: 487 },
-            ],
-          },
-          null,
-          2,
-        )}
-      </CodeBlock>
 
-      <div className="my-4 border-t border-black/5" />
+      {/* Fields */}
+      <div>
+        <SectionHeading>FIELDS</SectionHeading>
+        <p className="text-c-dark/60 mb-6 leading-relaxed">
+          Specify which data to return using a comma-separated list, for example <Code>?fields=visitorsTotal,pageDistribution</Code>
+        </p>
 
-      <FieldGroup label="Distributions" returnType="Distribution">
-        <Field name="pageDistribution">Top pages by pageview count.</Field>
-        <Field name="sourceDistribution">
-          Traffic sources (referrers). A <code className="text-c-primary">null</code> value indicates direct traffic.
-        </Field>
-        <Field name="screenDistribution">
-          Device categories: <code className="text-c-dark/60">mobile</code>, <code className="text-c-dark/60">tablet</code>, or{" "}
-          <code className="text-c-dark/60">desktop</code>.
-        </Field>
-        <Field name="browserDistribution">Browser names.</Field>
-        <Field name="osDistribution">Operating system names.</Field>
-        <Field name="countryDistribution">Country codes (ISO 3166-1 alpha-2).</Field>
-        <Field name="cityDistribution">City names.</Field>
-      </FieldGroup>
-      <CodeBlock variant="compact">
-        {JSON.stringify(
-          {
-            limit: 10,
-            offset: 0,
-            hasMore: true,
-            data: [
-              { value: "google.com", count: 1803 },
-              { value: null, count: 1291 },
-            ],
-          },
-          null,
-          2,
-        )}
-      </CodeBlock>
-    </div>
-  );
-}
-
-function FiltersTab() {
-  return (
-    <div>
-      <p className="text-c-dark/60 mb-5 leading-relaxed">
-        Narrow results to a specific segment. All filters are optional and can be combined. Use{" "}
-        <code className="text-c-primary">@null</code> as the value to filter on entries with no data (e.g. direct traffic for sources).
-      </p>
-      <div className="divide-y divide-black/5">
-        <Param name="from" type="ISO 8601">
-          Start of the time range. Example: <code className="text-c-dark/60">2026-01-01T00:00:00Z</code>
-        </Param>
-        <Param name="to" type="ISO 8601">
-          End of the time range.
-        </Param>
-        <Param name="page" type="string">
-          Filter by URL path, e.g. <code className="text-c-dark/60">/blog/my-post</code>
-        </Param>
-        <Param name="source" type="string | @null">
-          Filter by traffic source.
-        </Param>
-        <Param name="screen" type="string">
-          Filter by screen category: <code className="text-c-dark/60">mobile</code>, <code className="text-c-dark/60">tablet</code>, or{" "}
-          <code className="text-c-dark/60">desktop</code>.
-        </Param>
-        <Param name="browser" type="string | @null">
-          Filter by browser name.
-        </Param>
-        <Param name="os" type="string | @null">
-          Filter by operating system.
-        </Param>
-        <Param name="country" type="string | @null">
-          Filter by ISO country code.
-        </Param>
-        <Param name="city" type="string | @null">
-          Filter by city name.
-        </Param>
+        <div className="rounded-xl border border-black/6 overflow-hidden">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="bg-black/2 text-left text-xs font-bold text-c-dark/40 tracking-wide">
+                <th className="px-5 py-3 w-56">Field</th>
+                <th className="px-5 py-3">Description</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-black/4">
+              <FilterRow name="visitorsTotal">Total visitors</FilterRow>
+              <FilterRow name="pageviewsTotal">Total pageviews</FilterRow>
+              <FilterRow name="pagetimeMedian">Median time on page (seconds)</FilterRow>
+              <FilterRow name="livePageviewsTotal">Number of pageviews in the last few minutes (ignores all filter parameters)</FilterRow>
+              <FilterRow name="visitorsTimeSeries">Unique visitors over time</FilterRow>
+              <FilterRow name="pageviewsTimeSeries">Pageviews over time</FilterRow>
+              <FilterRow name="pagetimeTimeSeries">Median pagetime over time</FilterRow>
+              <FilterRow name="pageDistribution">Distribution of visited page URLs</FilterRow>
+              <FilterRow name="sourceDistribution">Distribution of traffic sources (referrers)</FilterRow>
+              <FilterRow name="screenDistribution">Distribution of device categories (mobile, tablet, or desktop)</FilterRow>
+              <FilterRow name="browserDistribution">Distribution of browsers</FilterRow>
+              <FilterRow name="osDistribution">Distribution of operating systems</FilterRow>
+              <FilterRow name="countryDistribution">Distribution of country codes</FilterRow>
+              <FilterRow name="cityDistribution">Distribution of city names</FilterRow>
+            </tbody>
+          </table>
+        </div>
       </div>
-    </div>
-  );
-}
 
-function PaginationTab() {
-  return (
-    <div>
-      <p className="text-c-dark/60 mb-5 leading-relaxed">
-        Each distribution returns 10 results by default. Use <code className="text-c-primary">hasMore</code> in the response to determine if
-        more results are available, then paginate with the limit/offset parameters below.
-      </p>
-      <div className="divide-y divide-black/5">
-        <Param name="{field}Limit" type="number">
-          Number of results to return. Default: <code className="text-c-dark/60">10</code>
-        </Param>
-        <Param name="{field}Offset" type="number">
-          Number of results to skip. Default: <code className="text-c-dark/60">0</code>
-        </Param>
+      {/* Filters */}
+      <div>
+        <SectionHeading>FILTERS</SectionHeading>
+        <p className="text-c-dark/60 mb-5 leading-relaxed">
+          Narrow results to a specific segment, for example <Code>?screen=tablet&country=US</Code>.
+        </p>
+        <div className="rounded-xl border border-black/6 overflow-hidden">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="bg-black/2 text-left text-xs font-bold text-c-dark/40 tracking-wide">
+                <th className="px-5 py-3 w-56">Parameter</th>
+                <th className="px-5 py-3">Description</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-black/4">
+              <FilterRow name="from">Start of the time range</FilterRow>
+              <FilterRow name="to">End of the time range</FilterRow>
+              <FilterRow name="page">Filter by URL path</FilterRow>
+              <FilterRow name="source">Filter by traffic source</FilterRow>
+              <FilterRow name="screen">Filter by screen category</FilterRow>
+              <FilterRow name="browser">Filter by browser name</FilterRow>
+              <FilterRow name="os">Filter by operating system</FilterRow>
+              <FilterRow name="country">Filter by ISO country code</FilterRow>
+              <FilterRow name="city">Filter by city name</FilterRow>
+            </tbody>
+          </table>
+        </div>
       </div>
-      <p className="text-xs text-c-dark/40 mt-5 leading-relaxed">
-        Where <code className="text-c-dark/60">{"{field}"}</code> is one of:{" "}
-        {[
-          "pageDistribution",
-          "sourceDistribution",
-          "screenDistribution",
-          "browserDistribution",
-          "osDistribution",
-          "countryDistribution",
-          "cityDistribution",
-        ].map((f, i, arr) => (
-          <span key={f}>
-            <code className="text-c-dark/60">{f}</code>
-            {i < arr.length - 1 ? ", " : "."}
-          </span>
-        ))}
-      </p>
-      <div className="mt-6">
-        <SectionHeading>EXAMPLE</SectionHeading>
-        <CodeBlock
-          lang="text"
-          variant="compact"
-        >{`/api/stats?website=example.com&fields=sourceDistribution&sourceDistributionLimit=5&sourceDistributionOffset=10`}</CodeBlock>
+
+      {/* Pagination */}
+      <div>
+        <SectionHeading>PAGINATION</SectionHeading>
+        <p className="text-c-dark/60 mb-5 leading-relaxed">
+          Distribution fields are returned as paginated results. Use their matching limit and offset parameters to navigate them, for
+          example <Code>?pageDistributionOffset=20</Code>
+        </p>
+        <div className="rounded-xl border border-black/6 overflow-hidden">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="bg-black/2 text-left text-xs font-bold text-c-dark/40 tracking-wide">
+                <th className="px-5 py-3 w-56">Parameter</th>
+                <th className="px-5 py-3">Description</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-black/4">
+              <FilterRow name="{field}Limit">
+                Max results to return (default: <Code>10</Code>)
+              </FilterRow>
+              <FilterRow name="{field}Offset">
+                Results to skip (default: <Code>0</Code>)
+              </FilterRow>
+            </tbody>
+          </table>
+        </div>
+        <p className="text-xs text-c-dark/40 mt-4 leading-relaxed">
+          Where <Code>{"{field}"}</Code> is one of:{" "}
+          {[
+            "pageDistribution",
+            "sourceDistribution",
+            "screenDistribution",
+            "browserDistribution",
+            "osDistribution",
+            "countryDistribution",
+            "cityDistribution",
+          ].map((f, i, arr) => (
+            <span key={f}>
+              <Code>{f}</Code>
+              {i < arr.length - 1 ? ", " : "."}
+            </span>
+          ))}
+        </p>
       </div>
     </div>
   );
@@ -296,6 +262,10 @@ function TokensTab() {
       </div>
     </div>
   );
+}
+
+function Code({ children, className }: { children: ReactNode; className?: string }) {
+  return <code className={`px-1.5 py-0.5 rounded-md text-c-primary bg-c-dark/6 text-[0.92em] ${className ?? ""}`}>{children}</code>;
 }
 
 function SectionHeading({ children }: { children: ReactNode }) {
@@ -357,36 +327,13 @@ function CodeBlock({ children, lang = "json", variant }: { children: string; lan
   );
 }
 
-function Param({ name, type, required, children }: { name: string; type: string; required?: boolean; children: ReactNode }) {
+function FilterRow({ name, children }: { name: string; children: ReactNode }) {
   return (
-    <div className="py-3 flex flex-col gap-1">
-      <div className="flex items-center gap-2">
+    <tr>
+      <td className="px-5 py-3">
         <code className="font-bold text-c-primary">{name}</code>
-        <span className="text-xs text-c-dark/30">{type}</span>
-        {required && <span className="text-[10px] font-bold tracking-wide text-red-400">REQUIRED</span>}
-      </div>
-      <p className="text-c-dark/60">{children}</p>
-    </div>
-  );
-}
-
-function FieldGroup({ label, returnType, children }: { label: string; returnType: string; children: ReactNode }) {
-  return (
-    <div className="mb-4">
-      <div className="flex items-center gap-2 mb-1">
-        <h3 className="font-bold text-c-dark">{label}</h3>
-        <span className="text-xs text-c-dark/30">returns {returnType}</span>
-      </div>
-      <div className="divide-y divide-black/5">{children}</div>
-    </div>
-  );
-}
-
-function Field({ name, children }: { name: string; children: ReactNode }) {
-  return (
-    <div className="py-2.5 flex items-baseline gap-3">
-      <code className="text-c-dark/80 shrink-0">{name}</code>
-      <p className="text-c-dark/50">{children}</p>
-    </div>
+      </td>
+      <td className="px-5 py-3 text-c-dark/60">{children}</td>
+    </tr>
   );
 }
