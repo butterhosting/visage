@@ -49,6 +49,7 @@ export function websitesPage() {
               >
                 <path d="M12 5v14M5 12h14" />
               </svg>
+              {/* TODO: add a small text here with `add website` */}
             </Paper>
           </button>
         );
