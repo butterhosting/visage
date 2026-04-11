@@ -3,6 +3,7 @@ import { Distribution } from "@/models/Distribution";
 import clsx from "clsx";
 import { hasFlag } from "country-flag-icons";
 import { DistributionFilter } from "../../femodels/DistributionFilter";
+import { Icon } from "../../images/Icon";
 import { CountryFlag } from "../CountryFlag";
 import { useMemo } from "react";
 import { StatsQuery } from "@/models/StatsQuery";
@@ -81,18 +82,14 @@ export function DistributionTable({ distribution, pageviewsTotal, filterKey, fil
             onClick={() => onPageChange(Math.max(0, distribution.offset - distribution.limit))}
             className="p-1.5 rounded text-c-dark-half hover:text-c-dark-full hover:bg-c-accent/5 disabled:opacity-20 disabled:pointer-events-none transition-colors cursor-pointer"
           >
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <path d="M10 12L6 8L10 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
+            <Icon.ChevronLeft className="size-4" />
           </button>
           <button
             disabled={!distribution.hasMore}
             onClick={() => onPageChange(distribution.offset + distribution.limit)}
             className="p-1.5 rounded text-c-dark-half hover:text-c-dark-full hover:bg-c-accent/5 disabled:opacity-20 disabled:pointer-events-none transition-colors cursor-pointer"
           >
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <path d="M6 4L10 8L6 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
+            <Icon.ChevronRight className="size-4" />
           </button>
         </div>
       )}

@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { DialogClient } from "../../clients/DialogClient";
 import { Period } from "../../femodels/Period";
 import { useRegistry } from "../../hooks/useRegistry";
+import { Icon } from "../../images/Icon";
 
 type Props = {
   period: Period;
@@ -65,9 +66,7 @@ export function PeriodPicker({ period, onChange, className }: Props) {
         className="px-4 py-2 rounded-lg border border-black/10 text-sm font-semibold cursor-pointer hover:bg-c-accent/5 transition-colors flex items-center gap-2"
       >
         {activeLabel}
-        <svg className="w-3.5 h-3.5 text-c-dark-half" viewBox="0 0 12 12" fill="none">
-          <path d="M3 5l3 3 3-3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
+        <Icon.ChevronDown className="size-3.5 text-c-dark-half" />
       </button>
       {open && (
         <div className="absolute right-0 top-full mt-1 bg-white rounded-xl shadow-xl border border-black/10 py-1 z-50 min-w-40">

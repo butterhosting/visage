@@ -7,6 +7,7 @@ import { WebsiteCard } from "../comps/WebsiteCard";
 import { useDocumentTitle } from "../hooks/useDocumentTitle";
 import { useRegistry } from "../hooks/useRegistry";
 import { useYesQuery } from "../hooks/useYesQuery";
+import { Icon } from "../images/Icon";
 import { Route } from "../Route";
 
 export function websitesPage() {
@@ -37,9 +38,7 @@ export function websitesPage() {
         return (
           <button key="new" onClick={handleCreate} className="group cursor-pointer">
             <Paper className="h-full flex flex-col items-center justify-center gap-3 group-hover:shadow-xl text-c-dark-half group-hover:text-c-accent transition-colors">
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                <path d="M12 5v14M5 12h14" />
-              </svg>
+              <Icon.Plus className="size-8" />
               <span className="text-sm">add website</span>
             </Paper>
           </button>

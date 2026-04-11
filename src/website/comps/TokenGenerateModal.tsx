@@ -5,6 +5,7 @@ import { TokenClient } from "../clients/TokenClient";
 import { WebsiteClient } from "../clients/WebsiteClient";
 import { useRegistry } from "../hooks/useRegistry";
 import { useYesQuery } from "../hooks/useYesQuery";
+import { Icon } from "../images/Icon";
 import { Button } from "./Button";
 import { Modal } from "./Modal";
 
@@ -72,36 +73,7 @@ export function TokenGenerateModal({ close, done }: Props) {
               }}
               className="absolute top-1/2 -translate-y-1/2 right-2.5 z-10 p-1.5 rounded-md bg-white/10 text-c-dark-half hover:text-c-dark-full hover:bg-black/5 opacity-0 group-hover:opacity-100 transition-all cursor-pointer"
             >
-              {copied ? (
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <polyline points="20 6 9 17 4 12" />
-                </svg>
-              ) : (
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <rect width="14" height="14" x="8" y="8" rx="2" />
-                  <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
-                </svg>
-              )}
+              {copied ? <Icon.Check className="size-4" /> : <Icon.Copy className="size-4" />}
             </button>
             <code className="block px-3 py-2.5 rounded-lg bg-black/4 font-mono break-all select-all">{generatedToken.value}</code>
           </div>
