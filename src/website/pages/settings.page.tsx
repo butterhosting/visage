@@ -43,23 +43,23 @@ export function settingsPage() {
       <Paper>
         {websites?.map((website) => (
           <div key={website.id} className="flex sm:flex-col items-center sm:items-start gap-4 px-6 py-4">
-            <span className="flex-1 font-bold text-c-darkgray">{website.hostname}</span>
+            <span className="flex-1 font-bold">{website.hostname}</span>
             <div className="flex gap-4 items-center">
               <button
                 onClick={() => performExport(website)}
-                className="px-4 py-2 rounded-lg text-sm font-semibold border border-black/10 text-c-accent hover:text-c-darkgray hover:border-c-accent/30 hover:bg-c-accent/5 cursor-pointer transition-colors"
+                className="px-4 py-2 rounded-lg text-sm font-semibold border border-black/10 text-c-accent hover:text-c-dark-full hover:border-c-accent/30 hover:bg-c-accent/5 cursor-pointer transition-colors"
               >
                 Export
               </button>
               <button
                 onClick={() => performUpdate(website)}
-                className="px-4 py-2 rounded-lg text-sm font-semibold border border-black/10 text-c-darkgray/60 hover:text-c-darkgray hover:border-c-accent/30 hover:bg-c-accent/5 cursor-pointer transition-colors"
+                className="px-4 py-2 rounded-lg text-sm font-semibold border border-black/10 text-c-dark-half hover:text-c-dark-full hover:border-c-accent/30 hover:bg-c-accent/5 cursor-pointer transition-colors"
               >
                 Update
               </button>
               <button
                 onClick={() => performDelete(website)}
-                className="px-4 py-2 rounded-lg text-sm font-semibold border border-black/10 text-red-400 hover:text-red-600 hover:border-red-300 hover:bg-red-50 cursor-pointer transition-colors"
+                className="px-4 py-2 rounded-lg text-sm font-semibold border border-black/10 text-c-error/80 hover:text-c-error hover:border-c-error hover:c-error-50 cursor-pointer transition-colors"
               >
                 Delete
               </button>
@@ -68,7 +68,7 @@ export function settingsPage() {
         ))}
         {websites?.length === 0 && (
           <div className="px-6 py-12 text-center">
-            <span className="text-sm font-bold text-c-darkgray/20 tracking-wide">NO WEBSITES</span>
+            <span className="text-sm font-bold text-c-dark-half tracking-wide">NO WEBSITES</span>
           </div>
         )}
       </Paper>

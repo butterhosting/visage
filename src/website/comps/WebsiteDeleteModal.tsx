@@ -32,8 +32,8 @@ export function WebsiteDeleteModal({ website, close, done }: Props) {
   return (
     <Modal isOpen issueCloseRequestWhenClickingBackdrop onCloseRequest={() => !busy && close()} className="p-6">
       <div className="flex flex-col gap-5">
-        <p className="text-c-darkgray/60">This will permanently delete all analytics data and cannot be undone.</p>
-        <p className="text-c-darkgray/60">
+        <p className="text-c-dark-half">This will permanently delete all analytics data and cannot be undone.</p>
+        <p className="text-c-dark-half">
           Please type <code className="text-black">{website.hostname}</code> to confirm.
         </p>
         <input
@@ -42,9 +42,9 @@ export function WebsiteDeleteModal({ website, close, done }: Props) {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           disabled={busy}
-          className="px-3 py-2 rounded-lg border border-black/10 text-sm text-c-darkgray focus:outline-none focus:border-c-accent"
+          className="px-3 py-2 rounded-lg border border-black/10 text-sm focus:outline-none focus:border-c-accent"
         />
-        {error && <pre className="text-sm text-red-500 whitespace-pre-wrap">{error}</pre>}
+        {error && <pre className="text-sm text-c-error whitespace-pre-wrap">{error}</pre>}
         {busy ? (
           <div className="flex justify-end">
             <Spinner />
@@ -53,14 +53,14 @@ export function WebsiteDeleteModal({ website, close, done }: Props) {
           <div className="flex justify-end gap-3">
             <button
               onClick={close}
-              className="px-4 py-2 rounded-lg text-sm font-semibold text-c-darkgray/50 hover:text-c-darkgray cursor-pointer transition-colors"
+              className="px-4 py-2 rounded-lg text-sm font-semibold text-c-dark-half hover:text-c-dark-full cursor-pointer transition-colors"
             >
               Cancel
             </button>
             <button
               onClick={handleDelete}
               disabled={input !== website.hostname}
-              className="px-4 py-2 rounded-lg text-sm font-semibold bg-red-500 text-white cursor-pointer hover:bg-red-600 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              className="px-4 py-2 rounded-lg text-sm font-semibold bg-c-error text-white cursor-pointer hover:bg-c-error transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
             >
               Delete
             </button>

@@ -18,7 +18,7 @@ export function ActiveFiltersBar({ period, filters, toggle, reset }: Props): Rea
       >
         {/* TODO: this `value` should also account for NULL --- see the DistributionTable component for how to construct a displayValue */}
         {/* TODO: nicer UX if we also show the country's full name here */}
-        <span className="text-c-darkgray/50">{key}:</span> {value}
+        <span className="text-c-dark-half">{key}:</span> {value}
         <span className="ml-1 text-c-accent/50">&times;</span>
       </button>
     )),
@@ -27,7 +27,7 @@ export function ActiveFiltersBar({ period, filters, toggle, reset }: Props): Rea
           <button
             key="resetbtn"
             onClick={() => reset()}
-            className="py-2 rounded-lg text-sm font-semibold text-c-darkgray/50 hover:text-c-darkgray cursor-pointer transition-colors border border-transparent"
+            className="py-2 rounded-lg text-sm font-semibold text-c-dark-half hover:text-c-dark-full cursor-pointer transition-colors border border-transparent"
           >
             Reset
           </button>,

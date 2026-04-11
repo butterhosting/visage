@@ -41,7 +41,7 @@ export function TokensTab() {
         <div className="rounded-xl border border-black/6 overflow-hidden">
           <table className="w-full text-sm">
             <thead>
-              <tr className="bg-black/2 text-left font-bold text-c-darkgray/40 tracking-wide">
+              <tr className="bg-black/2 text-left font-bold text-c-dark-half tracking-wide">
                 <th className="px-5 py-3">ID</th>
                 <th className="px-5 py-3">Scope</th>
                 <th className="px-5 py-3">Last used</th>
@@ -52,15 +52,15 @@ export function TokensTab() {
               {tokens.map((token) => (
                 <tr key={token.id}>
                   <td className="px-5 py-3">
-                    <code className="font-bold text-c-darkgray">{token.id}</code>
+                    <code className="font-bold">{token.id}</code>
                   </td>
-                  <td className="px-5 py-3 text-c-darkgray/60">{formatScope(token.websiteIds)}</td>
+                  <td className="px-5 py-3 text-c-dark-half">{formatScope(token.websiteIds)}</td>
                   {/* TODO: timezone */}
-                  <td className="px-5 py-3 text-c-darkgray/60">{token.lastUsed ? Prettify.timestamp(token.lastUsed, "UTC") : "Never"}</td>
+                  <td className="px-5 py-3 text-c-dark-half">{token.lastUsed ? Prettify.timestamp(token.lastUsed, "UTC") : "Never"}</td>
                   <td className="px-5 py-3 text-right">
                     <button
                       onClick={() => handleDelete(token)}
-                      className="text-sm font-semibold text-red-400 hover:text-red-600 cursor-pointer transition-colors"
+                      className="text-sm font-semibold text-c-error/80 hover:text-c-error cursor-pointer transition-colors"
                     >
                       Delete
                     </button>

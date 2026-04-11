@@ -1,3 +1,4 @@
+import clsx from "clsx";
 import { useState, useEffect } from "react";
 import { codeToHtml } from "shiki";
 
@@ -10,7 +11,7 @@ export function CodeBlock({ children, language, variant }: Props) {
   const [html, setHtml] = useState("");
   const [copied, setCopied] = useState(false);
   useEffect(() => {
-    codeToHtml(children, { lang: language, theme: "github-dark-default" }).then(setHtml);
+    codeToHtml(children, { lang: language, theme: "synthwave-84" }).then(setHtml);
   }, [children, language]);
   return (
     <div className="relative group">
@@ -54,7 +55,10 @@ export function CodeBlock({ children, language, variant }: Props) {
         )}
       </button>
       <div
-        className={`[&_pre]:rounded-xl [&_pre]:leading-relaxed [&_pre]:overflow-x-auto ${variant === "compact" ? "[&_pre]:p-4 [&_pre]:text-xs" : "[&_pre]:p-5"}`}
+        className={clsx(
+          "[&_pre]:rounded-xl [&_pre]:leading-relaxed [&_pre]:overflow-x-auto",
+          variant === "compact" ? "[&_pre]:p-4 [&_pre]:text-xs" : "[&_pre]:p-5",
+        )}
         dangerouslySetInnerHTML={{ __html: html }}
       />
     </div>

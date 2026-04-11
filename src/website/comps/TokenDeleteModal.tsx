@@ -30,11 +30,11 @@ export function TokenDeleteModal({ token, close, done }: Props) {
   return (
     <Modal isOpen issueCloseRequestWhenClickingBackdrop onCloseRequest={() => !busy && close()} className="p-6">
       <div className="flex flex-col gap-5">
-        <p className="text-c-darkgray/60">
-          This will permanently delete token <code className="font-bold text-c-darkgray">{token.id}</code>. Any applications using this
-          token will lose access immediately.
+        <p className="text-c-dark-half">
+          This will permanently delete token <code className="font-bold">{token.id}</code>. Any applications using this token will lose
+          access immediately.
         </p>
-        {error && <pre className="text-red-500 whitespace-pre-wrap">{error}</pre>}
+        {error && <pre className="text-c-error whitespace-pre-wrap">{error}</pre>}
         {busy ? (
           <div className="flex justify-end">
             <Spinner />
@@ -43,13 +43,13 @@ export function TokenDeleteModal({ token, close, done }: Props) {
           <div className="flex justify-end gap-3">
             <button
               onClick={close}
-              className="px-4 py-2 rounded-lg font-semibold text-c-darkgray/50 hover:text-c-darkgray cursor-pointer transition-colors"
+              className="px-4 py-2 rounded-lg font-semibold text-c-dark-half hover:text-c-dark-full cursor-pointer transition-colors"
             >
               Cancel
             </button>
             <button
               onClick={handleDelete}
-              className="px-4 py-2 rounded-lg font-semibold bg-red-500 text-white cursor-pointer hover:bg-red-600 transition-colors"
+              className="px-4 py-2 rounded-lg font-semibold bg-c-error text-white cursor-pointer hover:bg-c-error transition-colors"
             >
               Delete
             </button>

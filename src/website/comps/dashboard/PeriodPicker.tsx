@@ -62,10 +62,10 @@ export function PeriodPicker({ period, onChange, className }: Props) {
     <div className={clsx("relative", className)} ref={ref}>
       <button
         onClick={() => setOpen(!open)}
-        className="px-4 py-2 rounded-lg border border-black/10 text-sm font-semibold text-c-darkgray cursor-pointer hover:bg-c-accent/5 transition-colors flex items-center gap-2"
+        className="px-4 py-2 rounded-lg border border-black/10 text-sm font-semibold cursor-pointer hover:bg-c-accent/5 transition-colors flex items-center gap-2"
       >
         {activeLabel}
-        <svg className="w-3.5 h-3.5 text-c-darkgray/40" viewBox="0 0 12 12" fill="none">
+        <svg className="w-3.5 h-3.5 text-c-dark-half" viewBox="0 0 12 12" fill="none">
           <path d="M3 5l3 3 3-3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       </button>
@@ -75,9 +75,10 @@ export function PeriodPicker({ period, onChange, className }: Props) {
             <button
               key={preset}
               onClick={() => onClick(preset)}
-              className={`w-full text-left px-4 py-2 text-sm cursor-pointer transition-colors ${
-                preset === period.preset ? "font-semibold text-c-accent bg-c-accent/5" : "text-c-darkgray hover:bg-c-accent/5"
-              }`}
+              className={clsx(
+                "w-full text-left px-4 py-2 text-sm cursor-pointer transition-colors",
+                preset === period.preset ? "font-semibold text-c-accent bg-c-accent/5" : "hover:bg-c-accent/5",
+              )}
             >
               {translations[preset]}
             </button>

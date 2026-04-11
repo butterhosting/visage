@@ -55,7 +55,7 @@ export function Modal({
       className={clsx(
         "fixed top-[30%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-[calc(100%-2rem)] max-w-2xl",
         "rounded-lg focus:outline-none",
-        "bg-white text-c-accent backdrop:bg-c-darkgray/10 backdrop:backdrop-blur-xs shadow-2xl",
+        "bg-white backdrop:bg-c-dark-full/10 backdrop:backdrop-blur-xs shadow-2xl",
         className,
       )}
       onClick={handleBackdropClick}

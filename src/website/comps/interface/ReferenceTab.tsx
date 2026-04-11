@@ -8,14 +8,14 @@ export function ReferenceTab() {
       {/* Website */}
       <div>
         <SectionHeading>WEBSITE</SectionHeading>
-        <p className="text-c-darkgray/60 mb-5 leading-relaxed">
+        <p className="text-c-dark-half mb-5 leading-relaxed">
           Every request must reference a website. Pass its hostname or ID as a query parameter, for example{" "}
           <CodeSnippet>?website=www.example.com</CodeSnippet>
         </p>
         <div className="rounded-xl border border-black/6 overflow-hidden">
           <table className="w-full text-sm">
             <thead>
-              <tr className="bg-black/2 text-left font-bold text-c-darkgray/40 tracking-wide">
+              <tr className="bg-black/2 text-left font-bold text-c-dark-half tracking-wide">
                 <th className="px-5 py-3 w-56">Parameter</th>
                 <th className="px-5 py-3">Description</th>
               </tr>
@@ -24,11 +24,11 @@ export function ReferenceTab() {
               <tr>
                 <td className="px-5 py-4">
                   <code className="font-bold text-c-accent">website</code>
-                  <span className="ml-2.5 px-1.5 py-0.5 rounded bg-red-400/10 text-[10px] font-bold tracking-wide text-red-400 align-middle">
+                  <span className="ml-2.5 px-1.5 py-0.5 rounded bg-c-error/10 text-[10px] font-bold tracking-wide text-c-error align-middle">
                     REQUIRED
                   </span>
                 </td>
-                <td className="px-5 py-4 text-c-darkgray/60">Hostname or ID of the website to query</td>
+                <td className="px-5 py-4 text-c-dark-half">Hostname or ID of the website to query</td>
               </tr>
             </tbody>
           </table>
@@ -38,7 +38,7 @@ export function ReferenceTab() {
       {/* Fields */}
       <div>
         <SectionHeading>FIELDS</SectionHeading>
-        <p className="text-c-darkgray/60 mb-6 leading-relaxed">
+        <p className="text-c-dark-half mb-6 leading-relaxed">
           Specify which data to return using a comma-separated list, for example{" "}
           <CodeSnippet>?fields=visitorsTotal,pageDistribution</CodeSnippet>
         </p>
@@ -46,7 +46,7 @@ export function ReferenceTab() {
         <div className="rounded-xl border border-black/6 overflow-hidden">
           <table className="w-full text-sm">
             <thead>
-              <tr className="bg-black/2 text-left font-bold text-c-darkgray/40 tracking-wide">
+              <tr className="bg-black/2 text-left font-bold text-c-dark-half tracking-wide">
                 <th className="px-5 py-3 w-56">Field</th>
                 <th className="px-5 py-3">Description</th>
               </tr>
@@ -74,13 +74,13 @@ export function ReferenceTab() {
       {/* Filters */}
       <div>
         <SectionHeading>FILTERS</SectionHeading>
-        <p className="text-c-darkgray/60 mb-5 leading-relaxed">
+        <p className="text-c-dark-half mb-5 leading-relaxed">
           Narrow results to a specific segment, for example <CodeSnippet>?screen=tablet&country=US</CodeSnippet>
         </p>
         <div className="rounded-xl border border-black/6 overflow-hidden">
           <table className="w-full text-sm">
             <thead>
-              <tr className="bg-black/2 text-left font-bold text-c-darkgray/40 tracking-wide">
+              <tr className="bg-black/2 text-left font-bold text-c-dark-half tracking-wide">
                 <th className="px-5 py-3 w-56">Parameter</th>
                 <th className="px-5 py-3">Description</th>
               </tr>
@@ -103,14 +103,14 @@ export function ReferenceTab() {
       {/* Pagination */}
       <div>
         <SectionHeading>PAGINATION</SectionHeading>
-        <p className="text-c-darkgray/60 mb-5 leading-relaxed">
+        <p className="text-c-dark-half mb-5 leading-relaxed">
           Distribution fields are returned as paginated results and can be navigated via their matching limit/offset parameters, for example{" "}
           <CodeSnippet>?pageDistributionOffset=20</CodeSnippet>
         </p>
         <div className="rounded-xl border border-black/6 overflow-hidden">
           <table className="w-full text-sm">
             <thead>
-              <tr className="bg-black/2 text-left font-bold text-c-darkgray/40 tracking-wide">
+              <tr className="bg-black/2 text-left font-bold text-c-dark-half tracking-wide">
                 <th className="px-5 py-3 w-56">Parameter</th>
                 <th className="px-5 py-3">Description</th>
               </tr>
@@ -125,7 +125,7 @@ export function ReferenceTab() {
             </tbody>
           </table>
         </div>
-        <p className="text-c-darkgray/60 mt-4 leading-relaxed">
+        <p className="text-c-dark-half mt-4 leading-relaxed">
           Here, <CodeSnippet>{"{field}"}</CodeSnippet> is one of:{" "}
           {[
             "pageDistribution",
@@ -154,7 +154,7 @@ function FilterRow({ name, children }: { name: string; children: ReactNode }) {
       <td className="px-5 py-3">
         <code className="font-bold text-c-accent">{name}</code>
       </td>
-      <td className="px-5 py-3 text-c-darkgray/60">{children}</td>
+      <td className="px-5 py-3 text-c-dark-half">{children}</td>
     </tr>
   );
 }

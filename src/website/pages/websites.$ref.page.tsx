@@ -150,7 +150,7 @@ export function websites$refPage() {
     <Skeleton className="grid grid-cols-1 gap-5">
       {/* Instructions */}
       {website && !website.hasData && (
-        <Paper className="p-4 bg-amber-100! text-c-darkgray flex flex-col items-center gap-4">
+        <Paper className="p-4 bg-amber-100! flex flex-col items-center gap-4">
           <p>Please add the following script to your website.</p>
           <code className="text-lg">&lt;script src="{window.location.origin}/vis.js" defer&gt;&lt;/script&gt;</code>
         </Paper>
@@ -173,15 +173,15 @@ export function websites$refPage() {
             <div
               className={clsx(
                 "text-xs font-bold tracking-wide mb-1",
-                correspondingGraph === graph ? "text-c-accent" : "text-c-darkgray/50",
+                correspondingGraph === graph ? "text-c-accent" : "text-c-dark-half",
                 live ? "" : "group-hover:text-c-accent",
               )}
             >
               {label}
             </div>
-            <span className={clsx("text-3xl font-extrabold text-c-darkgray", live && "flex items-center gap-2")}>
+            <span className={clsx("text-3xl font-extrabold", live && "flex items-center gap-2")}>
               {live && (
-                <span className={clsx("size-3 rounded-full", typeof value === "number" && value > 0 ? "bg-green-500" : "bg-red-500")} />
+                <span className={clsx("size-3 rounded-full", typeof value === "number" && value > 0 ? "bg-green-500" : "bg-c-error")} />
               )}
               {prettyValue}
             </span>

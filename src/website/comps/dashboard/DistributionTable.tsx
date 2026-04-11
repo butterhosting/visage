@@ -1,5 +1,6 @@
 import { Prettify } from "@/helpers/Prettify";
 import { Distribution } from "@/models/Distribution";
+import clsx from "clsx";
 import { hasFlag } from "country-flag-icons";
 import { DistributionFilter } from "../../femodels/DistributionFilter";
 import { CountryFlag } from "../CountryFlag";
@@ -20,7 +21,7 @@ export function DistributionTable({ distribution, pageviewsTotal, filterKey, fil
   if (!distribution || distribution.data.length === 0 || typeof pageviewsTotal !== "number") {
     return (
       <div className="py-6 text-center">
-        <span className="text-sm font-bold text-c-darkgray/20 tracking-wide">NO DATA</span>
+        <span className="text-sm font-bold text-c-dark-half tracking-wide">NO DATA</span>
       </div>
     );
   }
@@ -47,14 +48,17 @@ export function DistributionTable({ distribution, pageviewsTotal, filterKey, fil
             className="flex items-center gap-3 cursor-pointer text-left"
           >
             {/* TODO: format percentage with 1 decimal point always (except for 100%) */}
-            <div className="text-c-darkgray w-18">{percentage === 0 ? "<0.1" : percentage}%</div>
-            <div className={`relative flex-1 h-7 rounded overflow-hidden ${isActive ? "bg-c-accent/15" : "bg-c-accent/5"}`}>
+            <div className="w-18">{percentage === 0 ? "<0.1" : percentage}%</div>
+            <div className={clsx("relative flex-1 h-7 rounded overflow-hidden", isActive ? "bg-c-accent/15" : "bg-c-accent/5")}>
               <div
-                className={`absolute inset-y-0 left-0 rounded ${isActive ? "bg-c-accent/25" : "bg-c-accent/10"}`}
+                className={clsx("absolute inset-y-0 left-0 rounded", isActive ? "bg-c-accent/25" : "bg-c-accent/10")}
                 style={{ width: `${percentage}%` }}
               />
               <span
-                className={`relative px-2 text-sm leading-7 truncate flex items-center gap-1.5 ${isActive ? "font-semibold text-c-accent" : "text-c-darkgray"}`}
+                className={clsx(
+                  "relative px-2 text-sm leading-7 truncate flex items-center gap-1.5",
+                  isActive && "font-semibold text-c-accent",
+                )}
               >
                 {filterKey === StatsQuery.Filter.country && point.value && hasFlag(point.value) && (
                   <CountryFlag countryCode={point.value} className="h-3.5 rounded-[1px] shrink-0" />
@@ -66,7 +70,7 @@ export function DistributionTable({ distribution, pageviewsTotal, filterKey, fil
                 {displayValue}
               </span>
             </div>
-            <div className="text-xs text-c-darkgray tabular-nums w-18">{Prettify.number(point.count)} pvs</div>
+            <div className="text-xs tabular-nums w-18">{Prettify.number(point.count)} pvs</div>
           </button>
         );
       })}
@@ -75,7 +79,7 @@ export function DistributionTable({ distribution, pageviewsTotal, filterKey, fil
           <button
             disabled={distribution.offset === 0}
             onClick={() => onPageChange(Math.max(0, distribution.offset - distribution.limit))}
-            className="p-1.5 rounded text-c-darkgray/50 hover:text-c-darkgray hover:bg-c-accent/5 disabled:opacity-20 disabled:pointer-events-none transition-colors cursor-pointer"
+            className="p-1.5 rounded text-c-dark-half hover:text-c-dark-full hover:bg-c-accent/5 disabled:opacity-20 disabled:pointer-events-none transition-colors cursor-pointer"
           >
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
               <path d="M10 12L6 8L10 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
@@ -84,7 +88,7 @@ export function DistributionTable({ distribution, pageviewsTotal, filterKey, fil
           <button
             disabled={!distribution.hasMore}
             onClick={() => onPageChange(distribution.offset + distribution.limit)}
-            className="p-1.5 rounded text-c-darkgray/50 hover:text-c-darkgray hover:bg-c-accent/5 disabled:opacity-20 disabled:pointer-events-none transition-colors cursor-pointer"
+            className="p-1.5 rounded text-c-dark-half hover:text-c-dark-full hover:bg-c-accent/5 disabled:opacity-20 disabled:pointer-events-none transition-colors cursor-pointer"
           >
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
               <path d="M6 4L10 8L6 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />

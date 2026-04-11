@@ -24,7 +24,7 @@ export function TimeSeriesChart({ timeSeries, minimal, height = 400 }: Props) {
   if (timeSeries.data.length === 0) {
     return (
       <div style={{ height }} className="flex items-center justify-center">
-        <span className="text-sm font-bold text-c-darkgray/20 tracking-wide">NO DATA</span>
+        <span className="text-sm font-bold text-c-dark-half tracking-wide">NO DATA</span>
       </div>
     );
   }

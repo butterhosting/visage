@@ -1,5 +1,6 @@
 import { Distribution } from "@/models/Distribution";
 import { Stats } from "@/models/Stats";
+import clsx from "clsx";
 import { useState } from "react";
 import { DistributionFilter } from "../../femodels/DistributionFilter";
 import { PanelTab } from "../../femodels/PanelTab";
@@ -27,14 +28,15 @@ export function DistributionPanel({ panel, stats, filters, toggleFilter, onPageC
               <button
                 key={tab.label}
                 onClick={() => setActiveIndex(i)}
-                className={`px-5 py-3 text-xs font-bold tracking-wide cursor-pointer transition-colors ${
+                className={clsx(
+                  "px-5 py-3 text-xs font-bold tracking-wide cursor-pointer transition-colors",
                   isActive
                     ? "border-b-2 border-c-accent text-c-accent"
-                    : "border-b-2 border-transparent text-c-darkgray/50 hover:text-c-darkgray/70"
-                }`}
+                    : "border-b-2 border-transparent text-c-dark-half hover:text-c-dark-full",
+                )}
               >
                 {tab.label}
-                {hasFilter && <span className="inline-block w-2 h-2 rounded-full bg-red-500 ml-2" />}
+                {hasFilter && <span className="inline-block w-2 h-2 rounded-full bg-c-error ml-2" />}
               </button>
             );
           })}
@@ -42,10 +44,10 @@ export function DistributionPanel({ panel, stats, filters, toggleFilter, onPageC
       )}
       {panel.length === 1 && (
         <div className="px-5 pt-5">
-          <h3 className="text-xs font-bold tracking-wide text-c-darkgray/50 text-center">
+          <h3 className="text-xs font-bold tracking-wide text-c-dark-half text-center">
             {panel[0].label}
             {filters.some(({ key }) => key === panel[0].filterKey) && (
-              <span className="inline-block w-2 h-2 rounded-full bg-red-500 ml-2" />
+              <span className="inline-block w-2 h-2 rounded-full bg-c-error ml-2" />
             )}
           </h3>
         </div>

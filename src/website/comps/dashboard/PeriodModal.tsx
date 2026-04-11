@@ -15,10 +15,10 @@ export function PeriodModal({ defaultPeriodRange, apply, close }: Props) {
   return (
     <Modal isOpen issueCloseRequestWhenClickingBackdrop onCloseRequest={close} className="p-6">
       <div className="flex flex-col gap-5">
-        <h2 className="text-lg font-bold text-c-darkgray">Custom date range</h2>
+        <h2 className="text-lg font-bold">Custom date range</h2>
         <div className="flex gap-4">
           <label className="flex flex-col gap-1.5 flex-1">
-            <span className="text-xs font-bold text-c-darkgray/50 tracking-wide">FROM</span>
+            <span className="text-xs font-bold text-c-dark-half tracking-wide">FROM</span>
             <input
               type="date"
               max={to.toString()}
@@ -30,11 +30,11 @@ export function PeriodModal({ defaultPeriodRange, apply, close }: Props) {
                   // ignore
                 }
               }}
-              className="px-3 py-2 rounded-lg border border-black/10 text-sm text-c-darkgray focus:outline-none focus:border-c-accent"
+              className="px-3 py-2 rounded-lg border border-black/10 text-sm focus:outline-none focus:border-c-accent"
             />
           </label>
           <label className="flex flex-col gap-1.5 flex-1">
-            <span className="text-xs font-bold text-c-darkgray/50 tracking-wide">TO</span>
+            <span className="text-xs font-bold text-c-dark-half tracking-wide">TO</span>
             <input
               type="date"
               min={from.toString()}
@@ -47,14 +47,14 @@ export function PeriodModal({ defaultPeriodRange, apply, close }: Props) {
                   // ignore
                 }
               }}
-              className="px-3 py-2 rounded-lg border border-black/10 text-sm text-c-darkgray focus:outline-none focus:border-c-accent"
+              className="px-3 py-2 rounded-lg border border-black/10 text-sm focus:outline-none focus:border-c-accent"
             />
           </label>
         </div>
         <div className="flex justify-end gap-3">
           <button
             onClick={close}
-            className="px-4 py-2 rounded-lg text-sm font-semibold text-c-darkgray/50 hover:text-c-darkgray cursor-pointer transition-colors"
+            className="px-4 py-2 rounded-lg text-sm font-semibold text-c-dark-half hover:text-c-dark-full cursor-pointer transition-colors"
           >
             Cancel
           </button>

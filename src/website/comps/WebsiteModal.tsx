@@ -35,22 +35,22 @@ export function WebsiteModal({ existing, close, done }: Props) {
   return (
     <Modal isOpen issueCloseRequestWhenClickingBackdrop onCloseRequest={() => !busy && close()} className="p-6">
       <div className="flex flex-col gap-5">
-        <h2 className="text-lg font-bold text-c-darkgray">{existing ? "Update website" : "Add website"}</h2>
+        <h2 className="text-lg font-bold">{existing ? "Update website" : "Add website"}</h2>
         <label className="flex flex-col gap-1.5">
           <input
             type="text"
             value={hostname}
             onChange={(e) => setHostname(e.target.value)}
             placeholder="Enter hostname, e.g.: www.example.com"
-            className="px-3 py-2 rounded-lg border border-black/10 text-sm text-c-darkgray focus:outline-none focus:border-c-accent"
+            className="px-3 py-2 rounded-lg border border-black/10 text-sm focus:outline-none focus:border-c-accent"
             onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
           />
         </label>
-        {error && <pre className="text-sm text-red-500 whitespace-pre-wrap">{error}</pre>}
+        {error && <pre className="text-sm text-c-error whitespace-pre-wrap">{error}</pre>}
         <div className="flex justify-end gap-3">
           <button
             onClick={close}
-            className="px-4 py-2 rounded-lg text-sm font-semibold text-c-darkgray/50 hover:text-c-darkgray cursor-pointer transition-colors"
+            className="px-4 py-2 rounded-lg text-sm font-semibold text-c-dark-half hover:text-c-dark-full cursor-pointer transition-colors"
           >
             Cancel
           </button>

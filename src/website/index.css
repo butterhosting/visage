@@ -11,9 +11,9 @@
     --font-f-everywhere: "Inter", sans-serif;
     /* Colors */
     --color-c-accent: #4647d2;
-    --color-c-error: #ff6464;
-    --color-c-darkgray: #2d2c32;
-    --color-c-midgray: #3f3d46;
+    --color-c-error: #d5000d;
+    --color-c-dark-full: #2d2c32;
+    --color-c-dark-half: #6c6b72;
 }
 
 /* DESKTOP FIRST / PART B -> https://stackoverflow.com/a/79607480 */
@@ -48,7 +48,7 @@
         font-size: 14px; /* 80% of default 16px */
     }
     body {
-        @apply relative min-w-[320px] min-h-screen font-f-everywhere text-c-darkgray;
+        @apply relative min-w-[320px] min-h-screen font-f-everywhere text-c-dark-full;
         font-optical-sizing: auto;
         background-color: rgb(252, 252, 252);
         background-image: url("./images/background/bgdots.svg");

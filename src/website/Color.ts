@@ -5,8 +5,8 @@ export class Color {
   // Custom colors
   public static accent = () => this.css("--color-c-accent");
   public static error = () => this.css("--color-c-error");
-  public static darkgray = () => this.css("--color-c-darkgray");
-  public static midgray = () => this.css("--color-c-midgray");
+  public static darkFull = () => this.css("--color-c-dark-full");
+  public static darkHalf = () => this.css("--color-c-dark-half");
 
   private static cache: Record<string, string> = {};
 
