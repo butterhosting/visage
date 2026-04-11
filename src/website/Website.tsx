@@ -5,7 +5,7 @@ import { DialogClient } from "./clients/DialogClient";
 import { SocketClient } from "./clients/SocketClient";
 import { DialogManager } from "./comps/DialogManager";
 import { settingsPage } from "./pages/settings.page";
-import { apiPage } from "./pages/api.page";
+import { interfacePage } from "./pages/interface.page";
 import { websites$refPage } from "./pages/websites.$ref.page";
 import { websitesPage } from "./pages/websites.page";
 import { Route } from "./Route";
@@ -21,7 +21,7 @@ const router = createBrowserRouter([
   },
   {
     path: Route.interface(),
-    Component: apiPage,
+    Component: interfacePage,
   },
   {
     path: Route.settings(),

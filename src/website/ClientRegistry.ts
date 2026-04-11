@@ -8,6 +8,7 @@ import { DialogClient } from "./clients/DialogClient";
 import { RestrictedClient } from "./clients/RestrictedClient";
 import { SocketClient } from "./clients/SocketClient";
 import { StatsClient } from "./clients/StatsClient";
+import { TokenClient } from "./clients/TokenClient";
 import { WebsiteClient } from "./clients/WebsiteClient";
 
 export class ClientRegistry {
@@ -56,6 +57,7 @@ export class ClientRegistry {
     this.registry[WebsiteClient.name] = new WebsiteClient(yesttp);
     this.registry[StatsClient.name] = new StatsClient(yesttp);
     this.registry[RestrictedClient.name] = new RestrictedClient(yesttp);
+    this.registry[TokenClient.name] = new TokenClient(yesttp);
   }
 
   public getEnv() {

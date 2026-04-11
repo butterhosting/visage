@@ -1,7 +1,10 @@
+import { TokenRM } from "@/models/TokenRM";
 import { Website } from "@/models/Website";
 import { WebsiteRM } from "@/models/WebsiteRM";
 import { PeriodModal } from "../comps/dashboard/PeriodModal";
 import { DialogManager } from "../comps/DialogManager";
+import { TokenGenerateModal } from "../comps/TokenGenerateModal";
+import { TokenRevokeModal } from "../comps/TokenRevokeModal";
 import { WebsiteDeleteModal } from "../comps/WebsiteDeleteModal";
 import { WebsiteExportModal } from "../comps/WebsiteExportModal";
 import { WebsiteModal } from "../comps/WebsiteModal";
@@ -77,6 +80,28 @@ export class DialogClient {
     const { token } = this.manager.insert(
       <WebsiteDeleteModal website={website} close={() => resolve("cancel")} done={(website) => resolve(website)} />,
     );
+    return promise;
+  }
+
+  public tokenCreate(): Promise<"cancel" | TokenRM> {
+    type Result = Awaited<ReturnType<typeof this.tokenCreate>>;
+    const { promise, resolve: internalResolve } = Promise.withResolvers<Result>();
+    const resolve = (result: Result) => {
+      internalResolve(result);
+      this.manager.remove({ token });
+    };
+    const { token } = this.manager.insert(<TokenGenerateModal close={() => resolve("cancel")} done={(t) => resolve(t)} />);
+    return promise;
+  }
+
+  public tokenDelete(tokenRM: TokenRM): Promise<"cancel" | TokenRM> {
+    type Result = Awaited<ReturnType<typeof this.tokenDelete>>;
+    const { promise, resolve: internalResolve } = Promise.withResolvers<Result>();
+    const resolve = (result: Result) => {
+      internalResolve(result);
+      this.manager.remove({ token });
+    };
+    const { token } = this.manager.insert(<TokenRevokeModal token={tokenRM} close={() => resolve("cancel")} done={(t) => resolve(t)} />);
     return promise;
   }
 }

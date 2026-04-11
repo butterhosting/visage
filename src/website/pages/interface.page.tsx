@@ -1,9 +1,15 @@
+import { TokenRM } from "@/models/TokenRM";
+import { Temporal } from "@js-temporal/polyfill";
 import { ReactNode, useEffect, useState } from "react";
 import { useSearchParams } from "react-router";
 import { codeToHtml } from "shiki";
+import { DialogClient } from "../clients/DialogClient";
+import { TokenClient } from "../clients/TokenClient";
 import { Paper } from "../comps/Paper";
 import { Skeleton } from "../comps/Skeleton";
 import { useDocumentTitle } from "../hooks/useDocumentTitle";
+import { useRegistry } from "../hooks/useRegistry";
+import { useYesQuery } from "../hooks/useYesQuery";
 
 enum Tab {
   example = "example",
@@ -11,7 +17,7 @@ enum Tab {
   tokens = "tokens",
 }
 
-export function apiPage() {
+export function interfacePage() {
   useDocumentTitle("API | Visage");
 
   const [params, setParams] = useSearchParams();
@@ -20,7 +26,7 @@ export function apiPage() {
   const setActiveTab = (tab: Tab) => setParams(tab === Tab.example ? {} : { tab }, { replace: true });
 
   return (
-    <Skeleton className="grid grid-cols-1 gap-5">
+    <Skeleton>
       <Paper>
         {/* Endpoint header */}
         <div className="p-8 pb-0 flex flex-col gap-5">
@@ -253,19 +259,79 @@ function ReferenceTab() {
 }
 
 function TokensTab() {
+  const tokenClient = useRegistry(TokenClient);
+  const dialogClient = useRegistry(DialogClient);
+  const { data: tokens, setData: setTokens, getData: getTokens } = useYesQuery({ queryFn: () => tokenClient.list() });
+
+  async function handleGenerate() {
+    const result = await dialogClient.tokenCreate();
+    if (typeof result === "object") {
+      setTokens([result, ...(getTokens() || [])]);
+    }
+  }
+
+  async function handleRevoke(token: TokenRM) {
+    const result = await dialogClient.tokenDelete(token);
+    if (typeof result === "object") {
+      setTokens((getTokens() || []).filter((t) => t.id !== result.id));
+    }
+  }
+
+  function formatDate(instant: Temporal.Instant) {
+    const zdt = instant.toZonedDateTimeISO("UTC");
+    return `${zdt.year}-${String(zdt.month).padStart(2, "0")}-${String(zdt.day).padStart(2, "0")}`;
+  }
+
+  function formatScope(websites: string[] | "*") {
+    if (websites === "*") return "All websites";
+    return `${websites.length} website${websites.length !== 1 ? "s" : ""}`;
+  }
+
   return (
     <div>
-      <p className="text-c-dark/60 mb-5 leading-relaxed">
-        Access tokens are required to authenticate with the API. Include the token as a Bearer token in the Authorization header.
-      </p>
-      <CodeBlock
-        lang="bash"
-        variant="compact"
-      >{`curl -H "Authorization: Bearer YOUR_TOKEN" "${window.location.origin}/api/stats?..."`}</CodeBlock>
-      <div className="mt-8">
-        <SectionHeading>YOUR TOKENS</SectionHeading>
-        <p className="text-c-dark/40 text-sm">Token management coming soon.</p>
-        {/* TODO: tokens */}
+      {tokens && tokens.length > 0 && (
+        <div className="rounded-xl border border-black/6 overflow-hidden">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="bg-black/2 text-left font-bold text-c-dark/40 tracking-wide">
+                <th className="px-5 py-3">ID</th>
+                <th className="px-5 py-3">Scope</th>
+                <th className="px-5 py-3">Created</th>
+                <th className="px-5 py-3">Last used</th>
+                <th className="px-5 py-3 w-24"></th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-black/4">
+              {tokens.map((token) => (
+                <tr key={token.id}>
+                  <td className="px-5 py-3">
+                    <code className="font-bold text-c-dark">{token.id}</code>
+                  </td>
+                  <td className="px-5 py-3 text-c-dark/60">{formatScope(token.websites)}</td>
+                  <td className="px-5 py-3 text-c-dark/60">{formatDate(token.created)}</td>
+                  <td className="px-5 py-3 text-c-dark/60">{token.lastUsed ? formatDate(token.lastUsed) : "Never"}</td>
+                  <td className="px-5 py-3 text-right">
+                    <button
+                      onClick={() => handleRevoke(token)}
+                      className="text-sm font-semibold text-red-400 hover:text-red-600 cursor-pointer transition-colors"
+                    >
+                      Revoke
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      <div className="mt-6 flex justify-center">
+        <button
+          onClick={handleGenerate}
+          className="px-4 py-2 rounded-lg text-sm font-semibold bg-c-primary text-white cursor-pointer hover:bg-c-primary/90 transition-colors"
+        >
+          Generate token
+        </button>
       </div>
     </div>
   );

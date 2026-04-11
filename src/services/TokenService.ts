@@ -28,7 +28,7 @@ export class TokenService {
         id: Token.generateId(),
         object: "token_internal",
         created: Temporal.Now.instant(),
-        websites,
+        websiteIds: websites,
         secretHash,
         secretPlain,
       });
@@ -65,7 +65,7 @@ export class TokenService {
       id: token.id,
       object: "token",
       created: token.created,
-      websites: token.websites,
+      websites: token.websiteIds,
       lastUsed: token.lastUsed,
       value: token.secretPlain ? Token.combine(token.id, token.secretPlain) : undefined,
     };

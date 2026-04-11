@@ -5,7 +5,7 @@ export type Token = {
   id: string;
   object: "token_internal";
   created: Temporal.Instant;
-  websites: string[] | "*";
+  websiteIds: string[] | "*";
   lastUsed?: Temporal.Instant;
   secretHash: string;
   secretPlain?: string;

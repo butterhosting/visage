@@ -16,7 +16,7 @@ export namespace TokenConverter {
     return {
       id: model.id,
       created: model.created?.toString(),
-      websites: model.websites === "*" ? "*" : model.websites.join(","),
+      websiteIds: model.websiteIds === "*" ? "*" : model.websiteIds.join(","),
       lastUsed: model.lastUsed?.toString() ?? null,
       secretHash: model.secretHash,
     };
@@ -27,7 +27,7 @@ export namespace TokenConverter {
       id: db.id,
       object: "token_internal",
       created: Temporal.Instant.from(db.created),
-      websites: db.websites === "*" ? "*" : db.websites.split(","),
+      websiteIds: db.websiteIds === "*" ? "*" : db.websiteIds.split(","),
       lastUsed: db.lastUsed ? Temporal.Instant.from(db.lastUsed) : undefined,
       secretHash: db.secretHash,
     };
