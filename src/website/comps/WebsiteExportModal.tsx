@@ -1,5 +1,6 @@
 import { Artifact } from "@/models/Artifact";
 import { Website } from "@/models/Website";
+import clsx from "clsx";
 import { useState } from "react";
 import { WebsiteClient } from "../clients/WebsiteClient";
 import { Period } from "../femodels/Period";
@@ -7,7 +8,6 @@ import { useRegistry } from "../hooks/useRegistry";
 import { Button } from "./Button";
 import { PeriodPicker } from "./dashboard/PeriodPicker";
 import { Modal } from "./Modal";
-import { Spinner } from "./Spinner";
 
 type Props = {
   website: Website;
@@ -17,15 +17,16 @@ type Props = {
 export function WebsiteExportModal({ website, close, done }: Props) {
   const websiteClient = useRegistry(WebsiteClient);
   const [period, setPeriod] = useState(Period.forPreset(Period.Preset.all));
+  const [artifact, setArtifact] = useState<Artifact.Enum>(Artifact.Enum.analytics);
   const [error, setError] = useState<string>();
   const [busy, setBusy] = useState(false);
 
-  async function handleSelect(artifact: Artifact.Enum) {
+  async function handleDownload() {
     let objectUrl: string | undefined;
     try {
       setError(undefined);
       setBusy(true);
-      const blob = await websiteClient.export(website.id, artifact);
+      const blob = await websiteClient.export(website.id, artifact, { from: period.from, to: period.to });
       objectUrl = URL.createObjectURL(blob);
       const anchor = Object.assign(document.createElement("a"), {
         href: objectUrl,
@@ -47,34 +48,41 @@ export function WebsiteExportModal({ website, close, done }: Props) {
     <Modal isOpen issueCloseRequestWhenClickingBackdrop onCloseRequest={() => !busy && close()} className="p-6 overflow-visible">
       <div className="flex flex-col gap-5">
         <PeriodPicker period={period} onChange={setPeriod} className="self-start" />
-        <div className="mt-4 flex flex-col gap-2">
-          {Object.values(Artifact.Enum).map((artifact) => (
-            <button
-              key={artifact}
-              onClick={() => handleSelect(artifact)}
-              disabled={busy}
-              className="flex items-center gap-3 px-4 py-3 rounded-lg border border-black/10 hover:border-c-accent/30 hover:bg-c-accent/5 cursor-pointer transition-colors text-left disabled:opacity-40 disabled:pointer-events-none"
-            >
-              <span className="font-mono">{Artifact.filename(artifact, website.hostname)}</span>
-              <span className="text-xs text-c-dark-half ml-auto">
-                {artifact === Artifact.Enum.analytics ? "Normal traffic" : "Bot traffic"}
-                {/* TODO: bit more consistent if we use buttons here as well ... now its just a floating "cancel" without any purple CTA button */}
-              </span>
-            </button>
-          ))}
+        <div className="flex flex-col gap-2">
+          {Object.values(Artifact.Enum).map((option) => {
+            const selected = option === artifact;
+            return (
+              <label
+                key={option}
+                className={clsx(
+                  "flex items-center gap-3 px-4 py-3 rounded-lg border cursor-pointer transition-colors",
+                  selected ? "border-c-accent bg-c-accent/5" : "border-black/10 hover:border-c-accent/30 hover:bg-c-accent/5",
+                )}
+              >
+                <input
+                  type="radio"
+                  checked={selected}
+                  onChange={() => setArtifact(option)}
+                  disabled={busy}
+                  className="size-4 accent-c-accent"
+                />
+                <span className="font-mono">{Artifact.filename(option, website.hostname)}</span>
+                <span className="text-xs text-c-dark-half ml-auto">
+                  {option === Artifact.Enum.analytics ? "Normal traffic" : "Bot traffic"}
+                </span>
+              </label>
+            );
+          })}
         </div>
         {error && <pre className="text-sm text-c-error whitespace-pre-wrap">{error}</pre>}
-        {busy ? (
-          <div className="mt-4 flex justify-end">
-            <Spinner />
-          </div>
-        ) : (
-          <div className="mt-4 flex justify-end">
-            <Button variant="ghost" theme="neutral" onClick={close}>
-              Cancel
-            </Button>
-          </div>
-        )}
+        <div className="flex justify-end gap-3">
+          <Button variant="ghost" theme="neutral" onClick={close} disabled={busy}>
+            Cancel
+          </Button>
+          <Button onClick={handleDownload} loading={busy}>
+            Download
+          </Button>
+        </div>
       </div>
     </Modal>
   );

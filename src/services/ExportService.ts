@@ -8,7 +8,7 @@ import { Artifact } from "@/models/Artifact";
 import { AnalyticsEventConverter } from "@/drizzle/converters/AnalyticsEventConverter";
 import { WebsiteRepository } from "@/repositories/WebsiteRepository";
 import { Temporal } from "@js-temporal/polyfill";
-import { and, eq, gt, SQL } from "drizzle-orm";
+import { and, eq, gt, gte, lt, SQL } from "drizzle-orm";
 import { z } from "zod/v4";
 
 export class ExportService {
@@ -59,10 +59,11 @@ export class ExportService {
     { artifact, from, to }: z.output<typeof ExportService.Export>,
     cursor?: string,
   ): Promise<Array<{ id: string; event: AnalyticsEvent }>> {
-    // TODO: implement `from/to` filtering ... will need a `created` column on the bots traffic as well ...
     switch (artifact) {
       case Artifact.Enum.analytics: {
         const where: SQL[] = [eq($analyticsEvent.websiteId, websiteId)];
+        if (from !== undefined) where.push(gte($analyticsEvent.created, from.toString()));
+        if (to !== undefined) where.push(lt($analyticsEvent.created, to.toString()));
         if (cursor) {
           where.push(gt($analyticsEvent.id, cursor));
         }
@@ -76,6 +77,8 @@ export class ExportService {
       }
       case Artifact.Enum.bots: {
         const where: SQL[] = [eq($botEvent.websiteId, websiteId)];
+        if (from !== undefined) where.push(gte($botEvent.created, from.toString()));
+        if (to !== undefined) where.push(lt($botEvent.created, to.toString()));
         if (cursor) {
           where.push(gt($botEvent.id, cursor));
         }

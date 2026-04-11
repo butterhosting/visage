@@ -11,7 +11,7 @@ import { TimeSeries } from "@/models/TimeSeries";
 import { Website } from "@/models/Website";
 import { WebsiteRepository } from "@/repositories/WebsiteRepository";
 import { Temporal } from "@js-temporal/polyfill";
-import { and, between, count, desc, eq, gte, isNull, lte, max, min, sql, SQL } from "drizzle-orm";
+import { and, count, desc, eq, gte, isNull, lt, max, min, sql, SQL } from "drizzle-orm";
 import { SQLiteColumn } from "drizzle-orm/sqlite-core";
 import { TokenService } from "./TokenService";
 
@@ -66,7 +66,7 @@ export class StatsService {
     if (q.fields?.includes(Stats.Field.livePageviewsTotal)) {
       const to = Temporal.Now.instant();
       const from = to.subtract({ minutes: 10 });
-      stats.livePageviewsTotal = await this.count([baseWhere, between($analyticsEvent.created, from.toString(), to.toString())]);
+      stats.livePageviewsTotal = await this.count([baseWhere, gte($analyticsEvent.created, from.toString()), lt($analyticsEvent.created, to.toString())]);
     }
     if (q.fields?.includes(Stats.Field.visitorsTimeSeries)) {
       stats.visitorsTimeSeries = await this.timeSeries([...queryWhere, eq($analyticsEvent.isVisitor, true)], q, "visitor");
@@ -137,7 +137,7 @@ export class StatsService {
       where.push(gte($analyticsEvent.created, q.from.toString()));
     }
     if (q.to !== undefined) {
-      where.push(lte($analyticsEvent.created, q.to.toString()));
+      where.push(lt($analyticsEvent.created, q.to.toString()));
     }
     if (q.page !== undefined) {
       where.push(eq($analyticsEvent.urlPath, q.page));

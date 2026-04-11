@@ -1,6 +1,7 @@
 import { Artifact } from "@/models/Artifact";
 import { Website } from "@/models/Website";
 import { WebsiteRM } from "@/models/WebsiteRM";
+import { Temporal } from "@js-temporal/polyfill";
 import { Yesttp } from "yesttp";
 
 export class WebsiteClient {
@@ -31,9 +32,9 @@ export class WebsiteClient {
     return WebsiteRM.parse(json);
   }
 
-  public async export(ref: string, artifact: Artifact.Enum): Promise<Blob> {
+  public async export(ref: string, artifact: Artifact.Enum, range: { from?: Temporal.Instant; to?: Temporal.Instant }): Promise<Blob> {
     const { blob } = await this.yesttp.post(`/websites/${ref}/export`, {
-      body: { artifact },
+      body: { artifact, from: range.from?.toString(), to: range.to?.toString() },
       responseType: "blob",
     });
     return blob;

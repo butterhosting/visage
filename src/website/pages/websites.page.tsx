@@ -36,20 +36,11 @@ export function websitesPage() {
         }
         return (
           <button key="new" onClick={handleCreate} className="group cursor-pointer">
-            <Paper className="h-full flex items-center justify-center group-hover:shadow-xl ">
-              <svg
-                width="32"
-                height="32"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                className="text-c-dark-half"
-              >
+            <Paper className="h-full flex flex-col items-center justify-center gap-3 group-hover:shadow-xl text-c-dark-half group-hover:text-c-accent transition-colors">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
                 <path d="M12 5v14M5 12h14" />
               </svg>
-              {/* TODO: add a small text here with `add website` */}
+              <span className="text-sm">add website</span>
             </Paper>
           </button>
         );
