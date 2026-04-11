@@ -14,7 +14,7 @@ export class TokenClient {
     return TokenRM.parse(json);
   }
 
-  public async revoke(id: string): Promise<TokenRM> {
+  public async delete(id: string): Promise<TokenRM> {
     const { json } = await this.yesttp.delete(`/tokens/${id}`);
     return TokenRM.parse(json);
   }

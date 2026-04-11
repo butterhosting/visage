@@ -195,7 +195,7 @@ export class Server {
         },
         "/internal-api/tokens/:id": {
           DELETE: this.handleRoute(async ({ params }) => {
-            const token: TokenRM = await this.tokenService.revoke(params.id);
+            const token: TokenRM = await this.tokenService.delete(params.id);
             return Response.json(token);
           }),
         },

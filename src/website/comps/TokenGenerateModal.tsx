@@ -56,116 +56,117 @@ export function TokenGenerateModal({ close, done }: Props) {
       close();
     }
   };
+
+  if (generatedToken) {
+    return (
+      <Modal isOpen issueCloseRequestWhenClickingBackdrop onCloseRequest={handleCloseRequest} className="p-6">
+        <div className="flex flex-col gap-5">
+          <p className="text-c-dark/60">Please copy your access token below.</p>
+          <div className="relative group">
+            <button
+              onClick={() => {
+                navigator.clipboard.writeText(generatedToken.value!);
+                setCopied(true);
+                setTimeout(() => setCopied(false), 1500);
+              }}
+              className="absolute top-1/2 -translate-y-1/2 right-2.5 z-10 p-1.5 rounded-md bg-white/10 text-c-dark/30 hover:text-c-dark/70 hover:bg-black/5 opacity-0 group-hover:opacity-100 transition-all cursor-pointer"
+            >
+              {copied ? (
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+              ) : (
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <rect width="14" height="14" x="8" y="8" rx="2" />
+                  <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
+                </svg>
+              )}
+            </button>
+            <code className="block px-3 py-2.5 rounded-lg bg-black/4 font-mono text-c-dark break-all select-all">
+              {generatedToken.value}
+            </code>
+          </div>
+          <div className="flex justify-end">
+            <button
+              onClick={() => done(generatedToken)}
+              className="px-4 py-2 rounded-lg font-semibold text-c-dark/50 hover:text-c-dark cursor-pointer transition-colors"
+            >
+              Done
+            </button>
+          </div>
+        </div>
+      </Modal>
+    );
+  }
   return (
     <Modal isOpen issueCloseRequestWhenClickingBackdrop onCloseRequest={handleCloseRequest} className="p-6">
       <div className="flex flex-col gap-5">
-        <h2 className="text-lg font-bold text-c-dark">Generate token</h2>
+        <p className="text-c-dark/60">Which websites should this token have access to?</p>
+        <div className="flex flex-col gap-3">
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input type="radio" checked={scope === "all"} onChange={() => setScope("all")} className="accent-c-primary" />
+            <span className="text-c-dark">All websites</span>
+          </label>
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input type="radio" checked={scope === "specific"} onChange={() => setScope("specific")} className="accent-c-primary" />
+            <span className="text-c-dark">Specific websites</span>
+          </label>
 
-        {generatedToken ? (
-          <>
-            <div className="relative group">
-              <button
-                onClick={() => {
-                  navigator.clipboard.writeText(generatedToken.value!);
-                  setCopied(true);
-                  setTimeout(() => setCopied(false), 1500);
-                }}
-                className="absolute top-1/2 -translate-y-1/2 right-2.5 z-10 p-1.5 rounded-md bg-white/10 text-c-dark/30 hover:text-c-dark/70 hover:bg-black/5 opacity-0 group-hover:opacity-100 transition-all cursor-pointer"
-              >
-                {copied ? (
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <polyline points="20 6 9 17 4 12" />
-                  </svg>
-                ) : (
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <rect width="14" height="14" x="8" y="8" rx="2" />
-                    <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
-                  </svg>
-                )}
-              </button>
-              <code className="block px-3 py-2.5 rounded-lg bg-black/4 font-mono text-c-dark break-all select-all">
-                {generatedToken.value}
-              </code>
+          {scope === "specific" && (
+            <div className="ml-6 flex flex-col gap-1.5 max-h-48 overflow-y-auto">
+              {websites?.map((w: WebsiteRM) => (
+                <label key={w.id} className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={selectedIds.has(w.id)}
+                    onChange={() => toggleWebsite(w.id)}
+                    className="accent-c-primary"
+                  />
+                  <span className="text-c-dark">{w.hostname}</span>
+                </label>
+              ))}
+              {websites?.length === 0 && <span className="text-c-dark/40">No websites found</span>}
             </div>
-            <div className="flex justify-end">
-              <button
-                onClick={() => done(generatedToken)}
-                className="px-4 py-2 rounded-lg font-semibold text-c-dark/50 hover:text-c-dark cursor-pointer transition-colors"
-              >
-                Done
-              </button>
-            </div>
-          </>
-        ) : (
-          <>
-            <div className="flex flex-col gap-3">
-              <p className="text-c-dark/60">Which websites should this token have access to?</p>
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input type="radio" checked={scope === "all"} onChange={() => setScope("all")} className="accent-c-primary" />
-                <span className="text-c-dark">All websites</span>
-              </label>
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input type="radio" checked={scope === "specific"} onChange={() => setScope("specific")} className="accent-c-primary" />
-                <span className="text-c-dark">Specific websites</span>
-              </label>
+          )}
+        </div>
 
-              {scope === "specific" && (
-                <div className="ml-6 flex flex-col gap-1.5 max-h-48 overflow-y-auto">
-                  {websites?.map((w: WebsiteRM) => (
-                    <label key={w.id} className="flex items-center gap-2 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={selectedIds.has(w.id)}
-                        onChange={() => toggleWebsite(w.id)}
-                        className="accent-c-primary"
-                      />
-                      <span className="text-c-dark">{w.hostname}</span>
-                    </label>
-                  ))}
-                  {websites?.length === 0 && <span className="text-c-dark/40">No websites found</span>}
-                </div>
-              )}
-            </div>
-
-            {error && <pre className="text-red-500 whitespace-pre-wrap">{error}</pre>}
-            <div className="flex justify-end gap-3">
-              <button
-                onClick={close}
-                disabled={busy}
-                className="px-4 py-2 rounded-lg font-semibold text-c-dark/50 hover:text-c-dark cursor-pointer transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleGenerate}
-                disabled={!canSubmit || busy}
-                className="px-4 py-2 rounded-lg font-semibold bg-c-primary text-white cursor-pointer hover:bg-c-primary/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-              >
-                Generate
-              </button>
-            </div>
-          </>
-        )}
+        {error && <pre className="text-red-500 whitespace-pre-wrap">{error}</pre>}
+        <div className="flex justify-end gap-3">
+          <button
+            onClick={close}
+            disabled={busy}
+            className="px-4 py-2 rounded-lg font-semibold text-c-dark/50 hover:text-c-dark cursor-pointer transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleGenerate}
+            disabled={!canSubmit || busy}
+            className="px-4 py-2 rounded-lg font-semibold bg-c-primary text-white cursor-pointer hover:bg-c-primary/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            Generate
+          </button>
+        </div>
       </div>
     </Modal>
   );

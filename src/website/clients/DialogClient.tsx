@@ -4,7 +4,7 @@ import { WebsiteRM } from "@/models/WebsiteRM";
 import { PeriodModal } from "../comps/dashboard/PeriodModal";
 import { DialogManager } from "../comps/DialogManager";
 import { TokenGenerateModal } from "../comps/TokenGenerateModal";
-import { TokenRevokeModal } from "../comps/TokenRevokeModal";
+import { TokenDeleteModal } from "../comps/TokenDeleteModal";
 import { WebsiteDeleteModal } from "../comps/WebsiteDeleteModal";
 import { WebsiteExportModal } from "../comps/WebsiteExportModal";
 import { WebsiteModal } from "../comps/WebsiteModal";
@@ -101,7 +101,7 @@ export class DialogClient {
       internalResolve(result);
       this.manager.remove({ token });
     };
-    const { token } = this.manager.insert(<TokenRevokeModal token={tokenRM} close={() => resolve("cancel")} done={(t) => resolve(t)} />);
+    const { token } = this.manager.insert(<TokenDeleteModal token={tokenRM} close={() => resolve("cancel")} done={(t) => resolve(t)} />);
     return promise;
   }
 }

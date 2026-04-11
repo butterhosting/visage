@@ -52,7 +52,7 @@ export class TokenService {
     return undefined;
   }
 
-  public async revoke(id: string): Promise<TokenRM> {
+  public async delete(id: string): Promise<TokenRM> {
     const token = await this.tokenRepository.delete(id);
     if (!token) {
       throw TokenError.not_found({ id });
