@@ -46,6 +46,7 @@ export class TokenService {
     if (token && secret) {
       const incomingHash = createHash("sha256").update(secret, "utf8").digest("hex");
       if (incomingHash === token.secretHash) {
+        await this.tokenRepository.recordUsage(id);
         return this.convert(token);
       }
     }

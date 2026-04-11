@@ -56,6 +56,7 @@ export class WebsiteService {
   }
 
   public async delete(ref: string): Promise<WebsiteRM> {
+    // TODO: message event to the TokenService --- might need to update its array of websites
     const website = await this.find(ref);
     await this.websiteRepository.delete(website.id);
     return website;

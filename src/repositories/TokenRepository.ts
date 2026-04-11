@@ -2,6 +2,7 @@ import { TokenConverter } from "@/drizzle/converters/TokenConverter";
 import { Sqlite } from "@/drizzle/sqlite";
 import { $token } from "@/drizzle/tables/$token";
 import { Token } from "@/models/Token";
+import { Temporal } from "@js-temporal/polyfill";
 import { eq } from "drizzle-orm";
 
 export class TokenRepository {
@@ -12,16 +13,27 @@ export class TokenRepository {
     return tokens.map(TokenConverter.convert);
   }
 
+  public async find(id: string): Promise<Token | undefined> {
+    const token = await this.sqlite.query.$token.findFirst({
+      where: eq($token.id, id),
+    });
+    return token ? TokenConverter.convert(token) : undefined;
+  }
+
   public async create(token: Token): Promise<Token | undefined> {
     // TODO: return undefined if we get an primary key unique violation
     await this.sqlite.insert($token).values(TokenConverter.convert(token));
     return token;
   }
 
-  public async find(id: string): Promise<Token | undefined> {
-    const token = await this.sqlite.query.$token.findFirst({
-      where: eq($token.id, id),
-    });
+  public async recordUsage(id: string): Promise<Token | undefined> {
+    const [token] = await this.sqlite
+      .update($token)
+      .set({
+        lastUsed: Temporal.Now.instant().toString(),
+      })
+      .where(eq($token.id, id))
+      .returning();
     return token ? TokenConverter.convert(token) : undefined;
   }
 

@@ -53,7 +53,7 @@ export function interfacePage() {
         </div>
 
         {/* Tab content */}
-        <div className="p-8">
+        <div className="p-8 overflow-x-auto">
           {activeTab === Tab.example && <ExampleTab />}
           {activeTab === Tab.reference && <ReferenceTab />}
           {activeTab === Tab.tokens && <TokensTab />}

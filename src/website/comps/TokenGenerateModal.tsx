@@ -61,7 +61,7 @@ export function TokenGenerateModal({ close, done }: Props) {
     return (
       <Modal isOpen issueCloseRequestWhenClickingBackdrop onCloseRequest={handleCloseRequest} className="p-6">
         <div className="flex flex-col gap-5">
-          <p className="text-c-dark/60">Please copy your access token below.</p>
+          <p className="text-c-dark/60">Please find your access token below.</p>
           <div className="relative group">
             <button
               onClick={() => {
@@ -122,7 +122,7 @@ export function TokenGenerateModal({ close, done }: Props) {
               onClick={() => done(generatedToken)}
               className="px-4 py-2 rounded-lg font-semibold text-c-dark/50 hover:text-c-dark cursor-pointer transition-colors"
             >
-              Done
+              Close
             </button>
           </div>
         </div>

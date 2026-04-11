@@ -42,28 +42,28 @@ export function settingsPage() {
     <Skeleton>
       <Paper>
         {websites?.map((website) => (
-          <div key={website.id} className="flex items-center gap-4 px-6 py-4">
-            <div className="flex-1 min-w-0">
-              <span className="font-bold text-c-dark">{website.hostname}</span>
+          <div key={website.id} className="flex sm:flex-col items-center sm:items-start gap-4 px-6 py-4">
+            <span className="flex-1 font-bold text-c-dark">{website.hostname}</span>
+            <div className="flex gap-4 items-center">
+              <button
+                onClick={() => performExport(website)}
+                className="px-4 py-2 rounded-lg text-sm font-semibold border border-black/10 text-c-primary hover:text-c-dark hover:border-c-primary/30 hover:bg-c-primary/5 cursor-pointer transition-colors"
+              >
+                Export
+              </button>
+              <button
+                onClick={() => performUpdate(website)}
+                className="px-4 py-2 rounded-lg text-sm font-semibold border border-black/10 text-c-dark/60 hover:text-c-dark hover:border-c-primary/30 hover:bg-c-primary/5 cursor-pointer transition-colors"
+              >
+                Update
+              </button>
+              <button
+                onClick={() => performDelete(website)}
+                className="px-4 py-2 rounded-lg text-sm font-semibold border border-black/10 text-red-400 hover:text-red-600 hover:border-red-300 hover:bg-red-50 cursor-pointer transition-colors"
+              >
+                Delete
+              </button>
             </div>
-            <button
-              onClick={() => performExport(website)}
-              className="px-4 py-2 rounded-lg text-sm font-semibold border border-black/10 text-c-primary hover:text-c-dark hover:border-c-primary/30 hover:bg-c-primary/5 cursor-pointer transition-colors"
-            >
-              Export
-            </button>
-            <button
-              onClick={() => performUpdate(website)}
-              className="px-4 py-2 rounded-lg text-sm font-semibold border border-black/10 text-c-dark/60 hover:text-c-dark hover:border-c-primary/30 hover:bg-c-primary/5 cursor-pointer transition-colors"
-            >
-              Update
-            </button>
-            <button
-              onClick={() => performDelete(website)}
-              className="px-4 py-2 rounded-lg text-sm font-semibold border border-black/10 text-red-400 hover:text-red-600 hover:border-red-300 hover:bg-red-50 cursor-pointer transition-colors"
-            >
-              Delete
-            </button>
           </div>
         ))}
         {websites?.length === 0 && (
