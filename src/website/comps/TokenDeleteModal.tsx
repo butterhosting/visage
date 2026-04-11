@@ -2,8 +2,8 @@ import { TokenRM } from "@/models/TokenRM";
 import { useState } from "react";
 import { TokenClient } from "../clients/TokenClient";
 import { useRegistry } from "../hooks/useRegistry";
+import { Button } from "./Button";
 import { Modal } from "./Modal";
-import { Spinner } from "./Spinner";
 
 type Props = {
   token: TokenRM;
@@ -35,26 +35,14 @@ export function TokenDeleteModal({ token, close, done }: Props) {
           access immediately.
         </p>
         {error && <pre className="text-c-error whitespace-pre-wrap">{error}</pre>}
-        {busy ? (
-          <div className="flex justify-end">
-            <Spinner />
-          </div>
-        ) : (
-          <div className="flex justify-end gap-3">
-            <button
-              onClick={close}
-              className="px-4 py-2 rounded-lg font-semibold text-c-dark-half hover:text-c-dark-full cursor-pointer transition-colors"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={handleDelete}
-              className="px-4 py-2 rounded-lg font-semibold bg-c-error text-white cursor-pointer hover:bg-c-error transition-colors"
-            >
-              Delete
-            </button>
-          </div>
-        )}
+        <div className="flex justify-end gap-3">
+          <Button variant="ghost" theme="neutral" onClick={close} disabled={busy}>
+            Cancel
+          </Button>
+          <Button theme="error" onClick={handleDelete} loading={busy}>
+            Delete
+          </Button>
+        </div>
       </div>
     </Modal>
   );

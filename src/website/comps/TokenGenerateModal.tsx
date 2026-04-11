@@ -5,6 +5,7 @@ import { TokenClient } from "../clients/TokenClient";
 import { WebsiteClient } from "../clients/WebsiteClient";
 import { useRegistry } from "../hooks/useRegistry";
 import { useYesQuery } from "../hooks/useYesQuery";
+import { Button } from "./Button";
 import { Modal } from "./Modal";
 
 type Props = {
@@ -118,12 +119,9 @@ export function TokenGenerateModal({ close, done }: Props) {
             </li>
           </ul>
           <div className="flex justify-end">
-            <button
-              onClick={() => done(generatedToken)}
-              className="px-4 py-2 rounded-lg font-semibold text-c-dark-half hover:text-c-dark-full cursor-pointer transition-colors"
-            >
+            <Button variant="ghost" theme="neutral" onClick={() => done(generatedToken)}>
               Close
-            </button>
+            </Button>
           </div>
         </div>
       </Modal>
@@ -158,20 +156,12 @@ export function TokenGenerateModal({ close, done }: Props) {
 
         {error && <pre className="text-c-error whitespace-pre-wrap">{error}</pre>}
         <div className="flex justify-end gap-3">
-          <button
-            onClick={close}
-            disabled={busy}
-            className="px-4 py-2 rounded-lg font-semibold text-c-dark-half hover:text-c-dark-full cursor-pointer transition-colors"
-          >
+          <Button variant="ghost" theme="neutral" onClick={close} disabled={busy}>
             Cancel
-          </button>
-          <button
-            onClick={handleGenerate}
-            disabled={!canSubmit || busy}
-            className="px-4 py-2 rounded-lg font-semibold bg-c-accent text-white cursor-pointer hover:bg-c-accent/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-          >
+          </Button>
+          <Button onClick={handleGenerate} disabled={!canSubmit} loading={busy}>
             Generate
-          </button>
+          </Button>
         </div>
       </div>
     </Modal>

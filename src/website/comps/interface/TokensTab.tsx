@@ -1,5 +1,6 @@
 import { Prettify } from "@/helpers/Prettify";
 import { TokenRM } from "@/models/TokenRM";
+import { Button } from "@/website/comps/Button";
 import { DialogClient } from "@/website/clients/DialogClient";
 import { TokenClient } from "@/website/clients/TokenClient";
 import { WebsiteClient } from "@/website/clients/WebsiteClient";
@@ -58,12 +59,9 @@ export function TokensTab() {
                   {/* TODO: timezone */}
                   <td className="px-5 py-3 text-c-dark-half">{token.lastUsed ? Prettify.timestamp(token.lastUsed, "UTC") : "Never"}</td>
                   <td className="px-5 py-3 text-right">
-                    <button
-                      onClick={() => handleDelete(token)}
-                      className="text-sm font-semibold text-c-error/80 hover:text-c-error cursor-pointer transition-colors"
-                    >
+                    <Button variant="ghost" theme="error" onClick={() => handleDelete(token)} className="px-0 py-0">
                       Delete
-                    </button>
+                    </Button>
                   </td>
                 </tr>
               ))}
@@ -72,12 +70,7 @@ export function TokensTab() {
         </div>
       )}
       <div className={clsx("flex justify-center", tokens?.length && "mt-6")}>
-        <button
-          onClick={handleGenerate}
-          className="px-4 py-2 rounded-lg text-sm font-semibold bg-c-accent text-white cursor-pointer hover:bg-c-accent/90 transition-colors"
-        >
-          Generate token
-        </button>
+        <Button onClick={handleGenerate}>Generate token</Button>
       </div>
     </div>
   );

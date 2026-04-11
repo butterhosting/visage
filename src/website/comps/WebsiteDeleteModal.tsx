@@ -2,8 +2,8 @@ import { Website } from "@/models/Website";
 import { useState } from "react";
 import { WebsiteClient } from "../clients/WebsiteClient";
 import { useRegistry } from "../hooks/useRegistry";
+import { Button } from "./Button";
 import { Modal } from "./Modal";
-import { Spinner } from "./Spinner";
 import { WebsiteRM } from "@/models/WebsiteRM";
 
 type Props = {
@@ -45,27 +45,14 @@ export function WebsiteDeleteModal({ website, close, done }: Props) {
           className="px-3 py-2 rounded-lg border border-black/10 text-sm focus:outline-none focus:border-c-accent"
         />
         {error && <pre className="text-sm text-c-error whitespace-pre-wrap">{error}</pre>}
-        {busy ? (
-          <div className="flex justify-end">
-            <Spinner />
-          </div>
-        ) : (
-          <div className="flex justify-end gap-3">
-            <button
-              onClick={close}
-              className="px-4 py-2 rounded-lg text-sm font-semibold text-c-dark-half hover:text-c-dark-full cursor-pointer transition-colors"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={handleDelete}
-              disabled={input !== website.hostname}
-              className="px-4 py-2 rounded-lg text-sm font-semibold bg-c-error text-white cursor-pointer hover:bg-c-error transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-            >
-              Delete
-            </button>
-          </div>
-        )}
+        <div className="flex justify-end gap-3">
+          <Button variant="ghost" theme="neutral" onClick={close} disabled={busy}>
+            Cancel
+          </Button>
+          <Button theme="error" onClick={handleDelete} disabled={input !== website.hostname} loading={busy}>
+            Delete
+          </Button>
+        </div>
       </div>
     </Modal>
   );
