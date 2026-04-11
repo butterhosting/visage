@@ -6,7 +6,7 @@ import { StatsClient } from "../clients/StatsClient";
 import { WebsiteClient } from "../clients/WebsiteClient";
 import { ActiveFiltersBar } from "../comps/dashboard/ActiveFiltersBar";
 import { DistributionPanel } from "../comps/dashboard/DistributionPanel";
-import { PeriodDropdown } from "../comps/dashboard/PeriodDropdown";
+import { PeriodPicker } from "../comps/dashboard/PeriodPicker";
 import { TimeSeriesChart } from "../comps/dashboard/TimeSeriesChart";
 import { Paper } from "../comps/Paper";
 import { Skeleton } from "../comps/Skeleton";
@@ -192,7 +192,7 @@ export function websites$refPage() {
       {/* Chart + filters */}
       <Paper className="rounded-t-none">
         <div className="mt-6 px-6 pb-5 flex items-start gap-3 flex-wrap">
-          <PeriodDropdown period={period} onChange={setPeriod} />
+          <PeriodPicker period={period} onChange={setPeriod} />
           <ActiveFiltersBar period={period} filters={filters} toggle={toggleFilter} reset={() => resetPeriodAndFilters()} />
         </div>
         <div className="mt-6 px-6">

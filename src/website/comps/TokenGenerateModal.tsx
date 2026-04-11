@@ -106,6 +106,17 @@ export function TokenGenerateModal({ close, done }: Props) {
               {generatedToken.value}
             </code>
           </div>
+          <p className="text-c-dark/60">
+            When interacting with the API, use it in the Authorization header either as a bearer token or as a basic auth password:
+          </p>
+          <ul className="text-c-dark/60 list list-disc list-inside">
+            <li>
+              <code className="px-1.5 py-0.5 rounded-md text-c-primary bg-c-dark/6 text-[0.92em]">Authorization: Bearer TOKEN</code>
+            </li>
+            <li>
+              <code className="px-1.5 py-0.5 rounded-md text-c-primary bg-c-dark/6 text-[0.92em]">Authorization: Basic b64(:TOKEN)</code>
+            </li>
+          </ul>
           <div className="flex justify-end">
             <button
               onClick={() => done(generatedToken)}

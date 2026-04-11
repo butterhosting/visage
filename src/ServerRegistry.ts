@@ -2,7 +2,7 @@ import { Class } from "@/types/Class";
 import { Sqlite } from "./drizzle/sqlite";
 import { Env } from "./Env";
 import { BasicAuthMiddleware } from "./middleware/basicauth/BasicAuthMiddleware";
-import { LoggingMiddleware } from "./middleware/basicauth/LoggingMiddleware";
+import { LoggingMiddleware } from "./middleware/logging/LoggingMiddleware";
 import { Middleware } from "./middleware/Middleware";
 import { AnalyticsEventRepository } from "./repositories/AnalyticsEventRepository";
 import { TokenRepository } from "./repositories/TokenRepository";

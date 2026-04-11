@@ -10,7 +10,8 @@ type Props = {
   onChange: (period: Period) => void;
   className?: string;
 };
-export function PeriodDropdown({ period, onChange, className }: Props) {
+export function PeriodPicker({ period, onChange, className }: Props) {
+  // TODO: redo this component ... it may open in awkward directions and is not mobile friendly
   const [open, setOpen] = useState(false);
   const dialogClient = useRegistry(DialogClient);
   const ref = useRef<HTMLDivElement>(null);

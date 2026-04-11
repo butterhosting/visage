@@ -4,7 +4,7 @@ import { useState } from "react";
 import { WebsiteClient } from "../clients/WebsiteClient";
 import { Period } from "../femodels/Period";
 import { useRegistry } from "../hooks/useRegistry";
-import { PeriodDropdown } from "./dashboard/PeriodDropdown";
+import { PeriodPicker } from "./dashboard/PeriodPicker";
 import { Modal } from "./Modal";
 import { Spinner } from "./Spinner";
 
@@ -45,7 +45,7 @@ export function WebsiteExportModal({ website, close, done }: Props) {
   return (
     <Modal isOpen issueCloseRequestWhenClickingBackdrop onCloseRequest={() => !busy && close()} className="p-6 overflow-visible">
       <div className="flex flex-col gap-5">
-        <PeriodDropdown period={period} onChange={setPeriod} className="self-start" />
+        <PeriodPicker period={period} onChange={setPeriod} className="self-start" />
         <div className="mt-4 flex flex-col gap-2">
           {Object.values(Artifact.Enum).map((artifact) => (
             <button
