@@ -7,7 +7,7 @@ export type TokenRM = {
   id: string;
   object: "token";
   created: Temporal.Instant;
-  websites: string[] | "*";
+  websiteIds: string[] | "*";
   lastUsed?: Temporal.Instant;
   value?: string;
 };
@@ -19,7 +19,7 @@ export namespace TokenRM {
         id: z.string(),
         object: z.literal("token"),
         created: z.string().transform((t) => Temporal.Instant.from(t)),
-        websites: z.union([z.literal("*"), z.array(z.string())]),
+        websiteIds: z.union([z.literal("*"), z.array(z.string())]),
         lastUsed: z
           .string()
           .transform((t) => Temporal.Instant.from(t))

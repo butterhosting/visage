@@ -1,11 +1,8 @@
 import { Env } from "@/Env";
 import { ServerError } from "@/errors/ServerError";
+import { AuthHelper } from "@/helpers/AuthHelper";
+import { Credentials } from "@/models/Credentials";
 import { MiddlewareHandler } from "../MiddlewareHandler";
-
-type Credentials = {
-  username: string;
-  password: string;
-};
 
 type HashedCredentials = {
   username: string;
@@ -50,7 +47,7 @@ export class BasicAuthMiddleware implements MiddlewareHandler {
   }
 
   private async authenticate(headers: Headers): Promise<{ accessGranted: boolean }> {
-    const credentials = this.extractBasicAuthCredentials(headers);
+    const credentials = AuthHelper.extractBasicAuth(headers.get("Authorization"));
     if (!credentials) {
       return { accessGranted: false };
     }
@@ -59,27 +56,6 @@ export class BasicAuthMiddleware implements MiddlewareHandler {
       return { accessGranted: false };
     }
     return { accessGranted: true };
-  }
-
-  private extractBasicAuthCredentials(headers: Headers): Credentials | undefined {
-    try {
-      const auth = headers.get("Authorization");
-      if (auth) {
-        const prefix = "Basic ";
-        if (auth.toLowerCase().startsWith(prefix.toLowerCase())) {
-          const b64Credentials = auth.slice(prefix.length);
-          if (b64Credentials.length > 0) {
-            const plaintextCredentials = Buffer.from(b64Credentials, "base64").toString("utf-8");
-            if (plaintextCredentials.includes(":")) {
-              const [username, password] = plaintextCredentials.split(":", 2);
-              return { username, password };
-            }
-          }
-        }
-      }
-    } catch (e) {
-      // ignore
-    }
   }
 
   private async validateCredentials(credentials: Credentials): Promise<boolean> {

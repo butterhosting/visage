@@ -43,7 +43,7 @@ export class TokenService {
   public async validate(serializedToken: string): Promise<TokenRM | undefined> {
     const { id, secret } = Token.split(serializedToken);
     const token = await this.tokenRepository.find(id);
-    if (token) {
+    if (token && secret) {
       const incomingHash = createHash("sha256").update(secret, "utf8").digest("hex");
       if (incomingHash === token.secretHash) {
         return this.convert(token);
@@ -65,7 +65,7 @@ export class TokenService {
       id: token.id,
       object: "token",
       created: token.created,
-      websites: token.websiteIds,
+      websiteIds: token.websiteIds,
       lastUsed: token.lastUsed,
       value: token.secretPlain ? Token.combine(token.id, token.secretPlain) : undefined,
     };

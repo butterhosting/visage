@@ -83,6 +83,19 @@ export class Server {
         }),
 
         /**
+         * External API
+         */
+        "/api/stats": {
+          GET: this.handleRoute(async (request) => {
+            const stats = await this.statsService.queryExternal(
+              this.searchParams(request),
+              request.headers.get("Authorization") || undefined,
+            );
+            return Response.json(stats);
+          }),
+        },
+
+        /**
          * Public script
          */
         "/vis.js": {
@@ -106,16 +119,6 @@ export class Server {
               await this.ingestionService.ingest(ip.address, await request.json());
             }
             return new Response();
-          }),
-        },
-
-        /**
-         * Token protected API for external access
-         */
-        "/api/stats": {
-          GET: this.handleRoute(async (request) => {
-            const stats = await this.statsService.query(this.searchParams(request), "unknown");
-            return Response.json(stats);
           }),
         },
 
@@ -175,7 +178,7 @@ export class Server {
          */
         "/internal-api/stats": {
           GET: this.handleRoute(async (request) => {
-            const stats = await this.statsService.query(this.searchParams(request), "unknown");
+            const stats = await this.statsService.queryInternal(this.searchParams(request), "unknown");
             return Response.json(stats);
           }),
         },

@@ -55,7 +55,7 @@ export function TokensTab() {
                   <td className="px-5 py-3">
                     <code className="font-bold text-c-dark">{token.id}</code>
                   </td>
-                  <td className="px-5 py-3 text-c-dark/60">{formatScope(token.websites)}</td>
+                  <td className="px-5 py-3 text-c-dark/60">{formatScope(token.websiteIds)}</td>
                   <td className="px-5 py-3 text-c-dark/60">{formatDate(token.created)}</td>
                   <td className="px-5 py-3 text-c-dark/60">{token.lastUsed ? formatDate(token.lastUsed) : "Never"}</td>
                   <td className="px-5 py-3 text-right">

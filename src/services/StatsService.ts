@@ -9,24 +9,47 @@ import { WebsiteRepository } from "@/repositories/WebsiteRepository";
 import { Temporal } from "@js-temporal/polyfill";
 import { and, between, count, desc, eq, gte, isNull, lte, max, min, sql, SQL } from "drizzle-orm";
 import { SQLiteColumn } from "drizzle-orm/sqlite-core";
+import { TokenService } from "./TokenService";
+import { Token } from "@/models/Token";
+import { Website } from "@/models/Website";
+import { ServerError } from "@/errors/ServerError";
+import { Logger } from "@/Logger";
+import { AuthHelper } from "@/helpers/AuthHelper";
 
 export class StatsService {
+  private readonly log = new Logger(__filename);
+
   public constructor(
     private readonly sqlite: Sqlite,
+    private readonly tokenService: TokenService,
     private readonly websiteRepository: WebsiteRepository,
   ) {}
 
-  public async query(query: StatsQuery): Promise<Stats>;
-  public async query(query: unknown, unknown: "unknown"): Promise<Stats>;
-  public async query(query: unknown | StatsQuery, unknown?: "unknown"): Promise<Stats> {
-    // TODO: proper error handling, because this is a public API, so we definitely need a StatsError ...
-    const q = unknown ? StatsQuery.parse(query) : (query as StatsQuery);
+  public async queryInternal(query: StatsQuery): Promise<Stats>;
+  public async queryInternal(query: unknown, unknown: "unknown"): Promise<Stats>;
+  public async queryInternal(query: StatsQuery | unknown, unknown?: "unknown"): Promise<Stats> {
+    const q = unknown === "unknown" ? StatsQuery.parse(query) : (query as StatsQuery);
     const website = await this.websiteRepository.find(q.website, () =>
       WebsiteError.not_found({
         ref: q.website,
       }),
     );
+    return await this.query(q, website);
+  }
 
+  public async queryExternal(query: unknown, authorization?: string): Promise<Stats> {
+    // TODO: proper error handling, because this is a public API, so we definitely need a StatsError ...
+    const q = StatsQuery.parse(query);
+    const website = await this.websiteRepository.find(q.website, () =>
+      WebsiteError.not_found({
+        ref: q.website,
+      }),
+    );
+    await this.authnz(website, authorization);
+    return await this.query(q, website);
+  }
+
+  private async query(q: StatsQuery, website: Website): Promise<Stats> {
     const baseWhere = eq($analyticsEvent.websiteId, website.id);
     const queryWhere = [baseWhere, ...this.queryWhere(q)];
     const medianWhere = gte($analyticsEvent.durationSeconds, 5);
@@ -362,5 +385,19 @@ export class StatsService {
     }
     const hasMore = rows.length > limit;
     return { limit, offset, hasMore, data: rows.slice(0, limit) };
+  }
+
+  private async authnz(website: Website, authorization?: string): Promise<void> {
+    const headerToken = AuthHelper.extractBearerToken(authorization) || AuthHelper.extractBasicAuth(authorization)?.password;
+    if (!headerToken) {
+      throw ServerError.unauthorized();
+    }
+    const databaseToken = await this.tokenService.validate(headerToken);
+    if (!databaseToken) {
+      throw ServerError.unauthorized();
+    }
+    if (databaseToken.websiteIds !== "*" && !databaseToken.websiteIds.includes(website.id)) {
+      throw ServerError.forbidden();
+    }
   }
 }

@@ -63,7 +63,7 @@ export class WebsiteService {
 
   private async enrich(website: Website): Promise<WebsiteRM> {
     const today = Temporal.Now.plainDateISO().toZonedDateTime("UTC");
-    const { visitorsTimeSeries } = await this.statsService.query({
+    const { visitorsTimeSeries } = await this.statsService.queryInternal({
       website: website.id,
       fields: [Stats.Field.visitorsTimeSeries],
       from: today.subtract({ days: 30 }).toInstant(),
