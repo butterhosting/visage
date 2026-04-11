@@ -10,19 +10,10 @@
     /* Fonts */
     --font-f-everywhere: "Inter", sans-serif;
     /* Colors */
-    --color-c-light: #fdfbff;
-    --color-c-primary: #4647d2;
-
-    --color-c-success: #b8ffba;
-    --color-c-warning: #efb41b;
+    --color-c-accent: #4647d2;
     --color-c-error: #ff6464;
-    --color-c-accent: #9090e8;
-    --color-c-dim: #979797;
-    --color-c-dark: #2d2c32;
-    --color-c-canvasblock-default-inner: rgb(235, 235, 235);
-    --color-c-canvasblock-default-outer: #9090e8;
-    --color-c-canvasblock-unused-inner: rgb(227 234 240);
-    --color-c-canvasblock-unused-outer: rgb(160 160 160);
+    --color-c-darkgray: #2d2c32;
+    --color-c-midgray: #3f3d46;
 }
 
 /* DESKTOP FIRST / PART B -> https://stackoverflow.com/a/79607480 */
@@ -57,7 +48,7 @@
         font-size: 14px; /* 80% of default 16px */
     }
     body {
-        @apply relative min-w-[320px] min-h-screen font-f-everywhere text-c-dark;
+        @apply relative min-w-[320px] min-h-screen font-f-everywhere text-c-darkgray;
         font-optical-sizing: auto;
         background-color: rgb(252, 252, 252);
         background-image: url("./images/background/bgdots.svg");

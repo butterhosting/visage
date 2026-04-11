@@ -8,7 +8,7 @@ import { useYesQuery } from "../hooks/useYesQuery";
 import { Website } from "@/models/Website";
 
 export function settingsPage() {
-  useDocumentTitle("Data | Visage");
+  useDocumentTitle("Settings | Visage");
   const websiteClient = useRegistry(WebsiteClient);
   const dialogClient = useRegistry(DialogClient);
   const {
@@ -43,17 +43,17 @@ export function settingsPage() {
       <Paper>
         {websites?.map((website) => (
           <div key={website.id} className="flex sm:flex-col items-center sm:items-start gap-4 px-6 py-4">
-            <span className="flex-1 font-bold text-c-dark">{website.hostname}</span>
+            <span className="flex-1 font-bold text-c-darkgray">{website.hostname}</span>
             <div className="flex gap-4 items-center">
               <button
                 onClick={() => performExport(website)}
-                className="px-4 py-2 rounded-lg text-sm font-semibold border border-black/10 text-c-primary hover:text-c-dark hover:border-c-primary/30 hover:bg-c-primary/5 cursor-pointer transition-colors"
+                className="px-4 py-2 rounded-lg text-sm font-semibold border border-black/10 text-c-accent hover:text-c-darkgray hover:border-c-accent/30 hover:bg-c-accent/5 cursor-pointer transition-colors"
               >
                 Export
               </button>
               <button
                 onClick={() => performUpdate(website)}
-                className="px-4 py-2 rounded-lg text-sm font-semibold border border-black/10 text-c-dark/60 hover:text-c-dark hover:border-c-primary/30 hover:bg-c-primary/5 cursor-pointer transition-colors"
+                className="px-4 py-2 rounded-lg text-sm font-semibold border border-black/10 text-c-darkgray/60 hover:text-c-darkgray hover:border-c-accent/30 hover:bg-c-accent/5 cursor-pointer transition-colors"
               >
                 Update
               </button>
@@ -68,7 +68,7 @@ export function settingsPage() {
         ))}
         {websites?.length === 0 && (
           <div className="px-6 py-12 text-center">
-            <span className="text-sm font-bold text-c-dark/20 tracking-wide">NO WEBSITES</span>
+            <span className="text-sm font-bold text-c-darkgray/20 tracking-wide">NO WEBSITES</span>
           </div>
         )}
       </Paper>

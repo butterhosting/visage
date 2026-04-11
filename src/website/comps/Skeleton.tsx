@@ -25,13 +25,13 @@ export namespace Skeleton {
     return (
       <nav className="mt-10 flex flex-wrap items-center gap-3 md:items-start">
         <Paper className="flex items-center hover:shadow-xl">
-          <Link to={Route.websites()} className="p-4 text-lg text-c-dark hover:text-c-primary transition-colors">
+          <Link to={Route.websites()} className="p-4 text-lg text-c-darkgray hover:text-c-accent transition-colors">
             Websites
           </Link>
           {websiteRef && (
             <>
-              <span className="text-c-dark">|</span>
-              <span className="p-4 text-lg text-c-primary font-medium">{websiteRef}</span>
+              <span className="text-c-darkgray">|</span>
+              <span className="p-4 text-lg text-c-accent font-medium">{websiteRef}</span>
             </>
           )}
         </Paper>
@@ -40,7 +40,7 @@ export namespace Skeleton {
           <Paper
             className={clsx(
               "hover:shadow-xl p-4 text-lg transition-colors",
-              pathname.startsWith(Route.interface()) ? "text-c-primary bg-c-primary/5" : "text-c-dark hover:text-c-primary",
+              pathname.startsWith(Route.interface()) ? "text-c-accent bg-c-accent/5" : "text-c-darkgray hover:text-c-accent",
             )}
           >
             API
@@ -50,7 +50,7 @@ export namespace Skeleton {
           <Paper
             className={clsx(
               "hover:shadow-xl p-4 text-lg transition-colors",
-              pathname.startsWith(Route.settings()) ? "text-c-primary bg-c-primary/5" : "text-c-dark hover:text-c-primary",
+              pathname.startsWith(Route.settings()) ? "text-c-accent bg-c-accent/5" : "text-c-darkgray hover:text-c-accent",
             )}
           >
             Settings
@@ -86,11 +86,11 @@ export namespace Skeleton {
           ) : (
             <div className="size-6 aspect-square bg-c-accent rounded" />
           )}
-          <div className="text-4xl font-extrabold italic text-c-dark pr-5">Visage</div>
+          <div className="text-4xl font-extrabold italic text-c-darkgray pr-5">Visage</div>
         </div>
-        <div className="italic text-c-dark -mt-3 pl-5">
+        <div className="italic text-c-darkgray -mt-3 pl-5">
           by{" "}
-          <a href="https://www.butterhost.ing" target="_blank" rel="nooopener noreferrer" className="text-c-accent hover:text-c-dark">
+          <a href="https://www.butterhost.ing" target="_blank" rel="nooopener noreferrer" className="text-c-accent hover:text-c-darkgray">
             Butterhost.ing
           </a>
         </div>
@@ -102,13 +102,13 @@ export namespace Skeleton {
               <div className="flex gap-4">
                 <button
                   onClick={seed}
-                  className="cursor-pointer text-c-dark border border-c-dark bg-white hover:bg-purple-50 p-2 rounded-lg"
+                  className="cursor-pointer text-c-darkgray border border-c-darkgray bg-white hover:bg-purple-50 p-2 rounded-lg"
                 >
                   Seed
                 </button>
                 <button
                   onClick={purge}
-                  className="cursor-pointer text-c-dark border border-c-dark bg-white hover:bg-purple-50 p-2 rounded-lg"
+                  className="cursor-pointer text-c-darkgray border border-c-darkgray bg-white hover:bg-purple-50 p-2 rounded-lg"
                 >
                   Purge
                 </button>

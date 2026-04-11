@@ -29,8 +29,8 @@ export function DistributionPanel({ panel, stats, filters, toggleFilter, onPageC
                 onClick={() => setActiveIndex(i)}
                 className={`px-5 py-3 text-xs font-bold tracking-wide cursor-pointer transition-colors ${
                   isActive
-                    ? "border-b-2 border-c-primary text-c-primary"
-                    : "border-b-2 border-transparent text-c-dark/50 hover:text-c-dark/70"
+                    ? "border-b-2 border-c-accent text-c-accent"
+                    : "border-b-2 border-transparent text-c-darkgray/50 hover:text-c-darkgray/70"
                 }`}
               >
                 {tab.label}
@@ -42,7 +42,7 @@ export function DistributionPanel({ panel, stats, filters, toggleFilter, onPageC
       )}
       {panel.length === 1 && (
         <div className="px-5 pt-5">
-          <h3 className="text-xs font-bold tracking-wide text-c-dark/50 text-center">
+          <h3 className="text-xs font-bold tracking-wide text-c-darkgray/50 text-center">
             {panel[0].label}
             {filters.some(({ key }) => key === panel[0].filterKey) && (
               <span className="inline-block w-2 h-2 rounded-full bg-red-500 ml-2" />

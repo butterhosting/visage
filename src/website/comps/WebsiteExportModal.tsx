@@ -52,10 +52,10 @@ export function WebsiteExportModal({ website, close, done }: Props) {
               key={artifact}
               onClick={() => handleSelect(artifact)}
               disabled={busy}
-              className="flex items-center gap-3 px-4 py-3 rounded-lg border border-black/10 hover:border-c-primary/30 hover:bg-c-primary/5 cursor-pointer transition-colors text-left disabled:opacity-40 disabled:pointer-events-none"
+              className="flex items-center gap-3 px-4 py-3 rounded-lg border border-black/10 hover:border-c-accent/30 hover:bg-c-accent/5 cursor-pointer transition-colors text-left disabled:opacity-40 disabled:pointer-events-none"
             >
-              <span className="font-mono text-c-dark">{Artifact.filename(artifact, website.hostname)}</span>
-              <span className="text-xs text-c-dark/40 ml-auto">
+              <span className="font-mono text-c-darkgray">{Artifact.filename(artifact, website.hostname)}</span>
+              <span className="text-xs text-c-darkgray/40 ml-auto">
                 {artifact === Artifact.Enum.analytics ? "Normal traffic" : "Bot traffic"}
                 {/* TODO: bit more consistent if we use buttons here as well ... now its just a floating "cancel" without any purple CTA button */}
               </span>
@@ -71,7 +71,7 @@ export function WebsiteExportModal({ website, close, done }: Props) {
           <div className="mt-4 flex justify-end">
             <button
               onClick={close}
-              className="px-4 py-2 rounded-lg text-sm font-semibold text-c-dark/50 hover:text-c-dark cursor-pointer transition-colors"
+              className="px-4 py-2 rounded-lg text-sm font-semibold text-c-darkgray/50 hover:text-c-darkgray cursor-pointer transition-colors"
             >
               Cancel
             </button>

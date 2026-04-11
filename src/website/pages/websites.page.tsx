@@ -45,7 +45,7 @@ export function websitesPage() {
                 stroke="currentColor"
                 strokeWidth="2"
                 strokeLinecap="round"
-                className="text-c-dark/30"
+                className="text-c-darkgray/30"
               >
                 <path d="M12 5v14M5 12h14" />
               </svg>

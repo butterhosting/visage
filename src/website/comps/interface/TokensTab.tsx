@@ -41,7 +41,7 @@ export function TokensTab() {
         <div className="rounded-xl border border-black/6 overflow-hidden">
           <table className="w-full text-sm">
             <thead>
-              <tr className="bg-black/2 text-left font-bold text-c-dark/40 tracking-wide">
+              <tr className="bg-black/2 text-left font-bold text-c-darkgray/40 tracking-wide">
                 <th className="px-5 py-3">ID</th>
                 <th className="px-5 py-3">Scope</th>
                 <th className="px-5 py-3">Last used</th>
@@ -52,11 +52,11 @@ export function TokensTab() {
               {tokens.map((token) => (
                 <tr key={token.id}>
                   <td className="px-5 py-3">
-                    <code className="font-bold text-c-dark">{token.id}</code>
+                    <code className="font-bold text-c-darkgray">{token.id}</code>
                   </td>
-                  <td className="px-5 py-3 text-c-dark/60">{formatScope(token.websiteIds)}</td>
+                  <td className="px-5 py-3 text-c-darkgray/60">{formatScope(token.websiteIds)}</td>
                   {/* TODO: timezone */}
-                  <td className="px-5 py-3 text-c-dark/60">{token.lastUsed ? Prettify.timestamp(token.lastUsed, "UTC") : "Never"}</td>
+                  <td className="px-5 py-3 text-c-darkgray/60">{token.lastUsed ? Prettify.timestamp(token.lastUsed, "UTC") : "Never"}</td>
                   <td className="px-5 py-3 text-right">
                     <button
                       onClick={() => handleDelete(token)}
@@ -74,7 +74,7 @@ export function TokensTab() {
       <div className={clsx("flex justify-center", tokens?.length && "mt-6")}>
         <button
           onClick={handleGenerate}
-          className="px-4 py-2 rounded-lg text-sm font-semibold bg-c-primary text-white cursor-pointer hover:bg-c-primary/90 transition-colors"
+          className="px-4 py-2 rounded-lg text-sm font-semibold bg-c-accent text-white cursor-pointer hover:bg-c-accent/90 transition-colors"
         >
           Generate token
         </button>

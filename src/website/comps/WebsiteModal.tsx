@@ -35,14 +35,14 @@ export function WebsiteModal({ existing, close, done }: Props) {
   return (
     <Modal isOpen issueCloseRequestWhenClickingBackdrop onCloseRequest={() => !busy && close()} className="p-6">
       <div className="flex flex-col gap-5">
-        <h2 className="text-lg font-bold text-c-dark">{existing ? "Update website" : "Add website"}</h2>
+        <h2 className="text-lg font-bold text-c-darkgray">{existing ? "Update website" : "Add website"}</h2>
         <label className="flex flex-col gap-1.5">
           <input
             type="text"
             value={hostname}
             onChange={(e) => setHostname(e.target.value)}
             placeholder="Enter hostname, e.g.: www.example.com"
-            className="px-3 py-2 rounded-lg border border-black/10 text-sm text-c-dark focus:outline-none focus:border-c-primary"
+            className="px-3 py-2 rounded-lg border border-black/10 text-sm text-c-darkgray focus:outline-none focus:border-c-accent"
             onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
           />
         </label>
@@ -50,14 +50,14 @@ export function WebsiteModal({ existing, close, done }: Props) {
         <div className="flex justify-end gap-3">
           <button
             onClick={close}
-            className="px-4 py-2 rounded-lg text-sm font-semibold text-c-dark/50 hover:text-c-dark cursor-pointer transition-colors"
+            className="px-4 py-2 rounded-lg text-sm font-semibold text-c-darkgray/50 hover:text-c-darkgray cursor-pointer transition-colors"
           >
             Cancel
           </button>
           <button
             onClick={handleSubmit}
             disabled={!hostname.trim() || busy}
-            className="px-4 py-2 rounded-lg text-sm font-semibold bg-c-primary text-white cursor-pointer hover:bg-c-primary/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            className="px-4 py-2 rounded-lg text-sm font-semibold bg-c-accent text-white cursor-pointer hover:bg-c-accent/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           >
             {existing ? "Update" : "Create"}
           </button>

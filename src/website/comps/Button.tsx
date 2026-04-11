@@ -12,7 +12,7 @@ export function Button({ icon, theme, className, children, ...props }: Props) {
       {...props}
       className={clsx(
         "inline-flex gap-2 items-center p-2 border-2 font-bold focus:outline-none",
-        "text-white border-c-primary rounded-lg",
+        "text-white border-c-accent rounded-lg",
         "hover:cursor-pointer hover:bg-c-dim/30 focus:bg-c-dim/30",
         "disabled:cursor-not-allowed disabled:opacity-50",
         {

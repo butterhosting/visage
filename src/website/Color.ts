@@ -3,25 +3,10 @@ type Shade = (typeof shades)[number];
 
 export class Color {
   // Custom colors
-  public static primary = () => this.css("--color-c-primary");
-  public static success = () => this.css("--color-c-success");
-  public static error = () => this.css("--color-c-error");
   public static accent = () => this.css("--color-c-accent");
-  public static dim = () => this.css("--color-c-dim");
-  public static dark = () => this.css("--color-c-dark");
-  public static canvasblockDefaultInner = () => this.css("--color-c-canvasblock-default-inner");
-  public static canvasblockDefaultOuter = () => this.css("--color-c-canvasblock-default-outer");
-  public static canvasblockUnusedInner = () => this.css("--color-c-canvasblock-unused-inner");
-  public static canvasblockUnusedOuter = () => this.css("--color-c-canvasblock-unused-outer");
-  /*
-   * Default colors
-   *
-   * These must be "inlined" inside `index.css`, otherwise they aren't detected by tailwindcss,
-   * which means they'll be tree-shaken; see `index.css`
-   */
-  public static gray = (shade: Shade) => this.css(`--color-gray-${shade}`);
-  public static red = (shade: Shade) => this.css(`--color-red-${shade}`);
-  public static green = (shade: Shade) => this.css(`--color-green-${shade}`);
+  public static error = () => this.css("--color-c-error");
+  public static darkgray = () => this.css("--color-c-darkgray");
+  public static midgray = () => this.css("--color-c-midgray");
 
   private static cache: Record<string, string> = {};
 

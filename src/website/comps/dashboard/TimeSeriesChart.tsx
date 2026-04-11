@@ -3,14 +3,17 @@ import { TimeSeries } from "@/models/TimeSeries";
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { Spinner } from "../Spinner";
 import { TimeSeriesTooltip } from "./TimeSeriesTooltip";
+import { useMemo } from "react";
+import { Color } from "@/website/Color";
 
 type Props = {
   timeSeries?: TimeSeries;
   minimal?: boolean;
   height?: number | `${number}%`;
-  gradientId?: string;
 };
-export function TimeSeriesChart({ timeSeries, minimal, height = 400, gradientId = "chartGradient" }: Props) {
+export function TimeSeriesChart({ timeSeries, minimal, height = 400 }: Props) {
+  const gradientId = useMemo(() => Math.random().toString(), []);
+
   if (!timeSeries) {
     return (
       <div style={{ height }} className="flex items-center justify-center">
@@ -21,7 +24,7 @@ export function TimeSeriesChart({ timeSeries, minimal, height = 400, gradientId 
   if (timeSeries.data.length === 0) {
     return (
       <div style={{ height }} className="flex items-center justify-center">
-        <span className="text-sm font-bold text-c-dark/20 tracking-wide">NO DATA</span>
+        <span className="text-sm font-bold text-c-darkgray/20 tracking-wide">NO DATA</span>
       </div>
     );
   }
@@ -43,8 +46,8 @@ export function TimeSeriesChart({ timeSeries, minimal, height = 400, gradientId 
       >
         <defs>
           <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#4647d2" stopOpacity={0.15} />
-            <stop offset="100%" stopColor="#4647d2" stopOpacity={0.01} />
+            <stop offset="0%" stopColor={Color.accent()} stopOpacity={0.15} />
+            <stop offset="100%" stopColor={Color.accent()} stopOpacity={0.01} />
           </linearGradient>
         </defs>
         {!minimal && <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e5e5" />}
@@ -76,7 +79,7 @@ export function TimeSeriesChart({ timeSeries, minimal, height = 400, gradientId 
           <Tooltip
             content={<TimeSeriesTooltip yUnit={yUnit} />}
             cursor={{
-              stroke: "#4647d2",
+              stroke: Color.accent(),
               strokeWidth: 1,
               strokeDasharray: "4 4",
             }}
@@ -85,10 +88,10 @@ export function TimeSeriesChart({ timeSeries, minimal, height = 400, gradientId 
         <Area
           type="linear"
           dataKey={"y" satisfies keyof TimeSeries["data"][number]}
-          stroke="#4647d2"
+          stroke={Color.accent()}
           strokeWidth={minimal ? 1.5 : 2}
           fill={`url(#${gradientId})`}
-          activeDot={minimal ? false : { r: 5, fill: "#4647d2", stroke: "#fff", strokeWidth: 2 }}
+          activeDot={minimal ? false : { r: 5, fill: Color.accent(), stroke: "#fff", strokeWidth: 2 }}
           dot={false}
           isAnimationActive={false}
         />
