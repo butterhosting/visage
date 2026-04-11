@@ -2,7 +2,7 @@ import { $analyticsEvent, $website } from "@/drizzle/schema";
 import { Sqlite } from "@/drizzle/sqlite";
 import { AnalyticsEvent } from "@/models/AnalyticsEvent";
 import { Website } from "@/models/Website";
-import { AnalyticsEventConverter } from "@/repositories/converters/AnalyticsEventConverter";
+import { AnalyticsEventConverter } from "@/drizzle/converters/AnalyticsEventConverter";
 import { Temporal } from "@js-temporal/polyfill";
 import { eq, InferInsertModel } from "drizzle-orm";
 import { WebsiteService } from "./WebsiteService";

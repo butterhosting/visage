@@ -30,7 +30,7 @@ export function apiPage() {
           </div>
           <p className="text-c-dark/60">
             This endpoint can be used for querying website stats like visitor totals, screen size distributions and other fields. It
-            requires access token(s) to interact with, which can be generated and managed below.
+            requires an access token to interact with, which can be generated and managed below.
           </p>
         </div>
 
@@ -278,7 +278,7 @@ function Code({ children, className }: { children: ReactNode; className?: string
 }
 
 function SectionHeading({ children }: { children: ReactNode }) {
-  return <h2 className="text-xs font-bold tracking-wide text-c-dark/50 mb-4">{children}</h2>;
+  return <h2 className="text-xs font-bold tracking-wide mb-4">{children}</h2>;
 }
 
 function CodeBlock({ children, lang = "json", variant }: { children: string; lang?: string; variant?: "compact" }) {

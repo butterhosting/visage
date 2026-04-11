@@ -5,16 +5,18 @@ import { BasicAuthMiddleware } from "./middleware/basicauth/BasicAuthMiddleware"
 import { LoggingMiddleware } from "./middleware/basicauth/LoggingMiddleware";
 import { Middleware } from "./middleware/Middleware";
 import { AnalyticsEventRepository } from "./repositories/AnalyticsEventRepository";
+import { TokenRepository } from "./repositories/TokenRepository";
 import { WebsiteRepository } from "./repositories/WebsiteRepository";
 import { Server } from "./Server";
 import { BotDetectionService } from "./services/BotDetectionService";
+import { ExportService } from "./services/ExportService";
 import { IngestionService } from "./services/IngestionService";
 import { MaxMindGeoService } from "./services/MaxMindGeoService";
 import { RestrictedService } from "./services/RestrictedService";
+import { StatsService } from "./services/StatsService";
+import { TokenService } from "./services/TokenService";
 import { TrackerService } from "./services/TrackerService";
 import { WebsiteService } from "./services/WebsiteService";
-import { StatsService } from "./services/StatsService";
-import { ExportService } from "./services/ExportService";
 
 export class ServerRegistry {
   public static async bootstrap(env: Env.Private, sqlite: Sqlite): Promise<ServerRegistry> {
@@ -30,6 +32,7 @@ export class ServerRegistry {
     // Repositories
     const { websiteRepository } = this.register({ WebsiteRepository }, [sqlite]);
     const { analyticsEventRepository } = this.register({ AnalyticsEventRepository }, [env, sqlite]);
+    const { tokenRepository } = this.register({ TokenRepository }, [sqlite]);
 
     // Services
     const { maxMindGeoService } = this.register({ MaxMindGeoService }, [env]);
@@ -38,6 +41,7 @@ export class ServerRegistry {
     const { statsService } = this.register({ StatsService }, [sqlite, websiteRepository]);
     const { exportService } = this.register({ ExportService }, [sqlite, websiteRepository]);
     const { websiteService } = this.register({ WebsiteService }, [websiteRepository, statsService]);
+    const { tokenService } = this.register({ TokenService }, [tokenRepository]);
     const { restrictedService } = this.register({ RestrictedService }, [websiteService, sqlite]);
     const { ingestionService } = this.register({ IngestionService }, [
       maxMindGeoService,
@@ -60,6 +64,7 @@ export class ServerRegistry {
       ingestionService,
       statsService,
       exportService,
+      tokenService,
       middleware,
     ]);
   }

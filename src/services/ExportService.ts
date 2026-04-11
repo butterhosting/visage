@@ -5,7 +5,7 @@ import { WebsiteError } from "@/errors/WebsiteError";
 import { ZodProblem } from "@/helpers/ZodIssues";
 import { AnalyticsEvent } from "@/models/AnalyticsEvent";
 import { Artifact } from "@/models/Artifact";
-import { AnalyticsEventConverter } from "@/repositories/converters/AnalyticsEventConverter";
+import { AnalyticsEventConverter } from "@/drizzle/converters/AnalyticsEventConverter";
 import { WebsiteRepository } from "@/repositories/WebsiteRepository";
 import { Temporal } from "@js-temporal/polyfill";
 import { and, eq, gt, SQL } from "drizzle-orm";
@@ -19,13 +19,9 @@ export class ExportService {
     private readonly websiteRepository: WebsiteRepository,
   ) {}
 
-  public async export(websiteRef: string, unknown: z.output<typeof ExportService.Export>): Promise<{ stream: ReadableStream<Uint8Array> }> {
+  public async export(ref: string, unknown: z.output<typeof ExportService.Export>): Promise<{ stream: ReadableStream<Uint8Array> }> {
     const request = ExportService.Export.parse(unknown);
-    const website = await this.websiteRepository.find(websiteRef, () =>
-      WebsiteError.not_found({
-        ref: websiteRef,
-      }),
-    );
+    const website = await this.websiteRepository.find(ref, () => WebsiteError.not_found({ ref }));
     return {
       stream: this.streamJson(website.id, request),
     };

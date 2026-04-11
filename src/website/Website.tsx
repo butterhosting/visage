@@ -20,7 +20,7 @@ const router = createBrowserRouter([
     Component: websites$refPage,
   },
   {
-    path: Route.api(),
+    path: Route.interface(),
     Component: apiPage,
   },
   {

@@ -36,11 +36,11 @@ export namespace Skeleton {
           )}
         </Paper>
         <div className="flex-1 md:hidden" />
-        <Link to={Route.api()}>
+        <Link to={Route.interface()}>
           <Paper
             className={clsx(
               "hover:shadow-xl p-4 text-lg transition-colors",
-              pathname.startsWith(Route.api()) ? "text-c-primary bg-c-primary/5" : "text-c-dark hover:text-c-primary",
+              pathname.startsWith(Route.interface()) ? "text-c-primary bg-c-primary/5" : "text-c-dark hover:text-c-primary",
             )}
           >
             API

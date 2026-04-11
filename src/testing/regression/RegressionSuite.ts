@@ -3,11 +3,13 @@ import { $analyticsEvent } from "@/drizzle/schema";
 import { Sqlite } from "@/drizzle/sqlite";
 import { Env } from "@/Env";
 import { Website } from "@/models/Website";
-import { AnalyticsEventConverter } from "@/repositories/converters/AnalyticsEventConverter";
-import { WebsiteConverter } from "@/repositories/converters/WebsiteConverter";
+import { AnalyticsEventConverter } from "@/drizzle/converters/AnalyticsEventConverter";
+import { WebsiteConverter } from "@/drizzle/converters/WebsiteConverter";
 import { test } from "bun:test";
 import { InferInsertModel } from "drizzle-orm";
 import { join } from "path";
+import { Token } from "@/models/Token";
+import { TokenConverter } from "@/drizzle/converters/TokenConverter";
 
 test.skip("regression suite management", async () => {
   // manually create a varied database file
@@ -40,6 +42,7 @@ export namespace RegressionSuite {
         $analyticsEvent: (sqlite) =>
           sqlite.query.$analyticsEvent.findMany().then((records) => records.map(AnalyticsEventConverter.convert)),
         $botEvent: (sqlite) => sqlite.query.$botEvent.findMany(),
+        $token: (sqlite) => sqlite.query.$token.findMany().then((records) => records.map(TokenConverter.convert)),
       };
       return Object.entries(overview).map(([table, queryFn]) => ({ table, queryFn }));
     }

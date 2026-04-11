@@ -3,7 +3,7 @@ import { Sqlite } from "@/drizzle/sqlite";
 import { Env } from "@/Env";
 import { AnalyticsEvent } from "@/models/AnalyticsEvent";
 import { and, eq, isNotNull, sql } from "drizzle-orm";
-import { AnalyticsEventConverter } from "./converters/AnalyticsEventConverter";
+import { AnalyticsEventConverter } from "../drizzle/converters/AnalyticsEventConverter";
 
 export class AnalyticsEventRepository {
   private readonly maxBotEventTableSize: number;

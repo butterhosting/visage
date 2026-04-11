@@ -8,12 +8,14 @@ import { Generate } from "./helpers/Generate";
 import { Prettify } from "./helpers/Prettify";
 import { Logger } from "./Logger";
 import { Middleware } from "./middleware/Middleware";
+import { TokenRM } from "./models/TokenRM";
 import { Website } from "./models/Website";
 import { WebsiteRM } from "./models/WebsiteRM";
 import { ExportService } from "./services/ExportService";
 import { IngestionService } from "./services/IngestionService";
 import { RestrictedService } from "./services/RestrictedService";
 import { StatsService } from "./services/StatsService";
+import { TokenService } from "./services/TokenService";
 import { TrackerService } from "./services/TrackerService";
 import { WebsiteService } from "./services/WebsiteService";
 import { Socket } from "./socket/Socket";
@@ -29,6 +31,7 @@ export class Server {
     private readonly ingestionService: IngestionService,
     private readonly statsService: StatsService,
     private readonly exportService: ExportService,
+    private readonly tokenService: TokenService,
     private readonly middleware: Middleware,
   ) {}
 
@@ -174,6 +177,26 @@ export class Server {
           GET: this.handleRoute(async (request) => {
             const stats = await this.statsService.query(this.searchParams(request), "unknown");
             return Response.json(stats);
+          }),
+        },
+
+        /**
+         * Tokens
+         */
+        "/internal-api/tokens": {
+          GET: this.handleRoute(async () => {
+            const tokens: TokenRM[] = await this.tokenService.list();
+            return Response.json(tokens);
+          }),
+          POST: this.handleRoute(async (request) => {
+            const token: TokenRM = await this.tokenService.generate(await request.json());
+            return Response.json(token);
+          }),
+        },
+        "/internal-api/tokens/:id": {
+          DELETE: this.handleRoute(async ({ params }) => {
+            const token: TokenRM = await this.tokenService.revoke(params.id);
+            return Response.json(token);
           }),
         },
 

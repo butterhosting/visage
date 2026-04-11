@@ -2,7 +2,7 @@ import { $website } from "@/drizzle/schema";
 import { Sqlite } from "@/drizzle/sqlite";
 import { Website } from "@/models/Website";
 import { eq, or } from "drizzle-orm";
-import { WebsiteConverter } from "./converters/WebsiteConverter";
+import { WebsiteConverter } from "../drizzle/converters/WebsiteConverter";
 
 export class WebsiteRepository {
   public constructor(private readonly sqlite: Sqlite) {}

@@ -2,8 +2,8 @@ export const Route = {
   websites(ref?: string) {
     return ref ? `/websites/${ref}` : "/websites";
   },
-  api() {
-    return "/api";
+  interface() {
+    return "/interface";
   },
   settings() {
     return "/settings";
