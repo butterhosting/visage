@@ -3,7 +3,7 @@ import { Website } from "@/models/Website";
 import clsx from "clsx";
 import { useState } from "react";
 import { WebsiteClient } from "../clients/WebsiteClient";
-import { Period } from "../femodels/Period";
+import { Period } from "../../models/Period";
 import { useRegistry } from "../hooks/useRegistry";
 import { Button } from "./Button";
 import { PeriodPicker } from "./dashboard/PeriodPicker";
@@ -16,7 +16,9 @@ type Props = {
 };
 export function WebsiteExportModal({ website, close, done }: Props) {
   const websiteClient = useRegistry(WebsiteClient);
-  const [period, setPeriod] = useState(Period.forPreset(Period.Preset.all));
+  const { O_VISAGE_TIMEZONE } = useRegistry("env");
+
+  const [period, setPeriod] = useState(Period.forPreset(Period.Preset.all, O_VISAGE_TIMEZONE));
   const [artifact, setArtifact] = useState<Artifact.Enum>(Artifact.Enum.analytics);
   const [error, setError] = useState<string>();
   const [busy, setBusy] = useState(false);

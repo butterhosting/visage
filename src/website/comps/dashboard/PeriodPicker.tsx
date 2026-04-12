@@ -2,7 +2,7 @@ import { Prettify } from "@/helpers/Prettify";
 import clsx from "clsx";
 import { useEffect, useRef, useState } from "react";
 import { DialogClient } from "../../clients/DialogClient";
-import { Period } from "../../femodels/Period";
+import { Period } from "../../../models/Period";
 import { useRegistry } from "../../hooks/useRegistry";
 import { Icon } from "../../images/Icon";
 
@@ -13,9 +13,11 @@ type Props = {
 };
 export function PeriodPicker({ period, onChange, className }: Props) {
   // TODO: redo this component ... it may open in awkward directions and is not mobile friendly
-  const [open, setOpen] = useState(false);
   const dialogClient = useRegistry(DialogClient);
+  const { O_VISAGE_TIMEZONE } = useRegistry("env");
+
   const ref = useRef<HTMLDivElement>(null);
+  const [open, setOpen] = useState(false);
 
   const translations: Record<Period.Preset, string> = {
     [Period.Preset.today]: "Today",
@@ -43,7 +45,7 @@ export function PeriodPicker({ period, onChange, className }: Props) {
     if (!fromInstant || !toInstant) {
       throw new Error(`Illegal state: both "from" and "to" should be set for custom periods`);
     }
-    const { fromDate, toDate } = Period.toDates({ fromInstant, toInstant });
+    const { fromDate, toDate } = Period.toDates({ fromInstant, toInstant }, O_VISAGE_TIMEZONE);
     activeLabel = `${Prettify.date(fromDate)} \u2013 ${Prettify.date(toDate)}`;
   } else {
     activeLabel = translations[period.preset];
@@ -58,7 +60,7 @@ export function PeriodPicker({ period, onChange, className }: Props) {
         setOpen(false);
       });
     } else {
-      onChange(Period.forPreset(preset));
+      onChange(Period.forPreset(preset, O_VISAGE_TIMEZONE));
       setOpen(false);
     }
   };

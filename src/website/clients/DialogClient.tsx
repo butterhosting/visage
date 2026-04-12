@@ -8,7 +8,7 @@ import { TokenDeleteModal } from "../comps/TokenDeleteModal";
 import { WebsiteDeleteModal } from "../comps/WebsiteDeleteModal";
 import { WebsiteExportModal } from "../comps/WebsiteExportModal";
 import { WebsiteModal } from "../comps/WebsiteModal";
-import { Period } from "../femodels/Period";
+import { Period } from "../../models/Period";
 
 export class DialogClient {
   private _manager: DialogManager.Api | null = null;
@@ -30,16 +30,7 @@ export class DialogClient {
       this.manager.remove({ token });
     };
     const { token } = this.manager.insert(
-      <PeriodModal
-        defaultPeriodRange={defaultPeriodRange}
-        close={() => resolve("cancel")}
-        apply={(from, to) => {
-          resolve({
-            from: from.toZonedDateTime("UTC").toInstant(),
-            to: to.toZonedDateTime("UTC").add({ days: 1 }).toInstant(),
-          });
-        }}
-      />,
+      <PeriodModal defaultPeriodRange={defaultPeriodRange} close={() => resolve("cancel")} apply={(from, to) => resolve({ from, to })} />,
     );
     return promise;
   }

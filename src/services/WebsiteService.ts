@@ -1,6 +1,7 @@
 import { ServerError } from "@/errors/ServerError";
 import { WebsiteError } from "@/errors/WebsiteError";
 import { ZodProblem } from "@/helpers/ZodIssues";
+import { Period } from "@/models/Period";
 import { Stats } from "@/models/Stats";
 import { Website } from "@/models/Website";
 import { WebsiteRM } from "@/models/WebsiteRM";
@@ -8,9 +9,11 @@ import { WebsiteRepository } from "@/repositories/WebsiteRepository";
 import { Temporal } from "@js-temporal/polyfill";
 import z from "zod/v4";
 import { StatsService } from "./StatsService";
+import { Env } from "@/Env";
 
 export class WebsiteService {
   public constructor(
+    private readonly env: Env.Private,
     private readonly websiteRepository: WebsiteRepository,
     private readonly statsService: StatsService,
   ) {}
@@ -63,12 +66,12 @@ export class WebsiteService {
   }
 
   private async enrich(website: Website): Promise<WebsiteRM> {
-    const today = Temporal.Now.plainDateISO().toZonedDateTime("UTC");
+    const { from, to } = Period.forPreset(Period.Preset.last30d, this.env.O_VISAGE_TIMEZONE);
     const { visitorsTimeSeries } = await this.statsService.queryInternal({
       website: website.id,
       fields: [Stats.Field.visitorsTimeSeries],
-      from: today.subtract({ days: 30 }).toInstant(),
-      to: today.add({ days: 1 }).toInstant(),
+      from,
+      to,
     });
     return {
       ...website,

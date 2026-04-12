@@ -1,4 +1,5 @@
-import { Period } from "@/website/femodels/Period";
+import { Period } from "@/models/Period";
+import { useRegistry } from "@/website/hooks/useRegistry";
 import { Temporal } from "@js-temporal/polyfill";
 import { useMemo, useState } from "react";
 import { Button } from "../Button";
@@ -6,15 +7,16 @@ import { Modal } from "../Modal";
 
 type Props = {
   defaultPeriodRange: Period.Range;
-  apply: (from: Temporal.PlainDate, to: Temporal.PlainDate) => unknown;
+  apply: (from: Temporal.Instant, to: Temporal.Instant) => unknown;
   close: () => unknown;
 };
 export function PeriodModal({ defaultPeriodRange, apply, close }: Props) {
+  const { O_VISAGE_TIMEZONE } = useRegistry("env");
   const defaultState = useMemo(() => {
     const today = Temporal.Now.plainDateISO(); // TODO: timezone?
     const { from, to } = defaultPeriodRange;
     if (from && to) {
-      const { fromDate, toDate } = Period.toDates({ fromInstant: from, toInstant: to });
+      const { fromDate, toDate } = Period.toDates({ fromInstant: from, toInstant: to }, O_VISAGE_TIMEZONE);
       return {
         today,
         from: fromDate,
@@ -30,6 +32,11 @@ export function PeriodModal({ defaultPeriodRange, apply, close }: Props) {
 
   const [from, setFrom] = useState(defaultState.from);
   const [to, setTo] = useState(defaultState.to);
+
+  function submit() {
+    const { fromInstant, toInstant } = Period.fromDates({ fromDate: from, toDate: to }, O_VISAGE_TIMEZONE);
+    apply(fromInstant, toInstant);
+  }
   return (
     <Modal isOpen issueCloseRequestWhenClickingBackdrop onCloseRequest={close} className="p-6">
       <div className="flex flex-col gap-5">
@@ -73,7 +80,7 @@ export function PeriodModal({ defaultPeriodRange, apply, close }: Props) {
           <Button variant="ghost" theme="neutral" onClick={close}>
             Cancel
           </Button>
-          <Button onClick={() => apply(from, to)} disabled={!from || !to}>
+          <Button onClick={submit} disabled={!from || !to}>
             Apply
           </Button>
         </div>

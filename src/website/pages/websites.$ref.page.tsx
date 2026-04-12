@@ -15,7 +15,7 @@ import { Skeleton } from "../comps/Skeleton";
 import { DistributionFilter } from "../femodels/DistributionFilter";
 import { Graph } from "../femodels/Graph";
 import { PanelTab } from "../femodels/PanelTab";
-import { Period } from "../femodels/Period";
+import { Period } from "../../models/Period";
 import { useDashboardStateWithUrlSynchronization } from "../hooks/dashboard/useDashboardStateWithUrlSynchronization";
 import { useDocumentTitle } from "../hooks/useDocumentTitle";
 import { useRegistry } from "../hooks/useRegistry";
@@ -25,6 +25,7 @@ import { Route } from "../Route";
 export function websites$refPage() {
   const { ref } = useParams();
   const navigate = useNavigate();
+  const { O_VISAGE_TIMEZONE } = useRegistry("env");
   const { graph, graphTimeSeriesField, setGraph, period, setPeriod, filters, setFilters } = useDashboardStateWithUrlSynchronization();
 
   const websiteClient = useRegistry(WebsiteClient);
@@ -84,7 +85,7 @@ export function websites$refPage() {
   function resetPeriodAndFilters() {
     // TODO: bug where ... if I have "90d" active, together with some page like "/getting-started" ... reset doesn't work
     // it only resets the `filters` but not the `period` in the URL bar ... ???
-    setPeriod(Period.forPreset(Period.defaultPreset()));
+    setPeriod(Period.forPreset(Period.defaultPreset(), O_VISAGE_TIMEZONE));
     setFilters([]);
   }
 

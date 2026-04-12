@@ -1,11 +1,12 @@
 import { NullSentinel } from "@/helpers/NullSentinel";
+import { Period } from "@/models/Period";
 import { Stats } from "@/models/Stats";
 import { DistributionFilter } from "@/website/femodels/DistributionFilter";
 import { Graph } from "@/website/femodels/Graph";
-import { Period } from "@/website/femodels/Period";
 import { Temporal } from "@js-temporal/polyfill";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router";
+import { useRegistry } from "../useRegistry";
 
 /**
  * TODO: this has some bugs ... the "params update" should happen in a single useEffect, instead of 3
@@ -13,6 +14,7 @@ import { useSearchParams } from "react-router";
  */
 export function useDashboardStateWithUrlSynchronization() {
   const [params, setParams] = useSearchParams();
+  const { O_VISAGE_TIMEZONE } = useRegistry("env");
 
   function syncToParams(paramType: "graph", graph: Graph): void;
   function syncToParams(paramType: "period", period: Period): void;
@@ -49,7 +51,7 @@ export function useDashboardStateWithUrlSynchronization() {
                 if (!fromInstant || !toInstant) {
                   throw new Error(`Illegal state: both "from" and "to" should be set for custom periods`);
                 }
-                const { fromDate, toDate } = Period.toDates({ fromInstant, toInstant });
+                const { fromDate, toDate } = Period.toDates({ fromInstant, toInstant }, O_VISAGE_TIMEZONE);
                 params.set("from", fromDate.toString());
                 params.set("to", toDate.toString());
               } else {
@@ -120,10 +122,13 @@ export function useDashboardStateWithUrlSynchronization() {
         const toParam = params.get("to") || undefined;
         if (fromParam && toParam) {
           // in custom ranges, both "from" and "to" must be specified via the UI
-          const { fromInstant, toInstant } = Period.fromDates({
-            fromDate: Temporal.PlainDate.from(fromParam),
-            toDate: Temporal.PlainDate.from(toParam),
-          });
+          const { fromInstant, toInstant } = Period.fromDates(
+            {
+              fromDate: Temporal.PlainDate.from(fromParam),
+              toDate: Temporal.PlainDate.from(toParam),
+            },
+            O_VISAGE_TIMEZONE,
+          );
           try {
             return {
               preset: presetParam,
@@ -136,10 +141,10 @@ export function useDashboardStateWithUrlSynchronization() {
         }
         // fall through
       } else {
-        return Period.forPreset(presetParam);
+        return Period.forPreset(presetParam, O_VISAGE_TIMEZONE);
       }
     }
-    return Period.forPreset(Period.Preset.last30d);
+    return Period.forPreset(Period.Preset.last30d, O_VISAGE_TIMEZONE);
   });
   useEffect(() => syncToParams("period", period), [JSON.stringify(period)]);
 

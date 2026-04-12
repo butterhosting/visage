@@ -1,5 +1,5 @@
 import { DistributionFilter } from "@/website/femodels/DistributionFilter";
-import { Period } from "@/website/femodels/Period";
+import { Period } from "@/models/Period";
 import { ReactNode } from "react";
 
 type Props = {

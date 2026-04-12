@@ -262,7 +262,7 @@ export class StatsService {
       .orderBy(bucket);
 
     const data = rows.map<TimeSeries.Point>((row) => ({
-      t: Temporal.Instant.from(row.bucket),
+      t: this.assertBucketAlignment(Temporal.Instant.from(row.bucket), tUnit),
       y: row.count,
     }));
     return {
@@ -270,6 +270,43 @@ export class StatsService {
       yUnit,
       data: this.fillGaps(data, tUnit, from, to),
     };
+  }
+
+  private assertBucketAlignment(bucketInstant: Temporal.Instant, tUnit: TimeSeries["tUnit"]): Temporal.Instant {
+    const zdt = bucketInstant.toZonedDateTimeISO("UTC");
+    switch (tUnit) {
+      case "hour":
+        if (zdt.minute !== 0 || zdt.second !== 0 || zdt.millisecond !== 0 || zdt.microsecond !== 0 || zdt.nanosecond !== 0) {
+          throw new Error(`Expected hour-aligned bucket instant, got ${bucketInstant}`);
+        }
+        break;
+      case "day":
+        if (
+          zdt.hour !== 0 ||
+          zdt.minute !== 0 ||
+          zdt.second !== 0 ||
+          zdt.millisecond !== 0 ||
+          zdt.microsecond !== 0 ||
+          zdt.nanosecond !== 0
+        ) {
+          throw new Error(`Expected day-aligned bucket instant, got ${bucketInstant}`);
+        }
+        break;
+      case "month":
+        if (
+          zdt.day !== 1 ||
+          zdt.hour !== 0 ||
+          zdt.minute !== 0 ||
+          zdt.second !== 0 ||
+          zdt.millisecond !== 0 ||
+          zdt.microsecond !== 0 ||
+          zdt.nanosecond !== 0
+        ) {
+          throw new Error(`Expected month-aligned bucket instant, got ${bucketInstant}`);
+        }
+        break;
+    }
+    return bucketInstant;
   }
 
   private fillGaps(data: TimeSeries.Point[], unit: TimeSeries["tUnit"], from: Temporal.Instant, to: Temporal.Instant): TimeSeries.Point[] {
@@ -309,9 +346,12 @@ export class StatsService {
 
     const duration = unit === "hour" ? { hours: 1 } : unit === "day" ? { days: 1 } : { months: 1 };
     const result: TimeSeries.Point[] = [];
-    while (Temporal.Instant.compare(current.toInstant(), to) <= 0) {
+    while (Temporal.Instant.compare(current.toInstant(), to) < 0) {
       const instant = current.toInstant();
-      result.push({ t: instant, y: existing.get(instant.toString()) ?? 0 });
+      result.push({
+        t: instant,
+        y: existing.get(instant.toString()) ?? 0,
+      });
       current = current.add(duration);
     }
     return result;
