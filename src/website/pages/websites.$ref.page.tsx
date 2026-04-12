@@ -4,6 +4,7 @@ import { Stats } from "@/models/Stats";
 import { StatsQuery } from "@/models/StatsQuery";
 import clsx from "clsx";
 import { useNavigate, useParams } from "react-router";
+import { Period } from "../../models/Period";
 import { StatsClient } from "../clients/StatsClient";
 import { WebsiteClient } from "../clients/WebsiteClient";
 import { ActiveFiltersBar } from "../comps/dashboard/ActiveFiltersBar";
@@ -15,7 +16,6 @@ import { Skeleton } from "../comps/Skeleton";
 import { DistributionFilter } from "../femodels/DistributionFilter";
 import { Graph } from "../femodels/Graph";
 import { PanelTab } from "../femodels/PanelTab";
-import { Period } from "../../models/Period";
 import { useDashboardStateWithUrlSynchronization } from "../hooks/dashboard/useDashboardStateWithUrlSynchronization";
 import { useDocumentTitle } from "../hooks/useDocumentTitle";
 import { useRegistry } from "../hooks/useRegistry";
@@ -68,7 +68,7 @@ export function websites$refPage() {
           ...filters.reduce((previous, { key, value }) => ({ ...previous, [key]: value }), {}),
         }),
     },
-    [website?.id, graph, period.from?.toString(), period.to?.toString(), JSON.stringify(filters)], // TODO: sort by keys alphabetically?
+    [website?.id, graph, period.from?.toString(), period.to?.toString(), JSON.stringify(filters)],
   );
 
   useDocumentTitle(website ? `${website.hostname} | Websites | Visage` : "Websites | Visage");
