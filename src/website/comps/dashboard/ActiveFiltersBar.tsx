@@ -16,9 +16,7 @@ export function ActiveFiltersBar({ period, filters, toggle, reset }: Props): Rea
         onClick={() => toggle(key, value)}
         className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-c-accent text-sm cursor-pointer hover:bg-black/5 transition-colors border border-black/20 border-dashed"
       >
-        {/* TODO: this `value` should also account for NULL --- see the DistributionTable component for how to construct a displayValue */}
-        {/* TODO: nicer UX if we also show the country's full name here */}
-        <span className="text-c-dark-half">{key}:</span> {value}
+        <span className="text-c-dark-half">{key}:</span> {DistributionFilter.renderValue(key, value)}
         <span className="ml-1 text-c-accent/50">&times;</span>
       </button>
     )),

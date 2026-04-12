@@ -1,3 +1,4 @@
+import { NullSentinel } from "@/helpers/NullSentinel";
 import { ZodParser } from "@/helpers/ZodParser";
 import { Temporal } from "@js-temporal/polyfill";
 import z from "zod/v4";
@@ -77,27 +78,12 @@ export namespace StatsQuery {
           .transform((t) => Temporal.Instant.from(t))
           .optional(),
         page: z.string().optional(),
-        source: z
-          .string()
-          .transform((s) => (s === "@null" ? null : s)) // TODO: centralize this ...
-          .optional(),
+        source: z.string().transform(NullSentinel.decode).optional(),
         screen: z.string().optional(),
-        browser: z
-          .string()
-          .transform((s) => (s === "@null" ? null : s)) // TODO: centralize this ...
-          .optional(),
-        os: z
-          .string()
-          .transform((s) => (s === "@null" ? null : s)) // TODO: centralize this ...
-          .optional(),
-        country: z
-          .string()
-          .transform((s) => (s === "@null" ? null : s)) // TODO: centralize this ...
-          .optional(),
-        city: z
-          .string()
-          .transform((s) => (s === "@null" ? null : s)) // TODO: centralize this ...
-          .optional(),
+        browser: z.string().transform(NullSentinel.decode).optional(),
+        os: z.string().transform(NullSentinel.decode).optional(),
+        country: z.string().transform(NullSentinel.decode).optional(),
+        city: z.string().transform(NullSentinel.decode).optional(),
         pageDistributionLimit: z.coerce.number().optional(),
         pageDistributionOffset: z.coerce.number().optional(),
         sourceDistributionLimit: z.coerce.number().optional(),

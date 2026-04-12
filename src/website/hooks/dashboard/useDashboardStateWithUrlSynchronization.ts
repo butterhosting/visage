@@ -1,3 +1,4 @@
+import { NullSentinel } from "@/helpers/NullSentinel";
 import { Stats } from "@/models/Stats";
 import { DistributionFilter } from "@/website/femodels/DistributionFilter";
 import { Graph } from "@/website/femodels/Graph";
@@ -6,6 +7,10 @@ import { Temporal } from "@js-temporal/polyfill";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router";
 
+/**
+ * TODO: this has some bugs ... the "params update" should happen in a single useEffect, instead of 3
+ * See this warning: https://reactrouter.com/api/hooks/useSearchParams
+ */
 export function useDashboardStateWithUrlSynchronization() {
   const [params, setParams] = useSearchParams();
 
@@ -13,6 +18,7 @@ export function useDashboardStateWithUrlSynchronization() {
   function syncToParams(paramType: "period", period: Period): void;
   function syncToParams(paramType: "filters", filters: DistributionFilter[]): void;
   function syncToParams(paramType: "graph" | "period" | "filters", object: Graph | Period | DistributionFilter[]): void {
+    console.log({ paramType });
     switch (paramType) {
       case "graph": {
         const graph = object as Graph;
@@ -39,13 +45,16 @@ export function useDashboardStateWithUrlSynchronization() {
             } else {
               params.set("period", /^last\d+d$/.test(period.preset) ? period.preset.slice("last".length) : period.preset);
               if (period.preset === Period.Preset.custom) {
-                if (period.from) {
-                  params.set("from", period.from.toZonedDateTimeISO("UTC").toPlainDate().toString());
+                const { from: fromInstant, to: toInstant } = period;
+                if (!fromInstant || !toInstant) {
+                  throw new Error(`Illegal state: both "from" and "to" should be set for custom periods`);
                 }
-                if (period.to) {
-                  // apply "-1 days" because the instant is exclusive ...
-                  params.set("to", period.to.toZonedDateTimeISO("UTC").toPlainDate().subtract({ days: 1 }).toString());
-                }
+                const { fromDate, toDate } = Period.toDates({ fromInstant, toInstant });
+                params.set("from", fromDate.toString());
+                params.set("to", toDate.toString());
+              } else {
+                params.delete("from");
+                params.delete("to");
               }
             }
             return params;
@@ -60,7 +69,7 @@ export function useDashboardStateWithUrlSynchronization() {
             Object.values(DistributionFilter.Key).forEach((targetKey) => {
               const activeFilter = filters.find(({ key }) => key === targetKey);
               if (activeFilter) {
-                params.set(targetKey, activeFilter.value === null ? "@null" : activeFilter.value); // TODO: centralize this @null stuff
+                params.set(targetKey, NullSentinel.encode(activeFilter.value));
               } else {
                 params.delete(targetKey);
               }
@@ -111,11 +120,15 @@ export function useDashboardStateWithUrlSynchronization() {
         const toParam = params.get("to") || undefined;
         if (fromParam && toParam) {
           // in custom ranges, both "from" and "to" must be specified via the UI
+          const { fromInstant, toInstant } = Period.fromDates({
+            fromDate: Temporal.PlainDate.from(fromParam),
+            toDate: Temporal.PlainDate.from(toParam),
+          });
           try {
             return {
               preset: presetParam,
-              from: Temporal.PlainDate.from(fromParam).toZonedDateTime("UTC").toInstant(),
-              to: Temporal.PlainDate.from(toParam).add({ days: 1 }).toZonedDateTime("UTC").toInstant(),
+              from: fromInstant,
+              to: toInstant,
             };
           } catch (e) {
             // ignore and fall through
@@ -135,7 +148,7 @@ export function useDashboardStateWithUrlSynchronization() {
     Object.values(DistributionFilter.Key).forEach((key) => {
       const value = params.get(key);
       if (typeof value === "string") {
-        result.push({ key, value: value === "@null" ? null : value }); // TODO ... centralize this @null stuff
+        result.push({ key, value: NullSentinel.decode(value) });
       }
     });
     return result;

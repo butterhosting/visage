@@ -38,9 +38,13 @@ export function PeriodPicker({ period, onChange, className }: Props) {
   }, [open]);
 
   let activeLabel: string;
-  if (period.preset === Period.Preset.custom && period?.from && period?.to) {
-    // TODO: I have this +1/-1 logic scattered in too many places ... consolidate somewhere?
-    activeLabel = `${Prettify.longDate(period.from)} \u2013 ${Prettify.longDate(period.to?.toZonedDateTimeISO("UTC").subtract({ days: 1 }).toInstant())}`;
+  if (period.preset === Period.Preset.custom) {
+    const { from: fromInstant, to: toInstant } = period;
+    if (!fromInstant || !toInstant) {
+      throw new Error(`Illegal state: both "from" and "to" should be set for custom periods`);
+    }
+    const { fromDate, toDate } = Period.toDates({ fromInstant, toInstant });
+    activeLabel = `${Prettify.date(fromDate)} \u2013 ${Prettify.date(toDate)}`;
   } else {
     activeLabel = translations[period.preset];
   }

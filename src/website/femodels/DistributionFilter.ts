@@ -18,4 +18,22 @@ export namespace DistributionFilter {
   };
 
   export type ToggleFn = (key: Key, value: string | null) => void;
+
+  const countryNames = new Intl.DisplayNames(["en"], { type: "region" });
+  const translatedNullValues: Partial<Record<DistributionFilter.Key, string>> = {
+    source: "(direct)",
+  };
+  export function renderValue(key: Key, value: string | null): string {
+    if (value === null) {
+      return translatedNullValues[key] ?? "(unknown)";
+    }
+    if (key === DistributionFilter.Key.country) {
+      const fullCountryName = countryNames.of(value);
+      if (fullCountryName) {
+        return fullCountryName;
+      }
+    }
+
+    return value;
+  }
 }

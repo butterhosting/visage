@@ -2,7 +2,6 @@ import { Prettify } from "@/helpers/Prettify";
 import { Distribution } from "@/models/Distribution";
 import { StatsQuery } from "@/models/StatsQuery";
 import clsx from "clsx";
-import { useMemo } from "react";
 import { DistributionFilter } from "../../femodels/DistributionFilter";
 import { Icon } from "../../images/Icon";
 import { CountryFlag } from "../CountryFlag";
@@ -16,8 +15,6 @@ type Props = {
   onPageChange: (offset: number) => void;
 };
 export function DistributionTable({ distribution, pageviewsTotal, filterKey, filterValue, toggleFilter, onPageChange }: Props) {
-  const countryNames = useMemo(() => new Intl.DisplayNames(["en"], { type: "region" }), []);
-
   if (!distribution || distribution.data.length === 0 || typeof pageviewsTotal !== "number") {
     return (
       <div className="py-6 text-center">
@@ -31,24 +28,13 @@ export function DistributionTable({ distribution, pageviewsTotal, filterKey, fil
         const isActive = filterValue === point.value;
         const percentage = Math.round((point.count / pageviewsTotal) * 1000) / 10;
 
-        let displayValue = point.value;
-        if (displayValue === null) {
-          const translatedNullValues: Record<string, string> = {
-            [DistributionFilter.Key.source]: "(direct)",
-          };
-          displayValue = translatedNullValues[filterKey] || "(unknown)";
-        } else if (filterKey === "country" && point.value) {
-          displayValue = countryNames.of(point.value) ?? point.value;
-        }
-
         return (
           <button
             key={point.value}
             onClick={() => toggleFilter(filterKey, point.value)}
             className="flex items-center gap-3 cursor-pointer text-left"
           >
-            {/* TODO: format percentage with 1 decimal point always (except for 100%) */}
-            <div className="w-18">{percentage === 0 ? "<0.1" : percentage}%</div>
+            <div className="w-18">{Prettify.percentage(percentage)}</div>
             <div className={clsx("relative flex-1 h-7 rounded overflow-hidden", isActive ? "bg-c-accent/15" : "bg-c-accent/5")}>
               <div
                 className={clsx("absolute inset-y-0 left-0 rounded", isActive ? "bg-c-accent/25" : "bg-c-accent/10")}
@@ -66,7 +52,7 @@ export function DistributionTable({ distribution, pageviewsTotal, filterKey, fil
                 {filterKey === StatsQuery.Filter.city && point.value && typeof point.meta?.country === "string" && (
                   <CountryFlag countryCode={point.meta.country} className="h-3.5 rounded-[1px] shrink-0" />
                 )}
-                {displayValue}
+                {DistributionFilter.renderValue(filterKey, point.value)}
               </span>
             </div>
             <div className="text-xs tabular-nums w-18">{Prettify.number(point.count)} pvs</div>

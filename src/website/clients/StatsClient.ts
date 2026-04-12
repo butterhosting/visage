@@ -1,3 +1,4 @@
+import { NullSentinel } from "@/helpers/NullSentinel";
 import { Stats } from "@/models/Stats";
 import { StatsQuery } from "@/models/StatsQuery";
 import { Yesttp } from "yesttp";
@@ -13,8 +14,7 @@ export class StatsClient {
     };
     for (const [key, value] of Object.entries(q)) {
       if (value === null) {
-        // TODO: centralize this @null stuff ...
-        searchParams[key] = "@null";
+        searchParams[key] = NullSentinel.encode(value);
       } else if (value !== undefined) {
         searchParams[key] = String(value);
       }

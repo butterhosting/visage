@@ -5,6 +5,13 @@ import { Temporal } from "@js-temporal/polyfill";
 export class Prettify {
   private static readonly monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
+  public static date(date: Temporal.PlainDate): string {
+    const day = date.day;
+    const month = this.monthNames[date.month - 1];
+    const year = date.year;
+    return `${day} ${month} ${year}`;
+  }
+
   public static timestamp(instant: Temporal.Instant, timeZone: string): string {
     const wallClockTime = instant.toZonedDateTimeISO(timeZone).toPlainDateTime();
 
@@ -17,6 +24,11 @@ export class Prettify {
     const seconds = String(wallClockTime.second).padStart(2, "0");
 
     return `${day} ${month} ${year} at ${hours}:${minutes}:${seconds}`;
+  }
+
+  public static percentage(percent: number): string {
+    const formatted = percent === 0 ? "<0.1" : percent === 100 ? "100" : percent.toFixed(1);
+    return `${formatted}%`;
   }
 
   public static number(n: number): string {
@@ -41,11 +53,6 @@ export class Prettify {
     if (yUnit === "visitor") return "visitors";
     if (yUnit === "pageview") return "pageviews";
     return "";
-  }
-
-  public static longDate(instant: Temporal.Instant): string {
-    const d = new Date(instant.epochMilliseconds);
-    return d.toLocaleDateString("gb", { day: "numeric", month: "long", year: "numeric" });
   }
 
   public static chartAxisLabel(t: Temporal.Instant, tUnit: TimeSeries["tUnit"]): string {

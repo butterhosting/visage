@@ -1,8 +1,8 @@
+import { Period } from "@/website/femodels/Period";
 import { Temporal } from "@js-temporal/polyfill";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Button } from "../Button";
 import { Modal } from "../Modal";
-import { Period } from "@/website/femodels/Period";
 
 type Props = {
   defaultPeriodRange: Period.Range;
@@ -10,9 +10,26 @@ type Props = {
   close: () => unknown;
 };
 export function PeriodModal({ defaultPeriodRange, apply, close }: Props) {
-  const today = Temporal.Now.plainDateISO(); // TODO: timezone?
-  const [from, setFrom] = useState(defaultPeriodRange.from?.toZonedDateTimeISO("UTC").toPlainDate() ?? today); // TODO: timezone?
-  const [to, setTo] = useState(defaultPeriodRange.to?.toZonedDateTimeISO("UTC").toPlainDate().subtract({ days: 1 }) ?? today); // TODO: same +1/-1 offset logic ...
+  const defaultState = useMemo(() => {
+    const today = Temporal.Now.plainDateISO(); // TODO: timezone?
+    const { from, to } = defaultPeriodRange;
+    if (from && to) {
+      const { fromDate, toDate } = Period.toDates({ fromInstant: from, toInstant: to });
+      return {
+        today,
+        from: fromDate,
+        to: toDate,
+      };
+    }
+    return {
+      today,
+      from: today,
+      to: today,
+    };
+  }, []);
+
+  const [from, setFrom] = useState(defaultState.from);
+  const [to, setTo] = useState(defaultState.to);
   return (
     <Modal isOpen issueCloseRequestWhenClickingBackdrop onCloseRequest={close} className="p-6">
       <div className="flex flex-col gap-5">
@@ -39,7 +56,7 @@ export function PeriodModal({ defaultPeriodRange, apply, close }: Props) {
             <input
               type="date"
               min={from.toString()}
-              max={today.toString()}
+              max={defaultState.today.toString()}
               value={to.toString()}
               onChange={(e) => {
                 try {
