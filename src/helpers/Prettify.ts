@@ -1,16 +1,8 @@
-import { TimeSeries } from "@/models/TimeSeries";
 import { Temporal } from "@js-temporal/polyfill";
 
 // TODO: this has gotten out of control a bit .. simplify
 export class Prettify {
   private static readonly monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-
-  public static date(date: Temporal.PlainDate): string {
-    const day = date.day;
-    const month = this.monthNames[date.month - 1];
-    const year = date.year;
-    return `${day} ${month} ${year}`;
-  }
 
   public static timestamp(instant: Temporal.Instant, timeZone: string): string {
     const wallClockTime = instant.toZonedDateTimeISO(timeZone).toPlainDateTime();
@@ -26,9 +18,11 @@ export class Prettify {
     return `${day} ${month} ${year} at ${hours}:${minutes}:${seconds}`;
   }
 
-  public static percentage(percent: number): string {
-    const formatted = percent === 0 ? "<0.1" : percent === 100 ? "100" : percent.toFixed(1);
-    return `${formatted}%`;
+  public static date(date: Temporal.PlainDate): string {
+    const day = date.day;
+    const month = this.monthNames[date.month - 1];
+    const year = date.year;
+    return `${day} ${month} ${year}`;
   }
 
   public static number(n: number): string {
@@ -37,35 +31,15 @@ export class Prettify {
     return n.toString();
   }
 
+  public static percentage(percent: number): string {
+    const formatted = percent === 0 ? "<0.1" : percent === 100 ? "100" : percent.toFixed(1);
+    return `${formatted}%`;
+  }
+
   public static duration(seconds: number): string {
     const m = Math.floor(seconds / 60);
     const s = seconds % 60;
     if (m === 0) return `${s}s`;
     return `${m}m ${s}s`;
-  }
-
-  public static yValue(value: number, yUnit: TimeSeries["yUnit"]): string {
-    if (yUnit === "second") return Prettify.duration(value);
-    return Prettify.number(value);
-  }
-
-  public static yUnitLabel(yUnit: TimeSeries["yUnit"]): string {
-    if (yUnit === "visitor") return "visitors";
-    if (yUnit === "pageview") return "pageviews";
-    return "";
-  }
-
-  public static chartAxisLabel(t: Temporal.Instant, tUnit: TimeSeries["tUnit"]): string {
-    const d = new Date(t.epochMilliseconds);
-    if (tUnit === "month") return d.toLocaleDateString("gb", { month: "short", year: "numeric" });
-    if (tUnit === "day") return d.toLocaleDateString("gb", { day: "numeric", month: "short" });
-    return d.toLocaleTimeString("gb", { hour: "2-digit", minute: "2-digit", month: "short", day: "2-digit" });
-  }
-
-  public static chartTooltipLabel(t: Temporal.Instant, tUnit: TimeSeries["tUnit"]): string {
-    const d = new Date(t.epochMilliseconds);
-    if (tUnit === "month") return d.toLocaleDateString("gb", { month: "long", year: "numeric" });
-    if (tUnit === "day") return d.toLocaleDateString("gb", { day: "numeric", month: "long", year: "numeric" });
-    return d.toLocaleTimeString("gb", { hour: "2-digit", minute: "2-digit", month: "short", day: "2-digit" });
   }
 }

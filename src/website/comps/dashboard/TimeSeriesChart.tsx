@@ -1,10 +1,10 @@
 import { Prettify } from "@/helpers/Prettify";
 import { TimeSeries } from "@/models/TimeSeries";
+import { Color } from "@/website/Color";
+import { Temporal } from "@js-temporal/polyfill";
+import { useMemo } from "react";
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { Spinner } from "../Spinner";
-import { TimeSeriesTooltip } from "./TimeSeriesTooltip";
-import { useMemo } from "react";
-import { Color } from "@/website/Color";
 
 type Props = {
   timeSeries?: TimeSeries;
@@ -33,8 +33,8 @@ export function TimeSeriesChart({ timeSeries, minimal, height = 400 }: Props) {
   const chartData = timeSeries.data.map(({ t, y }) => ({
     t,
     y,
-    axisLabel: Prettify.chartAxisLabel(t, tUnit),
-    tooltipLabel: Prettify.chartTooltipLabel(t, tUnit),
+    axisLabel: Internal.Format.tValue(t, tUnit),
+    tooltipLabel: Internal.Format.tooltipLabel(t, tUnit),
   }));
 
   return (
@@ -53,9 +53,7 @@ export function TimeSeriesChart({ timeSeries, minimal, height = 400 }: Props) {
         {!minimal && <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e5e5" />}
         {!minimal && (
           <XAxis
-            dataKey={({ t }: TimeSeries.Point) => {
-              return Prettify.chartAxisLabel(t, tUnit);
-            }}
+            dataKey={({ t }: TimeSeries.Point) => Internal.Format.tValue(t, tUnit)}
             dy={12}
             angle={-45}
             textAnchor="end"
@@ -71,13 +69,13 @@ export function TimeSeriesChart({ timeSeries, minimal, height = 400 }: Props) {
             axisLine={false}
             tickLine={false}
             tick={{ fontSize: 13, fontWeight: 600, fill: "#2d2c32" }}
-            tickFormatter={(v: number) => Prettify.yValue(v, yUnit)}
+            tickFormatter={(v: number) => Internal.Format.yValue(v, yUnit, "without extension")}
             dx={-4}
           />
         )}
         {!minimal && (
           <Tooltip
-            content={<TimeSeriesTooltip yUnit={yUnit} />}
+            content={<Internal.Tooltip yUnit={yUnit} />}
             cursor={{
               stroke: Color.accent(),
               strokeWidth: 1,
@@ -98,4 +96,52 @@ export function TimeSeriesChart({ timeSeries, minimal, height = 400 }: Props) {
       </AreaChart>
     </ResponsiveContainer>
   );
+}
+
+namespace Internal {
+  type Props = {
+    yUnit: TimeSeries["yUnit"];
+    active?: boolean;
+    payload?: Array<{ value: number; payload: { tooltipLabel: string } }>;
+  };
+  export function Tooltip({ yUnit, active, payload }: Props) {
+    if (!active || !payload?.length) return null;
+    return (
+      <div className="bg-c-dark-full text-white rounded-xl px-5 py-4 shadow-xl">
+        <div className="text-xs font-bold tracking-wide mb-2 text-white/70">{payload[0].payload.tooltipLabel}</div>
+        <div className="flex items-center gap-3">{Format.yValue(payload[0].value, yUnit, "with extension")}</div>
+      </div>
+    );
+  }
+
+  export namespace Format {
+    export function yValue(value: number, yUnit: TimeSeries["yUnit"], ext: "with extension" | "without extension"): string {
+      if (yUnit === "second") return Prettify.duration(value);
+      const formattedValue = Prettify.number(value);
+
+      if (ext === "with extension") {
+        if (yUnit === "visitor") {
+          return `${formattedValue} visitor${value === 1 ? "" : "s"}`;
+        }
+        if (yUnit === "pageview") {
+          return `${formattedValue} pageview${value === 1 ? "" : "s"}`;
+        }
+      }
+      return formattedValue;
+    }
+
+    export function tValue(timestamp: Temporal.Instant, tUnit: TimeSeries["tUnit"]): string {
+      const d = new Date(timestamp.epochMilliseconds);
+      if (tUnit === "month") return d.toLocaleDateString("gb", { month: "short", year: "numeric" });
+      if (tUnit === "day") return d.toLocaleDateString("gb", { day: "numeric", month: "short" });
+      return d.toLocaleTimeString("gb", { hour: "2-digit", minute: "2-digit", month: "short", day: "2-digit" });
+    }
+
+    export function tooltipLabel(timestamp: Temporal.Instant, tUnit: TimeSeries["tUnit"]): string {
+      const d = new Date(timestamp.epochMilliseconds);
+      if (tUnit === "month") return d.toLocaleDateString("gb", { month: "long", year: "numeric" });
+      if (tUnit === "day") return d.toLocaleDateString("gb", { day: "numeric", month: "long", year: "numeric" });
+      return d.toLocaleTimeString("gb", { hour: "2-digit", minute: "2-digit", month: "short", day: "2-digit" });
+    }
+  }
 }
