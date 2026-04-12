@@ -66,7 +66,11 @@ export class StatsService {
     if (q.fields?.includes(Stats.Field.livePageviewsTotal)) {
       const to = Temporal.Now.instant();
       const from = to.subtract({ minutes: 10 });
-      stats.livePageviewsTotal = await this.count([baseWhere, gte($analyticsEvent.created, from.toString()), lt($analyticsEvent.created, to.toString())]);
+      stats.livePageviewsTotal = await this.count([
+        baseWhere,
+        gte($analyticsEvent.created, from.toString()),
+        lt($analyticsEvent.created, to.toString()),
+      ]);
     }
     if (q.fields?.includes(Stats.Field.visitorsTimeSeries)) {
       stats.visitorsTimeSeries = await this.timeSeries([...queryWhere, eq($analyticsEvent.isVisitor, true)], q, "visitor");
@@ -372,6 +376,7 @@ export class StatsService {
         .orderBy(desc(c))
         .limit(limit + 1)
         .offset(offset);
+      rows = rows.map((r) => (r.value === null ? { ...r, meta: { country: null } } : r));
     } else {
       rows = await this.sqlite
         .select({ value: column, count: c })

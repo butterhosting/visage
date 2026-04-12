@@ -1,12 +1,11 @@
 import { Prettify } from "@/helpers/Prettify";
 import { Distribution } from "@/models/Distribution";
+import { StatsQuery } from "@/models/StatsQuery";
 import clsx from "clsx";
-import { hasFlag } from "country-flag-icons";
+import { useMemo } from "react";
 import { DistributionFilter } from "../../femodels/DistributionFilter";
 import { Icon } from "../../images/Icon";
 import { CountryFlag } from "../CountryFlag";
-import { useMemo } from "react";
-import { StatsQuery } from "@/models/StatsQuery";
 
 type Props = {
   distribution?: Distribution;
@@ -61,13 +60,12 @@ export function DistributionTable({ distribution, pageviewsTotal, filterKey, fil
                   isActive && "font-semibold text-c-accent",
                 )}
               >
-                {filterKey === StatsQuery.Filter.country && point.value && hasFlag(point.value) && (
+                {filterKey === StatsQuery.Filter.country && point.value && (
                   <CountryFlag countryCode={point.value} className="h-3.5 rounded-[1px] shrink-0" />
                 )}
-                {filterKey === StatsQuery.Filter.city &&
-                  point.value &&
-                  typeof point.meta?.country === "string" &&
-                  hasFlag(point.meta.country) && <CountryFlag countryCode={point.meta.country} className="h-3.5 rounded-[1px] shrink-0" />}
+                {filterKey === StatsQuery.Filter.city && point.value && typeof point.meta?.country === "string" && (
+                  <CountryFlag countryCode={point.meta.country} className="h-3.5 rounded-[1px] shrink-0" />
+                )}
                 {displayValue}
               </span>
             </div>
