@@ -10,9 +10,10 @@
     "drizzle": "sh -c ': \"${1:?Please pass a migration name}\"; bunx drizzle-kit generate --name=$1 --custom' _",
     "install:browsers": "playwright install chromium --with-deps",
     "dev": "docker compose up",
-    "tc": "bunx tsc --noEmit",
     "tracker:build": "bun build --minify --outfile=opt/visage/tracker/vis.js src/tracker/vis.ts",
     "tracker:watch": "bun tracker:build --watch",
+    "tc": "bunx tsc --noEmit",
+    "lint": "bunx knip-bun",
     "test:unit": "bun test",
     "start:dev": "concurrently --kill-others \"bun tracker:watch\" \"bun --env-file=.env.dev --env-file=.env --hot src/index.ts\"",
     "start:e2e": "bun tracker:build && bun --env-file=.env.e2e src/index.ts",
@@ -45,6 +46,7 @@
     "@types/react-dom": "^19",
     "concurrently": "^9.2.1",
     "drizzle-kit": "^0.31.8",
+    "knip": "^6.4.0",
     "typescript": "^5.9.3"
   }
 }

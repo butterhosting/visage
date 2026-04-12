@@ -3,7 +3,6 @@ import { Sqlite } from "@/drizzle/sqlite";
 import { ServerError } from "@/errors/ServerError";
 import { WebsiteError } from "@/errors/WebsiteError";
 import { AuthHelper } from "@/helpers/AuthHelper";
-import { Logger } from "@/Logger";
 import { Distribution } from "@/models/Distribution";
 import { Stats } from "@/models/Stats";
 import { StatsQuery } from "@/models/StatsQuery";
@@ -16,8 +15,6 @@ import { SQLiteColumn } from "drizzle-orm/sqlite-core";
 import { TokenService } from "./TokenService";
 
 export class StatsService {
-  private readonly log = new Logger(__filename);
-
   public constructor(
     private readonly sqlite: Sqlite,
     private readonly tokenService: TokenService,

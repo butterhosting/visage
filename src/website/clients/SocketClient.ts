@@ -1,4 +1,3 @@
-import { Generate } from "@/helpers/Generate";
 import { ServerMessage } from "@/socket/ServerMessage";
 
 type Subscription = {
@@ -33,7 +32,7 @@ export class SocketClient {
     replayLatestMessage = false,
   }: SocketClient.SubscribeOptions<T>): string => {
     const subscription = {
-      id: `CB${Generate.shortRandomString()}`,
+      id: `CB${Math.random()}`,
       type,
       callback: callback as Subscription["callback"],
     };
@@ -58,7 +57,7 @@ export class SocketClient {
     const deliveryTargets: Subscription[] = specificSubscription
       ? [specificSubscription]
       : this.subscriptions.filter(({ type }) => type === message.type);
-    deliveryTargets.forEach(({ id, callback }) => callback(message));
+    deliveryTargets.forEach(({ callback }) => callback(message));
   }
 }
 

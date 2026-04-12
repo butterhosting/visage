@@ -1,15 +1,14 @@
+import { AnalyticsEventConverter } from "@/drizzle/converters/AnalyticsEventConverter";
+import { TokenConverter } from "@/drizzle/converters/TokenConverter";
+import { WebsiteConverter } from "@/drizzle/converters/WebsiteConverter";
 import * as schema from "@/drizzle/schema";
 import { $analyticsEvent } from "@/drizzle/schema";
 import { Sqlite } from "@/drizzle/sqlite";
 import { Env } from "@/Env";
 import { Website } from "@/models/Website";
-import { AnalyticsEventConverter } from "@/drizzle/converters/AnalyticsEventConverter";
-import { WebsiteConverter } from "@/drizzle/converters/WebsiteConverter";
 import { test } from "bun:test";
 import { InferInsertModel } from "drizzle-orm";
 import { join } from "path";
-import { Token } from "@/models/Token";
-import { TokenConverter } from "@/drizzle/converters/TokenConverter";
 
 test.skip("regression suite management", async () => {
   // manually create a varied database file
@@ -57,6 +56,8 @@ export namespace RegressionSuite {
       await Bun.write(databaseCopyPath, file);
       return await Sqlite.initialize({ X_VISAGE_DATABASE: databaseCopyPath } as Env.Private);
     }
+
+    /** @public */
     export async function insertIntoRegressionDatabase({ $analyticsEvent: analyticsEvents }: TableRecords) {
       const file = Bun.file(databasePath);
       if (await file.exists()) {

@@ -16,7 +16,7 @@ export class TrackerService {
   }
 
   private replaceVariables(script: string, replacements: Record<string, string>): string {
-    const result = script.replace(/\{\{(\w+)\}\}/g, (match, key) => {
+    const result = script.replace(/\{\{(\w+)\}\}/g, (_match, key) => {
       if (!(key in replacements)) {
         throw new Error(`Unresolved template variable: {{${key}}}`);
       }

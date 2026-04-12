@@ -1,5 +1,4 @@
 import { describe, expect, it } from "bun:test";
-import { Temporal } from "@js-temporal/polyfill";
 import { Token } from "./Token";
 
 describe("Token", () => {

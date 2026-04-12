@@ -4,7 +4,7 @@ import { ServerError } from "@/errors/ServerError";
 import index from "@/website/index.html";
 import { Temporal } from "@js-temporal/polyfill";
 import { ErrorLike } from "bun";
-import { Generate } from "./helpers/Generate";
+import { randomUUID } from "crypto";
 import { Prettify } from "./helpers/Prettify";
 import { Logger } from "./Logger";
 import { Middleware } from "./middleware/Middleware";
@@ -45,7 +45,7 @@ export class Server {
         const { pathname } = new URL(request.url);
         if (pathname === "/socket") {
           const context: Socket.Context = {
-            clientId: Generate.shortRandomString(),
+            clientId: `${randomUUID()}`,
           };
           if (server.upgrade(request, { data: context })) {
             return new Response(null, { status: 200 });
@@ -58,10 +58,10 @@ export class Server {
         message: () => {
           // Ignore any incoming client messages
         },
-        open: (socket) => {
+        open: (_socket) => {
           console.log("TODO; register socket in service(s)");
         },
-        close: (socket) => {
+        close: (_socket) => {
           console.log("TODO; unregister socket in service(s)");
         },
       },
@@ -263,21 +263,6 @@ export class Server {
   private searchParams(request: Bun.BunRequest): Record<string, string> {
     const url = new URL(request.url);
     return Object.fromEntries(url.searchParams);
-  }
-
-  private searchParam<T extends `${string}!`>(request: Bun.BunRequest, name: T): string;
-  private searchParam<T extends string>(request: Bun.BunRequest, name: T): string | undefined;
-  private searchParam<T extends string>(request: Bun.BunRequest, nameWithPossibleExclamation: T): string | undefined {
-    const url = new URL(request.url);
-    const isRequired = nameWithPossibleExclamation.endsWith("!");
-    const name = isRequired
-      ? nameWithPossibleExclamation.substring(0, nameWithPossibleExclamation.length - 1)
-      : nameWithPossibleExclamation;
-    const value = url.searchParams.get(name);
-    if (isRequired && !value) {
-      throw ServerError.missing_query_parameter({ name });
-    }
-    return value || undefined;
   }
 
   private handleFetch<C>(

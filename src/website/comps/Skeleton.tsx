@@ -12,14 +12,14 @@ type Props = ComponentProps<"main">;
 export function Skeleton(props: Props) {
   return (
     <>
-      <Skeleton.Header />
-      <Skeleton.Main {...props} />
-      <Skeleton.Footer />
+      <Internal.Header />
+      <Internal.Main {...props} />
+      <Internal.Footer />
     </>
   );
 }
 
-export namespace Skeleton {
+namespace Internal {
   export function Header() {
     const { pathname } = useLocation();
     const websiteRef = pathname.startsWith("/websites/") ? pathname.slice("/websites/".length) : undefined;

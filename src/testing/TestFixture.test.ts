@@ -1,12 +1,13 @@
 import { AnalyticsEvent } from "@/models/AnalyticsEvent";
 import { Temporal } from "@js-temporal/polyfill";
+import { randomUUID } from "crypto";
 
 type DeepPartial<T> = T extends object ? { [P in keyof T]?: DeepPartial<T[P]> } : T;
 
 export namespace TestFixture {
   export function createAnalyticsEvent(overrides: DeepPartial<AnalyticsEvent> = {}): AnalyticsEvent {
     const defaults: AnalyticsEvent = {
-      id: crypto.randomUUID(), // client-generated
+      id: randomUUID(), // client-generated
       object: "analytics_event",
       websiteId: Bun.randomUUIDv7(), // server-generated
       created: Temporal.Now.instant(),

@@ -1,4 +1,3 @@
-import { Generate } from "@/helpers/Generate";
 import { Fragment, ReactNode, Ref, useImperativeHandle, useState } from "react";
 
 type Props = {
@@ -8,7 +7,7 @@ export function DialogManager({ ref }: Props): ReactNode {
   const [nodeMap, setNodeMap] = useState<Map<string, ReactNode>>(new Map());
   useImperativeHandle(ref, () => ({
     insert: (node) => {
-      const token = Generate.shortRandomString();
+      const token = `${Math.random()}`;
       setNodeMap((map) => {
         const updatedMap = new Map(map);
         updatedMap.set(token, node);

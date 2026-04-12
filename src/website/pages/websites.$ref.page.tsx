@@ -1,6 +1,8 @@
+import { WebsiteError } from "@/errors/WebsiteError";
 import { Prettify } from "@/helpers/Prettify";
 import { Stats } from "@/models/Stats";
 import { StatsQuery } from "@/models/StatsQuery";
+import clsx from "clsx";
 import { useNavigate, useParams } from "react-router";
 import { StatsClient } from "../clients/StatsClient";
 import { WebsiteClient } from "../clients/WebsiteClient";
@@ -13,15 +15,12 @@ import { Skeleton } from "../comps/Skeleton";
 import { DistributionFilter } from "../femodels/DistributionFilter";
 import { Graph } from "../femodels/Graph";
 import { PanelTab } from "../femodels/PanelTab";
+import { Period } from "../femodels/Period";
 import { useDashboardStateWithUrlSynchronization } from "../hooks/dashboard/useDashboardStateWithUrlSynchronization";
 import { useDocumentTitle } from "../hooks/useDocumentTitle";
 import { useRegistry } from "../hooks/useRegistry";
 import { useYesQuery } from "../hooks/useYesQuery";
-import clsx from "clsx";
-import { ProblemDetails } from "@/models/ProblemDetails";
-import { WebsiteError } from "@/errors/WebsiteError";
 import { Route } from "../Route";
-import { Period } from "../femodels/Period";
 
 export function websites$refPage() {
   const { ref } = useParams();

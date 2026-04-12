@@ -48,7 +48,7 @@ export class ClientRegistry {
   public constructor(private readonly env: Env.Public) {
     const yesttp = (this.registry[Yesttp.name] = new Yesttp({
       baseUrl: "/internal-api",
-      responseErrorIntercepter: (request, response): Promise<ProblemDetails> => {
+      responseErrorIntercepter: (_request, response): Promise<ProblemDetails> => {
         return Promise.reject(response.json);
       },
     }));
