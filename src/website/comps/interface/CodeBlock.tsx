@@ -6,13 +6,12 @@ import { Icon } from "../../images/Icon";
 type Props = {
   children: string;
   language: string;
-  variant?: "compact";
 };
-export function CodeBlock({ children, language, variant }: Props) {
+export function CodeBlock({ children, language }: Props) {
   const [html, setHtml] = useState("");
   const [copied, setCopied] = useState(false);
   useEffect(() => {
-    codeToHtml(children, { lang: language, theme: "synthwave-84" }).then(setHtml);
+    codeToHtml(children, { lang: language, theme: "github-dark-default" }).then(setHtml);
   }, [children, language]);
   return (
     <div className="relative group">
@@ -27,10 +26,7 @@ export function CodeBlock({ children, language, variant }: Props) {
         {copied ? <Icon.Check className="size-4 text-[#4ade80]" /> : <Icon.Copy className="size-4" />}
       </button>
       <div
-        className={clsx(
-          "[&_pre]:rounded-xl [&_pre]:leading-relaxed [&_pre]:overflow-x-auto",
-          variant === "compact" ? "[&_pre]:p-4 [&_pre]:text-xs" : "[&_pre]:p-5",
-        )}
+        className={clsx("[&_pre]:rounded-xl [&_pre]:leading-relaxed [&_pre]:overflow-x-auto [&_pre]:p-5")}
         dangerouslySetInnerHTML={{ __html: html }}
       />
     </div>
