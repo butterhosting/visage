@@ -3,6 +3,7 @@ import { Sqlite } from "@/drizzle/sqlite";
 import { Website } from "@/models/Website";
 import { eq, or } from "drizzle-orm";
 import { WebsiteConverter } from "../drizzle/converters/WebsiteConverter";
+import { PersistenceError } from "./error/PersistenceError";
 
 export class WebsiteRepository {
   public constructor(private readonly sqlite: Sqlite) {}
@@ -27,10 +28,16 @@ export class WebsiteRepository {
     return undefined;
   }
 
-  // TODO: return `undefined` if `id`/`hostname` already exists
   public async create(website: Website): Promise<Website> {
-    await this.sqlite.insert($website).values(WebsiteConverter.convert(website));
-    return website;
+    return await this.sqlite
+      .insert($website)
+      .values(WebsiteConverter.convert(website))
+      .then(
+        () => website,
+        (err) => {
+          throw PersistenceError.cast(err);
+        },
+      );
   }
 
   public async update(ref: string, update: Partial<Website>): Promise<Website | undefined> {
@@ -38,7 +45,10 @@ export class WebsiteRepository {
       .update($website)
       .set(WebsiteConverter.convert(update))
       .where(or(eq($website.id, ref), eq($website.hostname, ref)))
-      .returning();
+      .returning()
+      .catch((err) => {
+        throw PersistenceError.cast(err);
+      });
     return website ? WebsiteConverter.convert(website) : undefined;
   }
 

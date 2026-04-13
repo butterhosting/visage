@@ -13,7 +13,7 @@ type Props = {
 export function PeriodModal({ defaultPeriodRange, apply, close }: Props) {
   const { O_VISAGE_TIMEZONE } = useRegistry("env");
   const defaultState = useMemo(() => {
-    const today = Temporal.Now.plainDateISO(); // TODO: timezone?
+    const today = Temporal.Now.plainDateISO(O_VISAGE_TIMEZONE);
     const { from, to } = defaultPeriodRange;
     if (from && to) {
       const { fromDate, toDate } = Period.toDates({ fromInstant: from, toInstant: to }, O_VISAGE_TIMEZONE);

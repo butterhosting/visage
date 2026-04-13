@@ -4,6 +4,7 @@ import { $token } from "@/drizzle/tables/$token";
 import { Token } from "@/models/Token";
 import { Temporal } from "@js-temporal/polyfill";
 import { eq, like } from "drizzle-orm";
+import { PersistenceError } from "./error/PersistenceError";
 
 export class TokenRepository {
   public constructor(private readonly sqlite: Sqlite) {}
@@ -21,9 +22,15 @@ export class TokenRepository {
   }
 
   public async create(token: Token): Promise<Token | undefined> {
-    // TODO: return undefined if we get an primary key unique violation
-    await this.sqlite.insert($token).values(TokenConverter.convert(token));
-    return token;
+    return await this.sqlite
+      .insert($token)
+      .values(TokenConverter.convert(token))
+      .then(
+        () => token,
+        (err) => {
+          throw PersistenceError.cast(err);
+        },
+      );
   }
 
   public async updateUsage(id: string): Promise<Token | undefined> {

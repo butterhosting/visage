@@ -8,6 +8,7 @@ import { Period } from "@/models/Period";
 import { Stats } from "@/models/Stats";
 import { Website } from "@/models/Website";
 import { WebsiteRM } from "@/models/WebsiteRM";
+import { PersistenceError } from "@/repositories/error/PersistenceError";
 import { WebsiteRepository } from "@/repositories/WebsiteRepository";
 import { Temporal } from "@js-temporal/polyfill";
 import z from "zod/v4";
@@ -38,13 +39,20 @@ export class WebsiteService {
 
   public async create(unknown: z.output<typeof WebsiteService.Upsert>): Promise<WebsiteRM> {
     const { hostname } = WebsiteService.Upsert.parse(unknown);
-    const website = await this.websiteRepository.create({
-      id: Bun.randomUUIDv7(),
-      object: "website",
-      created: Temporal.Now.instant(),
-      hostname,
-      hasData: false,
-    });
+    const website = await this.websiteRepository
+      .create({
+        id: Bun.randomUUIDv7(),
+        object: "website",
+        created: Temporal.Now.instant(),
+        hostname,
+        hasData: false,
+      })
+      .catch((err) => {
+        if (PersistenceError.is(err, "unique_violation")) {
+          throw WebsiteError.already_exists({ hostname });
+        }
+        throw err;
+      });
     this.eventBus.publish(Event.Type.website_created, { website });
     return await this.enrich(website);
   }
@@ -55,10 +63,18 @@ export class WebsiteService {
       .update(ref, {
         hostname,
       })
-      .then((w) => {
-        if (!w) throw WebsiteError.not_found({ ref });
-        return w;
-      });
+      .then(
+        (w) => {
+          if (!w) throw WebsiteError.not_found({ ref });
+          return w;
+        },
+        (err) => {
+          if (PersistenceError.is(err, "unique_violation")) {
+            throw WebsiteError.already_exists({ hostname });
+          }
+          throw err;
+        },
+      );
     this.eventBus.publish(Event.Type.website_updated, { website });
     return await this.enrich(website);
   }

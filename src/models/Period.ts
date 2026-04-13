@@ -24,7 +24,7 @@ export namespace Period {
   }
 
   export function forPreset(preset: Exclude<Preset, Preset.custom>, timezone: string): Period {
-    const today = Temporal.Now.plainDateISO(); // TODO: timezone?
+    const today = Temporal.Now.plainDateISO(timezone);
     switch (preset) {
       case Preset.today:
         return {

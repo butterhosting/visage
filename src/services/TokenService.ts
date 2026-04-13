@@ -5,7 +5,6 @@ import { EventBus } from "@/events/EventBus";
 import { ZodProblem } from "@/helpers/ZodIssues";
 import { Token } from "@/models/Token";
 import { TokenRM } from "@/models/TokenRM";
-import { Website } from "@/models/Website";
 import { TokenRepository } from "@/repositories/TokenRepository";
 import { Temporal } from "@js-temporal/polyfill";
 import { createHash } from "crypto";
@@ -31,7 +30,7 @@ export class TokenService {
     const secretHash = createHash("sha256").update(secretPlain, "utf8").digest("hex");
 
     let token: Token | undefined;
-    while (true) {
+    for (let attempt = 1, max = 100; attempt < max; attempt += 1) {
       token = await this.tokenRepository.create({
         id: Token.generateId(),
         object: "token_internal",
@@ -43,6 +42,9 @@ export class TokenService {
       if (token) {
         break;
       }
+    }
+    if (!token) {
+      throw new Error("Illegal state: failed to generate a unique token id after many attempts");
     }
 
     return this.convert(token);
