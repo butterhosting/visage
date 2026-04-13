@@ -2,6 +2,7 @@ import { $analyticsEvent } from "@/drizzle/schema";
 import { Sqlite } from "@/drizzle/sqlite";
 import { Env } from "@/Env";
 import { ServerError } from "@/errors/ServerError";
+import { StatsError } from "@/errors/StatsError";
 import { WebsiteError } from "@/errors/WebsiteError";
 import { AuthHelper } from "@/helpers/AuthHelper";
 import { Distribution } from "@/models/Distribution";
@@ -42,8 +43,7 @@ export class StatsService {
   }
 
   public async queryExternal(query: unknown, authorization?: string): Promise<Stats> {
-    // TODO: proper error handling, because this is a public API, so we definitely need a StatsError ...
-    const q = StatsQuery.parse(query);
+    const q = this.parseAndValidate(query);
     const website = await this.websiteRepository.find(q.website, () =>
       WebsiteError.not_found({
         ref: q.website,
@@ -51,6 +51,17 @@ export class StatsService {
     );
     await this.authnz(website, authorization);
     return await this.query(q, website);
+  }
+
+  private parseAndValidate(query: unknown): StatsQuery {
+    const q = StatsQuery.parse.SCHEMA.catch((e) => {
+      const errorQueryParams = e.issues.filter((i) => i.path).map((i) => i.path!.map(String).join("."));
+      throw StatsError.invalid_query({ errorQueryParams });
+    }).parse(query);
+    if (q.from && q.to && Temporal.Instant.compare(q.from, q.to) >= 0) {
+      throw StatsError.invalid_query({ errorQueryParams: ["from", "to"] });
+    }
+    return q;
   }
 
   private async query(q: StatsQuery, website: Website): Promise<Stats> {

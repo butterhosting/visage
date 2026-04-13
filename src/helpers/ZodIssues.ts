@@ -1,7 +1,7 @@
 import z from "zod/v4";
 
 export namespace ZodProblem {
-  export function issuesSummary(e: z.core.$ZodCatchCtx): Record<string, any> {
+  export function issuesSummary(e: z.core.$ZodCatchCtx): { issues: { field: string; description: string }[] } {
     return {
       issues: e.issues
         .filter((issue) => Boolean(issue.path))
