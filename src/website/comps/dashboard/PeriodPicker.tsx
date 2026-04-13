@@ -34,7 +34,7 @@ export function PeriodPicker({ period, onChange, className }: Props) {
       throw new Error(`Illegal state: both "from" and "to" should be set for custom periods`);
     }
     const { fromDate, toDate } = Period.toDates({ fromInstant, toInstant }, O_VISAGE_TIMEZONE);
-    activeCustomLabel = `${Prettify.date("long", fromDate)} \u2013 ${Prettify.date("long", toDate)}`;
+    activeCustomLabel = `${Prettify.day(fromDate, { yearFmt: "present", monthFmt: "abbrev" })} \u2013 ${Prettify.day(toDate, { yearFmt: "present", monthFmt: "abbrev" })}`;
   }
 
   const onSelect = (value: string) => {

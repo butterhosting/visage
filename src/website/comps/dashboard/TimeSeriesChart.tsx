@@ -132,15 +132,25 @@ namespace Internal {
     }
 
     export function tValue(timestamp: TimeSeries.Point["t"], tUnit: TimeSeries["tUnit"], timezone: string): string {
-      if (tUnit === "month") return Prettify.month("short", timestamp, timezone);
-      if (tUnit === "day") return Prettify.date("short", timestamp, timezone);
-      return Prettify.time(timestamp, timezone);
+      switch (tUnit) {
+        case "month":
+          return Prettify.month(timestamp, timezone, { yearFmt: "present", monthFmt: "abbrev" });
+        case "day":
+          return Prettify.day(timestamp, timezone, { yearFmt: "absent", monthFmt: "abbrev" });
+        case "hour":
+          return Prettify.timestamp(timestamp, timezone, { yearFmt: "absent", monthFmt: "abbrev", secondFmt: "absent" });
+      }
     }
 
     export function tooltipLabel(timestamp: TimeSeries.Point["t"], tUnit: TimeSeries["tUnit"], timezone: string): string {
-      if (tUnit === "month") return Prettify.month("long", timestamp, timezone);
-      if (tUnit === "day") return Prettify.date("long", timestamp, timezone);
-      return Prettify.time(timestamp, timezone);
+      switch (tUnit) {
+        case "month":
+          return Prettify.month(timestamp, timezone, { yearFmt: "present", monthFmt: "full" });
+        case "day":
+          return Prettify.day(timestamp, timezone, { yearFmt: "present", monthFmt: "full" });
+        case "hour":
+          return Prettify.timestamp(timestamp, timezone, { yearFmt: "present", monthFmt: "full", secondFmt: "absent" });
+      }
     }
   }
 }

@@ -236,7 +236,11 @@ export class Server {
     console.log(
       [
         "",
-        `  🚀 \x1b[1mVisage started on ${Prettify.datetime(Temporal.Now.instant(), this.env.O_VISAGE_TIMEZONE)} (${this.env.O_VISAGE_TIMEZONE})\x1b[0m`,
+        `  🚀 \x1b[1mVisage started on ${Prettify.timestamp(Temporal.Now.instant(), this.env.O_VISAGE_TIMEZONE, {
+          yearFmt: "present",
+          monthFmt: "full",
+          secondFmt: "present",
+        })} (${this.env.O_VISAGE_TIMEZONE})\x1b[0m`,
         "",
         `  \x1b[1mServer\x1b[0m    ${server.url}`,
         "",

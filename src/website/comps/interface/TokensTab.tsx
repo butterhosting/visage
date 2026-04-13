@@ -58,7 +58,13 @@ export function TokensTab() {
                   </td>
                   <td className="px-5 py-3 text-c-dark-half">{formatScope(token.websiteIds)}</td>
                   <td className="px-5 py-3 text-c-dark-half">
-                    {token.lastUsed ? Prettify.datetime(token.lastUsed, O_VISAGE_TIMEZONE) : "Never"}
+                    {token.lastUsed
+                      ? Prettify.timestamp(token.lastUsed, O_VISAGE_TIMEZONE, {
+                          yearFmt: "present",
+                          monthFmt: "full",
+                          secondFmt: "present",
+                        })
+                      : "Never"}
                   </td>
                   <td className="px-5 py-3 text-right">
                     <Button variant="ghost" theme="error" onClick={() => handleDelete(token)} className="px-0 py-0">

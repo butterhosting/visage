@@ -187,9 +187,9 @@ export class StatsService {
     }
 
     const { tUnit, from, to } = analysis;
-    const fmt = this.helper.sqliteStrftimeFormat(tUnit);
+    const format = this.helper.sqliteStrftimeFormat(tUnit);
     const offset = this.helper.resolveFixedOffset(from);
-    const bucket = sql<string>`strftime(${fmt}, datetime(${$analyticsEvent.created}, ${offset.sqliteModifier}))`;
+    const bucket = sql<string>`strftime(${format}, datetime(${$analyticsEvent.created}, ${offset.sqliteModifier}))`;
 
     let data: TimeSeries.Point[];
     if (yUnit === "second") {
