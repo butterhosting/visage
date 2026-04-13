@@ -1,5 +1,6 @@
 import { $analyticsEvent } from "@/drizzle/schema";
 import { Sqlite } from "@/drizzle/sqlite";
+import { Env } from "@/Env";
 import { ServerError } from "@/errors/ServerError";
 import { WebsiteError } from "@/errors/WebsiteError";
 import { AuthHelper } from "@/helpers/AuthHelper";
@@ -15,11 +16,22 @@ import { SQLiteColumn } from "drizzle-orm/sqlite-core";
 import { TokenService } from "./TokenService";
 
 export class StatsService {
+  private static readonly SCREEN_LABEL = sql<string>`case
+    when ${$analyticsEvent.windowScreenWidth} < 768 then 'mobile'
+    when ${$analyticsEvent.windowScreenWidth} < 1024 then 'tablet'
+    else 'desktop'
+  end`;
+
+  private readonly helper: Internal.Helper;
+
   public constructor(
+    env: Env.Private,
     private readonly sqlite: Sqlite,
-    private readonly tokenService: TokenService,
+    tokenService: TokenService,
     private readonly websiteRepository: WebsiteRepository,
-  ) {}
+  ) {
+    this.helper = new Internal.Helper(env, tokenService);
+  }
 
   public async queryInternal(query: StatsQuery): Promise<Stats>;
   public async queryInternal(query: unknown, unknown: "unknown"): Promise<Stats>;
@@ -41,7 +53,7 @@ export class StatsService {
         ref: q.website,
       }),
     );
-    await this.authnz(website, authorization);
+    await this.helper.authnz(website, authorization);
     return await this.query(q, website);
   }
 
@@ -76,7 +88,7 @@ export class StatsService {
       stats.pageviewsTimeSeries = await this.timeSeries(queryWhere, q, "pageview");
     }
     if (q.fields?.includes(Stats.Field.pagetimeTimeSeries)) {
-      stats.pagetimeTimeSeries = await this.pagetimeTimeSeries([...queryWhere, medianWhere], q);
+      stats.pagetimeTimeSeries = await this.timeSeries([...queryWhere, medianWhere], q, "second");
     }
     if (q.fields?.includes(Stats.Field.pageDistribution)) {
       stats.pageDistribution = await this.distribution(
@@ -164,197 +176,56 @@ export class StatsService {
     return where;
   }
 
-  private async analyzeUnitAndRange(
-    where: SQL[],
-    q: StatsQuery,
-  ): Promise<{ tUnit: TimeSeries["tUnit"]; from: Temporal.Instant; to: Temporal.Instant } | undefined> {
-    let from = q.from;
-    let to = q.to;
-    if (!from || !to) {
-      const [{ earliest, latest }] = await this.sqlite
-        .select({ earliest: min($analyticsEvent.created), latest: max($analyticsEvent.created) })
-        .from($analyticsEvent)
-        .where(and(...where));
-      if (!earliest || !latest) {
-        return undefined;
-      }
-      if (!from) {
-        from = Temporal.Instant.from(earliest);
-      }
-      if (!to) {
-        to = Temporal.Instant.from(latest);
-      }
-    }
-    const hours = (to.epochMilliseconds - from.epochMilliseconds) / (1000 * 60 * 60);
-    if (hours < 24 * 7) {
-      return { tUnit: "hour", from, to }; // less than 7 days
-    }
-    if (hours / 24 < 30 * 7) {
-      return { tUnit: "day", from, to }; // less than 10 months
-    }
-    return { tUnit: "month", from, to };
-  }
-
-  private strftimeFormat(unit: TimeSeries["tUnit"]): string {
-    switch (unit) {
-      case "hour":
-        return "%Y-%m-%dT%H:00:00Z";
-      case "day":
-        return "%Y-%m-%dT00:00:00Z";
-      case "month":
-        return "%Y-%m-01T00:00:00Z";
-    }
-  }
-
-  private async pagetimeTimeSeries(where: SQL[], q: StatsQuery): Promise<TimeSeries> {
+  private async timeSeries(where: SQL[], q: StatsQuery, yUnit: "visitor" | "pageview" | "second"): Promise<TimeSeries> {
     const analysis = await this.analyzeUnitAndRange(where, q);
     if (!analysis) {
       return {
-        data: [],
-        tUnit: "day",
-        yUnit: "second",
-      };
-    }
-    const { tUnit, from, to } = analysis;
-    const fmt = this.strftimeFormat(tUnit);
-    const bucket = sql<string>`strftime(${fmt}, ${$analyticsEvent.created})`;
-    const rows = await this.sqlite
-      .select({ bucket, duration: $analyticsEvent.durationSeconds })
-      .from($analyticsEvent)
-      .where(and(...where))
-      .orderBy(bucket, $analyticsEvent.durationSeconds);
-
-    const buckets = new Map<string, number[]>();
-    for (const r of rows) {
-      const arr = buckets.get(r.bucket) ?? [];
-      arr.push(r.duration!);
-      buckets.set(r.bucket, arr);
-    }
-
-    const data = [...buckets.entries()].map<TimeSeries.Point>(([t, values]) => ({
-      t: Temporal.Instant.from(t),
-      y: values[Math.floor(values.length / 2)],
-    }));
-    return {
-      tUnit: tUnit,
-      yUnit: "second",
-      data: this.fillGaps(data, tUnit, from, to),
-    };
-  }
-
-  private async timeSeries(where: SQL[], q: StatsQuery, yUnit: "visitor" | "pageview"): Promise<TimeSeries> {
-    const analysis = await this.analyzeUnitAndRange(where, q);
-    if (!analysis) {
-      return {
-        data: [],
         tUnit: "day",
         yUnit,
+        data: [],
       };
     }
-    const { tUnit, from, to } = analysis;
-    const fmt = this.strftimeFormat(tUnit);
-    const bucket = sql<string>`strftime(${fmt}, ${$analyticsEvent.created})`;
-    const rows = await this.sqlite
-      .select({ bucket, count: count() })
-      .from($analyticsEvent)
-      .where(and(...where))
-      .groupBy(bucket)
-      .orderBy(bucket);
 
-    const data = rows.map<TimeSeries.Point>((row) => ({
-      t: this.assertBucketAlignment(Temporal.Instant.from(row.bucket), tUnit),
-      y: row.count,
-    }));
+    const { tUnit, from, to } = analysis;
+    const fmt = this.helper.sqliteStrftimeFormat(tUnit);
+    const modifier = this.helper.sqliteOffsetModifier(from);
+    const bucket = sql<string>`strftime(${fmt}, datetime(${$analyticsEvent.created}, ${modifier}))`;
+
+    let data: TimeSeries.Point[];
+    if (yUnit === "second") {
+      const rows = await this.sqlite
+        .select({ bucket, duration: $analyticsEvent.durationSeconds })
+        .from($analyticsEvent)
+        .where(and(...where))
+        .orderBy(bucket, $analyticsEvent.durationSeconds);
+      const buckets = new Map<string, number[]>();
+      for (const r of rows) {
+        const arr = buckets.get(r.bucket) ?? [];
+        arr.push(r.duration!);
+        buckets.set(r.bucket, arr);
+      }
+      data = [...buckets.entries()].map<TimeSeries.Point>(([bucket, values]) => ({
+        t: this.helper.assertBucketAlignment(this.helper.revertBucketBackToInstant(bucket), tUnit),
+        y: values[Math.floor(values.length / 2)],
+      }));
+    } else {
+      const rows = await this.sqlite
+        .select({ bucket, count: count() })
+        .from($analyticsEvent)
+        .where(and(...where))
+        .groupBy(bucket)
+        .orderBy(bucket);
+      data = rows.map<TimeSeries.Point>((row) => ({
+        t: this.helper.assertBucketAlignment(this.helper.revertBucketBackToInstant(row.bucket), tUnit),
+        y: row.count,
+      }));
+    }
+
     return {
       tUnit: tUnit,
       yUnit,
-      data: this.fillGaps(data, tUnit, from, to),
+      data: this.helper.fillGaps(data, tUnit, from, to),
     };
-  }
-
-  private assertBucketAlignment(bucketInstant: Temporal.Instant, tUnit: TimeSeries["tUnit"]): Temporal.Instant {
-    const zdt = bucketInstant.toZonedDateTimeISO("UTC");
-    switch (tUnit) {
-      case "hour":
-        if (zdt.minute !== 0 || zdt.second !== 0 || zdt.millisecond !== 0 || zdt.microsecond !== 0 || zdt.nanosecond !== 0) {
-          throw new Error(`Expected hour-aligned bucket instant, got ${bucketInstant}`);
-        }
-        break;
-      case "day":
-        if (
-          zdt.hour !== 0 ||
-          zdt.minute !== 0 ||
-          zdt.second !== 0 ||
-          zdt.millisecond !== 0 ||
-          zdt.microsecond !== 0 ||
-          zdt.nanosecond !== 0
-        ) {
-          throw new Error(`Expected day-aligned bucket instant, got ${bucketInstant}`);
-        }
-        break;
-      case "month":
-        if (
-          zdt.day !== 1 ||
-          zdt.hour !== 0 ||
-          zdt.minute !== 0 ||
-          zdt.second !== 0 ||
-          zdt.millisecond !== 0 ||
-          zdt.microsecond !== 0 ||
-          zdt.nanosecond !== 0
-        ) {
-          throw new Error(`Expected month-aligned bucket instant, got ${bucketInstant}`);
-        }
-        break;
-    }
-    return bucketInstant;
-  }
-
-  private fillGaps(data: TimeSeries.Point[], unit: TimeSeries["tUnit"], from: Temporal.Instant, to: Temporal.Instant): TimeSeries.Point[] {
-    const existing = new Map<string, number>();
-    for (const p of data) {
-      existing.set(p.t.toString(), p.y);
-    }
-    const startZdt = from.toZonedDateTimeISO("UTC");
-    let current: Temporal.ZonedDateTime;
-    switch (unit) {
-      case "hour":
-        current = Temporal.ZonedDateTime.from({
-          timeZone: "UTC",
-          year: startZdt.year,
-          month: startZdt.month,
-          day: startZdt.day,
-          hour: startZdt.hour,
-        });
-        break;
-      case "day":
-        current = Temporal.ZonedDateTime.from({
-          timeZone: "UTC",
-          year: startZdt.year,
-          month: startZdt.month,
-          day: startZdt.day,
-        });
-        break;
-      case "month":
-        current = Temporal.ZonedDateTime.from({
-          timeZone: "UTC",
-          year: startZdt.year,
-          month: startZdt.month,
-          day: 1,
-        });
-        break;
-    }
-
-    const duration = unit === "hour" ? { hours: 1 } : unit === "day" ? { days: 1 } : { months: 1 };
-    const result: TimeSeries.Point[] = [];
-    while (Temporal.Instant.compare(current.toInstant(), to) < 0) {
-      const instant = current.toInstant();
-      result.push({
-        t: instant,
-        y: existing.get(instant.toString()) ?? 0,
-      });
-      current = current.add(duration);
-    }
-    return result;
   }
 
   private async median(where: SQL[]): Promise<number> {
@@ -381,12 +252,6 @@ export class StatsService {
       .where(and(...where));
     return result[0].count;
   }
-
-  private static readonly SCREEN_LABEL = sql<string>`case
-    when ${$analyticsEvent.windowScreenWidth} < 768 then 'mobile'
-    when ${$analyticsEvent.windowScreenWidth} < 1024 then 'tablet'
-    else 'desktop'
-  end`;
 
   private screenClassification(screen: string): SQL {
     return sql`${StatsService.SCREEN_LABEL} = ${screen}`;
@@ -428,17 +293,163 @@ export class StatsService {
     return { limit, offset, hasMore, data: rows.slice(0, limit) };
   }
 
-  private async authnz(website: Website, authorization?: string): Promise<void> {
-    const headerToken = AuthHelper.extractBearerToken(authorization) || AuthHelper.extractBasicAuth(authorization)?.password;
-    if (!headerToken) {
-      throw ServerError.unauthorized();
+  private async analyzeUnitAndRange(
+    where: SQL[],
+    q: StatsQuery,
+  ): Promise<{ tUnit: TimeSeries["tUnit"]; from: Temporal.Instant; to: Temporal.Instant } | undefined> {
+    let from = q.from;
+    let to = q.to;
+    if (!from || !to) {
+      const [{ earliest, latest }] = await this.sqlite
+        .select({ earliest: min($analyticsEvent.created), latest: max($analyticsEvent.created) })
+        .from($analyticsEvent)
+        .where(and(...where));
+      if (!earliest || !latest) {
+        return undefined;
+      }
+      if (!from) {
+        from = Temporal.Instant.from(earliest);
+      }
+      if (!to) {
+        to = Temporal.Instant.from(latest);
+      }
     }
-    const databaseToken = await this.tokenService.validate(headerToken);
-    if (!databaseToken) {
-      throw ServerError.unauthorized();
+    const hours = (to.epochMilliseconds - from.epochMilliseconds) / (1000 * 60 * 60);
+    if (hours < 24 * 7) {
+      return { tUnit: "hour", from, to }; // less than 7 days
     }
-    if (databaseToken.websiteIds !== "*" && !databaseToken.websiteIds.includes(website.id)) {
-      throw ServerError.forbidden();
+    if (hours / 24 < 30 * 7) {
+      return { tUnit: "day", from, to }; // less than 10 months
+    }
+    return { tUnit: "month", from, to };
+  }
+}
+
+namespace Internal {
+  export class Helper {
+    public constructor(
+      private readonly env: Env.Private,
+      readonly tokenService: TokenService,
+    ) {}
+
+    public async authnz(website: Website, authorization?: string): Promise<void> {
+      const headerToken = AuthHelper.extractBearerToken(authorization) || AuthHelper.extractBasicAuth(authorization)?.password;
+      if (!headerToken) {
+        throw ServerError.unauthorized();
+      }
+      const databaseToken = await this.tokenService.validate(headerToken);
+      if (!databaseToken) {
+        throw ServerError.unauthorized();
+      }
+      if (databaseToken.websiteIds !== "*" && !databaseToken.websiteIds.includes(website.id)) {
+        throw ServerError.forbidden();
+      }
+    }
+
+    public sqliteStrftimeFormat(unit: TimeSeries["tUnit"]): string {
+      switch (unit) {
+        case "hour":
+          return "%Y-%m-%dT%H:00:00";
+        case "day":
+          return "%Y-%m-%dT00:00:00";
+        case "month":
+          return "%Y-%m-01T00:00:00";
+      }
+    }
+
+    public sqliteOffsetModifier(referenceInstant: Temporal.Instant): string {
+      const offsetSeconds = referenceInstant.toZonedDateTimeISO(this.env.O_VISAGE_TIMEZONE).offsetNanoseconds / 1e9;
+      return `${offsetSeconds >= 0 ? "+" : ""}${offsetSeconds} seconds`;
+    }
+
+    public revertBucketBackToInstant(bucket: string): Temporal.Instant {
+      return Temporal.PlainDateTime.from(bucket).toZonedDateTime(this.env.O_VISAGE_TIMEZONE).toInstant();
+    }
+
+    public assertBucketAlignment(bucketInstant: Temporal.Instant, tUnit: TimeSeries["tUnit"]): Temporal.Instant {
+      const zdt = bucketInstant.toZonedDateTimeISO(this.env.O_VISAGE_TIMEZONE);
+      switch (tUnit) {
+        case "hour":
+          if (zdt.minute !== 0 || zdt.second !== 0 || zdt.millisecond !== 0 || zdt.microsecond !== 0 || zdt.nanosecond !== 0) {
+            throw new Error(`Expected hour-aligned bucket instant, got ${bucketInstant}`);
+          }
+          break;
+        case "day":
+          if (
+            zdt.hour !== 0 ||
+            zdt.minute !== 0 ||
+            zdt.second !== 0 ||
+            zdt.millisecond !== 0 ||
+            zdt.microsecond !== 0 ||
+            zdt.nanosecond !== 0
+          ) {
+            throw new Error(`Expected day-aligned bucket instant, got ${bucketInstant}`);
+          }
+          break;
+        case "month":
+          if (
+            zdt.day !== 1 ||
+            zdt.hour !== 0 ||
+            zdt.minute !== 0 ||
+            zdt.second !== 0 ||
+            zdt.millisecond !== 0 ||
+            zdt.microsecond !== 0 ||
+            zdt.nanosecond !== 0
+          ) {
+            throw new Error(`Expected month-aligned bucket instant, got ${bucketInstant}`);
+          }
+          break;
+      }
+      return bucketInstant;
+    }
+
+    public fillGaps(data: TimeSeries.Point[], unit: TimeSeries["tUnit"], from: Temporal.Instant, to: Temporal.Instant): TimeSeries.Point[] {
+      const existing = new Map<string, number>();
+      for (const p of data) {
+        existing.set(p.t.toString(), p.y);
+      }
+      const tz = this.env.O_VISAGE_TIMEZONE;
+      const startZdt = from.toZonedDateTimeISO(tz);
+      let current: Temporal.ZonedDateTime;
+      switch (unit) {
+        case "hour":
+          current = Temporal.ZonedDateTime.from({
+            timeZone: tz,
+            year: startZdt.year,
+            month: startZdt.month,
+            day: startZdt.day,
+            hour: startZdt.hour,
+          });
+          break;
+        case "day":
+          current = Temporal.ZonedDateTime.from({
+            timeZone: tz,
+            year: startZdt.year,
+            month: startZdt.month,
+            day: startZdt.day,
+          });
+          break;
+        case "month":
+          current = Temporal.ZonedDateTime.from({
+            timeZone: tz,
+            year: startZdt.year,
+            month: startZdt.month,
+            day: 1,
+          });
+          break;
+      }
+
+      const duration = unit === "hour" ? { hours: 1 } : unit === "day" ? { days: 1 } : { months: 1 };
+      const result: TimeSeries.Point[] = [];
+      while (Temporal.Instant.compare(current.toInstant(), to) < 0) {
+        const instant = current.toInstant();
+        result.push({
+          t: instant,
+          y: existing.get(instant.toString()) ?? 0,
+        });
+        current = current.add(duration);
+      }
+      return result;
     }
   }
 }

@@ -131,7 +131,7 @@ export function websites$refPage() {
   function panels(): PanelTab[][] {
     return [
       [{ label: "PAGES", field: Stats.Field.pageDistribution, filterKey: StatsQuery.Filter.page }],
-      [{ label: "SOURCES", field: Stats.Field.sourceDistribution, filterKey: StatsQuery.Filter.source }],
+      [{ label: "TRAFFIC SOURCES", field: Stats.Field.sourceDistribution, filterKey: StatsQuery.Filter.source }],
       [
         { label: "COUNTRIES", field: Stats.Field.countryDistribution, filterKey: StatsQuery.Filter.country },
         { label: "CITIES", field: Stats.Field.cityDistribution, filterKey: StatsQuery.Filter.city },

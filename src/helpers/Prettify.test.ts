@@ -3,7 +3,7 @@ import { Prettify } from "./Prettify";
 import { Temporal } from "@js-temporal/polyfill";
 
 describe(Prettify.name, () => {
-  describe(Prettify.timestamp.name, () => {
+  describe(Prettify.datetime.name, () => {
     type TestCase = {
       timestamp: Temporal.Instant;
       expectation: string;
@@ -45,7 +45,7 @@ describe(Prettify.name, () => {
     for (const { timestamp, expectation } of testCases) {
       it(`formats ${timestamp}`, async () => {
         // when
-        const result = Prettify.timestamp(timestamp, "UTC");
+        const result = Prettify.datetime(timestamp, "UTC");
         // then
         expect(result).toEqual(expectation);
       });

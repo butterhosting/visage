@@ -1,10 +1,10 @@
 import { Prettify } from "@/helpers/Prettify";
 import { TimeSeries } from "@/models/TimeSeries";
 import { Color } from "@/website/Color";
-import { Temporal } from "@js-temporal/polyfill";
 import { useMemo } from "react";
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { Spinner } from "../Spinner";
+import { useRegistry } from "@/website/hooks/useRegistry";
 
 type Props = {
   timeSeries?: TimeSeries;
@@ -13,6 +13,7 @@ type Props = {
 };
 export function TimeSeriesChart({ timeSeries, minimal, height = 400 }: Props) {
   const gradientId = useMemo(() => Math.random().toString(), []);
+  const { O_VISAGE_TIMEZONE } = useRegistry("env");
 
   if (!timeSeries) {
     return (
@@ -33,8 +34,8 @@ export function TimeSeriesChart({ timeSeries, minimal, height = 400 }: Props) {
   const chartData = timeSeries.data.map(({ t, y }) => ({
     t,
     y,
-    axisLabel: Internal.Format.tValue(t, tUnit),
-    tooltipLabel: Internal.Format.tooltipLabel(t, tUnit),
+    axisLabel: Internal.Format.tValue(t, tUnit, O_VISAGE_TIMEZONE),
+    tooltipLabel: Internal.Format.tooltipLabel(t, tUnit, O_VISAGE_TIMEZONE),
   }));
 
   return (
@@ -53,7 +54,7 @@ export function TimeSeriesChart({ timeSeries, minimal, height = 400 }: Props) {
         {!minimal && <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e5e5" />}
         {!minimal && (
           <XAxis
-            dataKey={({ t }: TimeSeries.Point) => Internal.Format.tValue(t, tUnit)}
+            dataKey={({ t }: TimeSeries.Point) => Internal.Format.tValue(t, tUnit, O_VISAGE_TIMEZONE)}
             dy={12}
             angle={-45}
             textAnchor="end"
@@ -130,18 +131,16 @@ namespace Internal {
       return formattedValue;
     }
 
-    export function tValue(timestamp: Temporal.Instant, tUnit: TimeSeries["tUnit"]): string {
-      const d = new Date(timestamp.epochMilliseconds);
-      if (tUnit === "month") return d.toLocaleDateString("gb", { month: "short", year: "numeric" });
-      if (tUnit === "day") return d.toLocaleDateString("gb", { day: "numeric", month: "short" });
-      return d.toLocaleTimeString("gb", { hour: "2-digit", minute: "2-digit", month: "short", day: "2-digit" });
+    export function tValue(timestamp: TimeSeries.Point["t"], tUnit: TimeSeries["tUnit"], timezone: string): string {
+      if (tUnit === "month") return Prettify.month("short", timestamp, timezone);
+      if (tUnit === "day") return Prettify.date("short", timestamp, timezone);
+      return Prettify.time(timestamp, timezone);
     }
 
-    export function tooltipLabel(timestamp: Temporal.Instant, tUnit: TimeSeries["tUnit"]): string {
-      const d = new Date(timestamp.epochMilliseconds);
-      if (tUnit === "month") return d.toLocaleDateString("gb", { month: "long", year: "numeric" });
-      if (tUnit === "day") return d.toLocaleDateString("gb", { day: "numeric", month: "long", year: "numeric" });
-      return d.toLocaleTimeString("gb", { hour: "2-digit", minute: "2-digit", month: "short", day: "2-digit" });
+    export function tooltipLabel(timestamp: TimeSeries.Point["t"], tUnit: TimeSeries["tUnit"], timezone: string): string {
+      if (tUnit === "month") return Prettify.month("long", timestamp, timezone);
+      if (tUnit === "day") return Prettify.date("long", timestamp, timezone);
+      return Prettify.time(timestamp, timezone);
     }
   }
 }

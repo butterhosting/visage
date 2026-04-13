@@ -40,7 +40,7 @@ export class ServerRegistry {
     const { trackerService } = this.register({ TrackerService }, [env]);
     const { exportService } = this.register({ ExportService }, [sqlite, websiteRepository]);
     const { tokenService } = this.register({ TokenService }, [tokenRepository]);
-    const { statsService } = this.register({ StatsService }, [sqlite, tokenService, websiteRepository]);
+    const { statsService } = this.register({ StatsService }, [env, sqlite, tokenService, websiteRepository]);
     const { websiteService } = this.register({ WebsiteService }, [env, websiteRepository, statsService]);
     const { restrictedService } = this.register({ RestrictedService }, [websiteService, sqlite]);
     const { ingestionService } = this.register({ IngestionService }, [
