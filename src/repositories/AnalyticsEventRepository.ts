@@ -2,7 +2,8 @@ import { $analyticsEvent, $botEvent } from "@/drizzle/schema";
 import { Sqlite } from "@/drizzle/sqlite";
 import { Env } from "@/Env";
 import { AnalyticsEvent } from "@/models/AnalyticsEvent";
-import { and, eq, isNotNull, sql } from "drizzle-orm";
+import { Temporal } from "@js-temporal/polyfill";
+import { and, eq, gte, isNotNull, sql } from "drizzle-orm";
 import { AnalyticsEventConverter } from "../drizzle/converters/AnalyticsEventConverter";
 
 export class AnalyticsEventRepository {
@@ -34,10 +35,18 @@ export class AnalyticsEventRepository {
     await this.sqlite
       .update($analyticsEvent)
       .set({ clientPageId: null, durationSeconds })
-      // TODO: dual index on `website,created`
-      // TODO: index on `client_page_id`
-      // TODO: only allow updates if they occurred in the last 30d
-      .where(and(eq($analyticsEvent.clientPageId, clientPageId), isNotNull($analyticsEvent.clientPageId)));
+      .where(
+        and(
+          eq($analyticsEvent.clientPageId, clientPageId),
+          isNotNull($analyticsEvent.clientPageId),
+          gte(
+            $analyticsEvent.created,
+            Temporal.Now.instant()
+              .subtract({ hours: 24 * 30 })
+              .toString(),
+          ),
+        ),
+      );
   }
 
   private async deleteOldestBotEvents(): Promise<void> {
