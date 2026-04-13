@@ -188,8 +188,8 @@ export class StatsService {
 
     const { tUnit, from, to } = analysis;
     const fmt = this.helper.sqliteStrftimeFormat(tUnit);
-    const modifier = this.helper.sqliteOffsetModifier(from);
-    const bucket = sql<string>`strftime(${fmt}, datetime(${$analyticsEvent.created}, ${modifier}))`;
+    const offset = this.helper.resolveFixedOffset(from);
+    const bucket = sql<string>`strftime(${fmt}, datetime(${$analyticsEvent.created}, ${offset.sqliteModifier}))`;
 
     let data: TimeSeries.Point[];
     if (yUnit === "second") {
@@ -205,7 +205,7 @@ export class StatsService {
         buckets.set(r.bucket, arr);
       }
       data = [...buckets.entries()].map<TimeSeries.Point>(([bucket, values]) => ({
-        t: this.helper.assertBucketAlignment(this.helper.revertBucketBackToInstant(bucket), tUnit),
+        t: this.helper.assertBucketAlignment(this.helper.revertBucketBackToInstant(bucket, offset), tUnit, offset),
         y: values[Math.floor(values.length / 2)],
       }));
     } else {
@@ -216,7 +216,7 @@ export class StatsService {
         .groupBy(bucket)
         .orderBy(bucket);
       data = rows.map<TimeSeries.Point>((row) => ({
-        t: this.helper.assertBucketAlignment(this.helper.revertBucketBackToInstant(row.bucket), tUnit),
+        t: this.helper.assertBucketAlignment(this.helper.revertBucketBackToInstant(row.bucket, offset), tUnit, offset),
         y: row.count,
       }));
     }
@@ -224,7 +224,7 @@ export class StatsService {
     return {
       tUnit: tUnit,
       yUnit,
-      data: this.helper.fillGaps(data, tUnit, from, to),
+      data: this.helper.fillGaps({ data, tUnit, from, to, offset }),
     };
   }
 
@@ -326,6 +326,8 @@ export class StatsService {
 }
 
 namespace Internal {
+  export type FixedOffset = { sqliteModifier: string; timezone: string };
+
   export class Helper {
     public constructor(
       private readonly env: Env.Private,
@@ -357,17 +359,31 @@ namespace Internal {
       }
     }
 
-    public sqliteOffsetModifier(referenceInstant: Temporal.Instant): string {
-      const offsetSeconds = referenceInstant.toZonedDateTimeISO(this.env.O_VISAGE_TIMEZONE).offsetNanoseconds / 1e9;
-      return `${offsetSeconds >= 0 ? "+" : ""}${offsetSeconds} seconds`;
+    public resolveFixedOffset(referenceInstant: Temporal.Instant): Internal.FixedOffset {
+      const offsetNanos = referenceInstant.toZonedDateTimeISO(this.env.O_VISAGE_TIMEZONE).offsetNanoseconds;
+      const offsetSeconds = offsetNanos / 1e9;
+
+      const sign = offsetSeconds >= 0 ? "+" : "-";
+      const abs = Math.abs(offsetSeconds);
+      const h = String(Math.floor(abs / 3600)).padStart(2, "0");
+      const m = String(Math.floor((abs % 3600) / 60)).padStart(2, "0");
+
+      return {
+        sqliteModifier: `${offsetSeconds >= 0 ? "+" : ""}${offsetSeconds} seconds`,
+        timezone: `${sign}${h}:${m}`,
+      };
     }
 
-    public revertBucketBackToInstant(bucket: string): Temporal.Instant {
-      return Temporal.PlainDateTime.from(bucket).toZonedDateTime(this.env.O_VISAGE_TIMEZONE).toInstant();
+    public revertBucketBackToInstant(bucket: string, offset: Internal.FixedOffset): Temporal.Instant {
+      return Temporal.PlainDateTime.from(bucket).toZonedDateTime(offset.timezone).toInstant();
     }
 
-    public assertBucketAlignment(bucketInstant: Temporal.Instant, tUnit: TimeSeries["tUnit"]): Temporal.Instant {
-      const zdt = bucketInstant.toZonedDateTimeISO(this.env.O_VISAGE_TIMEZONE);
+    public assertBucketAlignment(
+      bucketInstant: Temporal.Instant,
+      tUnit: TimeSeries["tUnit"],
+      offset: Internal.FixedOffset,
+    ): Temporal.Instant {
+      const zdt = bucketInstant.toZonedDateTimeISO(offset.timezone);
       switch (tUnit) {
         case "hour":
           if (zdt.minute !== 0 || zdt.second !== 0 || zdt.millisecond !== 0 || zdt.microsecond !== 0 || zdt.nanosecond !== 0) {
@@ -403,15 +419,23 @@ namespace Internal {
       return bucketInstant;
     }
 
-    public fillGaps(data: TimeSeries.Point[], unit: TimeSeries["tUnit"], from: Temporal.Instant, to: Temporal.Instant): TimeSeries.Point[] {
+    public fillGaps(arg: {
+      data: TimeSeries.Point[];
+      tUnit: TimeSeries["tUnit"];
+      from: Temporal.Instant;
+      to: Temporal.Instant;
+      offset: Internal.FixedOffset;
+    }): TimeSeries.Point[] {
+      const { data, tUnit, from, to, offset } = arg;
+
       const existing = new Map<string, number>();
       for (const p of data) {
         existing.set(p.t.toString(), p.y);
       }
-      const tz = this.env.O_VISAGE_TIMEZONE;
+      const tz = offset.timezone;
       const startZdt = from.toZonedDateTimeISO(tz);
       let current: Temporal.ZonedDateTime;
-      switch (unit) {
+      switch (tUnit) {
         case "hour":
           current = Temporal.ZonedDateTime.from({
             timeZone: tz,
@@ -439,7 +463,7 @@ namespace Internal {
           break;
       }
 
-      const duration = unit === "hour" ? { hours: 1 } : unit === "day" ? { days: 1 } : { months: 1 };
+      const duration = tUnit === "hour" ? { hours: 1 } : tUnit === "day" ? { days: 1 } : { months: 1 };
       const result: TimeSeries.Point[] = [];
       while (Temporal.Instant.compare(current.toInstant(), to) < 0) {
         const instant = current.toInstant();
