@@ -3,7 +3,7 @@ import { Sqlite } from "@/drizzle/sqlite";
 import { $token } from "@/drizzle/tables/$token";
 import { Token } from "@/models/Token";
 import { Temporal } from "@js-temporal/polyfill";
-import { eq } from "drizzle-orm";
+import { eq, like } from "drizzle-orm";
 
 export class TokenRepository {
   public constructor(private readonly sqlite: Sqlite) {}
@@ -26,7 +26,7 @@ export class TokenRepository {
     return token;
   }
 
-  public async recordUsage(id: string): Promise<Token | undefined> {
+  public async updateUsage(id: string): Promise<Token | undefined> {
     const [token] = await this.sqlite
       .update($token)
       .set({
@@ -35,6 +35,26 @@ export class TokenRepository {
       .where(eq($token.id, id))
       .returning();
     return token ? TokenConverter.convert(token) : undefined;
+  }
+
+  public async updateAllByRemovingWebsite(websiteId: string): Promise<void> {
+    const candidates = await this.sqlite.query.$token.findMany({
+      where: like($token.websiteIds, `%${websiteId}%`),
+    });
+    for (const candidate of candidates) {
+      const token = TokenConverter.convert(candidate);
+      if (token.websiteIds !== "*" && token.websiteIds.includes(websiteId)) {
+        const remainingWebsiteIds = token.websiteIds.filter((wid) => wid !== websiteId);
+        if (remainingWebsiteIds.length === 0) {
+          await this.sqlite.delete($token).where(eq($token.id, token.id));
+        } else {
+          await this.sqlite
+            .update($token)
+            .set({ websiteIds: remainingWebsiteIds.join(",") })
+            .where(eq($token.id, token.id));
+        }
+      }
+    }
   }
 
   public async delete(id: string): Promise<Token | undefined> {

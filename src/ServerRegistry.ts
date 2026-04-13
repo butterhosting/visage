@@ -17,6 +17,7 @@ import { StatsService } from "./services/StatsService";
 import { TokenService } from "./services/TokenService";
 import { TrackerService } from "./services/TrackerService";
 import { WebsiteService } from "./services/WebsiteService";
+import { EventBus } from "./events/EventBus";
 
 export class ServerRegistry {
   public static async bootstrap(env: Env.Private, sqlite: Sqlite): Promise<ServerRegistry> {
@@ -34,14 +35,17 @@ export class ServerRegistry {
     const { analyticsEventRepository } = this.register({ AnalyticsEventRepository }, [env, sqlite]);
     const { tokenRepository } = this.register({ TokenRepository }, [sqlite]);
 
+    // Eventbus
+    const { eventBus } = this.register({ EventBus }, []);
+
     // Services
     const { maxMindGeoService } = this.register({ MaxMindGeoService }, [env]);
     const { botDetectionService } = this.register({ BotDetectionService }, []);
     const { trackerService } = this.register({ TrackerService }, [env]);
     const { exportService } = this.register({ ExportService }, [sqlite, websiteRepository]);
-    const { tokenService } = this.register({ TokenService }, [tokenRepository]);
+    const { tokenService } = this.register({ TokenService }, [tokenRepository, eventBus]);
     const { statsService } = this.register({ StatsService }, [env, sqlite, tokenService, websiteRepository]);
-    const { websiteService } = this.register({ WebsiteService }, [env, websiteRepository, statsService]);
+    const { websiteService } = this.register({ WebsiteService }, [env, websiteRepository, statsService, eventBus]);
     const { restrictedService } = this.register({ RestrictedService }, [websiteService, sqlite]);
     const { ingestionService } = this.register({ IngestionService }, [
       maxMindGeoService,

@@ -22,16 +22,12 @@ export class StatsService {
     else 'desktop'
   end`;
 
-  private readonly helper: Internal.Helper;
-
   public constructor(
-    env: Env.Private,
+    private readonly env: Env.Private,
     private readonly sqlite: Sqlite,
-    tokenService: TokenService,
+    private readonly tokenService: TokenService,
     private readonly websiteRepository: WebsiteRepository,
-  ) {
-    this.helper = new Internal.Helper(env, tokenService);
-  }
+  ) {}
 
   public async queryInternal(query: StatsQuery): Promise<Stats>;
   public async queryInternal(query: unknown, unknown: "unknown"): Promise<Stats>;
@@ -53,7 +49,7 @@ export class StatsService {
         ref: q.website,
       }),
     );
-    await this.helper.authnz(website, authorization);
+    await this.authnz(website, authorization);
     return await this.query(q, website);
   }
 
@@ -176,6 +172,10 @@ export class StatsService {
     return where;
   }
 
+  private screenClassification(screen: string): SQL {
+    return sql`${StatsService.SCREEN_LABEL} = ${screen}`;
+  }
+
   private async timeSeries(where: SQL[], q: StatsQuery, yUnit: "visitor" | "pageview" | "second"): Promise<TimeSeries> {
     const analysis = await this.analyzeUnitAndRange(where, q);
     if (!analysis) {
@@ -187,8 +187,8 @@ export class StatsService {
     }
 
     const { tUnit, from, to } = analysis;
-    const format = this.helper.sqliteStrftimeFormat(tUnit);
-    const offset = this.helper.resolveFixedOffset(from);
+    const format = this.sqliteStrftimeFormat(tUnit);
+    const offset = this.resolveFixedOffset(from);
     const bucket = sql<string>`strftime(${format}, datetime(${$analyticsEvent.created}, ${offset.sqliteModifier}))`;
 
     let data: TimeSeries.Point[];
@@ -205,7 +205,7 @@ export class StatsService {
         buckets.set(r.bucket, arr);
       }
       data = [...buckets.entries()].map<TimeSeries.Point>(([bucket, values]) => ({
-        t: this.helper.assertBucketAlignment(this.helper.revertBucketBackToInstant(bucket, offset), tUnit, offset),
+        t: this.assertBucketAlignment(this.revertBucketBackToInstant(bucket, offset), tUnit, offset),
         y: values[Math.floor(values.length / 2)],
       }));
     } else {
@@ -216,7 +216,7 @@ export class StatsService {
         .groupBy(bucket)
         .orderBy(bucket);
       data = rows.map<TimeSeries.Point>((row) => ({
-        t: this.helper.assertBucketAlignment(this.helper.revertBucketBackToInstant(row.bucket, offset), tUnit, offset),
+        t: this.assertBucketAlignment(this.revertBucketBackToInstant(row.bucket, offset), tUnit, offset),
         y: row.count,
       }));
     }
@@ -224,7 +224,7 @@ export class StatsService {
     return {
       tUnit: tUnit,
       yUnit,
-      data: this.helper.fillGaps({ data, tUnit, from, to, offset }),
+      data: this.fillGaps({ data, tUnit, from, to, offset }),
     };
   }
 
@@ -251,10 +251,6 @@ export class StatsService {
       .from($analyticsEvent)
       .where(and(...where));
     return result[0].count;
-  }
-
-  private screenClassification(screen: string): SQL {
-    return sql`${StatsService.SCREEN_LABEL} = ${screen}`;
   }
 
   private async distribution(where: SQL[], column: SQLiteColumn | "screen", limit = 10, offset = 0): Promise<Distribution> {
@@ -323,157 +319,150 @@ export class StatsService {
     }
     return { tUnit: "month", from, to };
   }
+
+  private sqliteStrftimeFormat(unit: TimeSeries["tUnit"]): string {
+    switch (unit) {
+      case "hour":
+        return "%Y-%m-%dT%H:00:00";
+      case "day":
+        return "%Y-%m-%dT00:00:00";
+      case "month":
+        return "%Y-%m-01T00:00:00";
+    }
+  }
+
+  private resolveFixedOffset(referenceInstant: Temporal.Instant): Internal.FixedOffset {
+    const offsetNanos = referenceInstant.toZonedDateTimeISO(this.env.O_VISAGE_TIMEZONE).offsetNanoseconds;
+    const offsetSeconds = offsetNanos / 1e9;
+
+    const sign = offsetSeconds >= 0 ? "+" : "-";
+    const abs = Math.abs(offsetSeconds);
+    const h = String(Math.floor(abs / 3600)).padStart(2, "0");
+    const m = String(Math.floor((abs % 3600) / 60)).padStart(2, "0");
+
+    return {
+      sqliteModifier: `${offsetSeconds >= 0 ? "+" : ""}${offsetSeconds} seconds`,
+      timezone: `${sign}${h}:${m}`,
+    };
+  }
+
+  private revertBucketBackToInstant(bucket: string, offset: Internal.FixedOffset): Temporal.Instant {
+    return Temporal.PlainDateTime.from(bucket).toZonedDateTime(offset.timezone).toInstant();
+  }
+
+  private assertBucketAlignment(
+    bucketInstant: Temporal.Instant,
+    tUnit: TimeSeries["tUnit"],
+    offset: Internal.FixedOffset,
+  ): Temporal.Instant {
+    const zdt = bucketInstant.toZonedDateTimeISO(offset.timezone);
+    switch (tUnit) {
+      case "hour":
+        if (zdt.minute !== 0 || zdt.second !== 0 || zdt.millisecond !== 0 || zdt.microsecond !== 0 || zdt.nanosecond !== 0) {
+          throw new Error(`Expected hour-aligned bucket instant, got ${bucketInstant}`);
+        }
+        break;
+      case "day":
+        if (
+          zdt.hour !== 0 ||
+          zdt.minute !== 0 ||
+          zdt.second !== 0 ||
+          zdt.millisecond !== 0 ||
+          zdt.microsecond !== 0 ||
+          zdt.nanosecond !== 0
+        ) {
+          throw new Error(`Expected day-aligned bucket instant, got ${bucketInstant}`);
+        }
+        break;
+      case "month":
+        if (
+          zdt.day !== 1 ||
+          zdt.hour !== 0 ||
+          zdt.minute !== 0 ||
+          zdt.second !== 0 ||
+          zdt.millisecond !== 0 ||
+          zdt.microsecond !== 0 ||
+          zdt.nanosecond !== 0
+        ) {
+          throw new Error(`Expected month-aligned bucket instant, got ${bucketInstant}`);
+        }
+        break;
+    }
+    return bucketInstant;
+  }
+
+  private fillGaps(arg: {
+    data: TimeSeries.Point[];
+    tUnit: TimeSeries["tUnit"];
+    from: Temporal.Instant;
+    to: Temporal.Instant;
+    offset: Internal.FixedOffset;
+  }): TimeSeries.Point[] {
+    const { data, tUnit, from, to, offset } = arg;
+
+    const existing = new Map<string, number>();
+    for (const p of data) {
+      existing.set(p.t.toString(), p.y);
+    }
+    const tz = offset.timezone;
+    const startZdt = from.toZonedDateTimeISO(tz);
+    let current: Temporal.ZonedDateTime;
+    switch (tUnit) {
+      case "hour":
+        current = Temporal.ZonedDateTime.from({
+          timeZone: tz,
+          year: startZdt.year,
+          month: startZdt.month,
+          day: startZdt.day,
+          hour: startZdt.hour,
+        });
+        break;
+      case "day":
+        current = Temporal.ZonedDateTime.from({
+          timeZone: tz,
+          year: startZdt.year,
+          month: startZdt.month,
+          day: startZdt.day,
+        });
+        break;
+      case "month":
+        current = Temporal.ZonedDateTime.from({
+          timeZone: tz,
+          year: startZdt.year,
+          month: startZdt.month,
+          day: 1,
+        });
+        break;
+    }
+
+    const duration = tUnit === "hour" ? { hours: 1 } : tUnit === "day" ? { days: 1 } : { months: 1 };
+    const result: TimeSeries.Point[] = [];
+    while (Temporal.Instant.compare(current.toInstant(), to) < 0) {
+      const instant = current.toInstant();
+      result.push({
+        t: instant,
+        y: existing.get(instant.toString()) ?? 0,
+      });
+      current = current.add(duration);
+    }
+    return result;
+  }
+
+  private async authnz(website: Website, authorization?: string): Promise<void> {
+    const headerToken = AuthHelper.extractBearerToken(authorization) || AuthHelper.extractBasicAuth(authorization)?.password;
+    if (!headerToken) {
+      throw ServerError.unauthorized();
+    }
+    const databaseToken = await this.tokenService.validate(headerToken);
+    if (!databaseToken) {
+      throw ServerError.unauthorized();
+    }
+    if (databaseToken.websiteIds !== "*" && !databaseToken.websiteIds.includes(website.id)) {
+      throw ServerError.forbidden();
+    }
+  }
 }
 
 namespace Internal {
   export type FixedOffset = { sqliteModifier: string; timezone: string };
-
-  export class Helper {
-    public constructor(
-      private readonly env: Env.Private,
-      readonly tokenService: TokenService,
-    ) {}
-
-    public async authnz(website: Website, authorization?: string): Promise<void> {
-      const headerToken = AuthHelper.extractBearerToken(authorization) || AuthHelper.extractBasicAuth(authorization)?.password;
-      if (!headerToken) {
-        throw ServerError.unauthorized();
-      }
-      const databaseToken = await this.tokenService.validate(headerToken);
-      if (!databaseToken) {
-        throw ServerError.unauthorized();
-      }
-      if (databaseToken.websiteIds !== "*" && !databaseToken.websiteIds.includes(website.id)) {
-        throw ServerError.forbidden();
-      }
-    }
-
-    public sqliteStrftimeFormat(unit: TimeSeries["tUnit"]): string {
-      switch (unit) {
-        case "hour":
-          return "%Y-%m-%dT%H:00:00";
-        case "day":
-          return "%Y-%m-%dT00:00:00";
-        case "month":
-          return "%Y-%m-01T00:00:00";
-      }
-    }
-
-    public resolveFixedOffset(referenceInstant: Temporal.Instant): Internal.FixedOffset {
-      const offsetNanos = referenceInstant.toZonedDateTimeISO(this.env.O_VISAGE_TIMEZONE).offsetNanoseconds;
-      const offsetSeconds = offsetNanos / 1e9;
-
-      const sign = offsetSeconds >= 0 ? "+" : "-";
-      const abs = Math.abs(offsetSeconds);
-      const h = String(Math.floor(abs / 3600)).padStart(2, "0");
-      const m = String(Math.floor((abs % 3600) / 60)).padStart(2, "0");
-
-      return {
-        sqliteModifier: `${offsetSeconds >= 0 ? "+" : ""}${offsetSeconds} seconds`,
-        timezone: `${sign}${h}:${m}`,
-      };
-    }
-
-    public revertBucketBackToInstant(bucket: string, offset: Internal.FixedOffset): Temporal.Instant {
-      return Temporal.PlainDateTime.from(bucket).toZonedDateTime(offset.timezone).toInstant();
-    }
-
-    public assertBucketAlignment(
-      bucketInstant: Temporal.Instant,
-      tUnit: TimeSeries["tUnit"],
-      offset: Internal.FixedOffset,
-    ): Temporal.Instant {
-      const zdt = bucketInstant.toZonedDateTimeISO(offset.timezone);
-      switch (tUnit) {
-        case "hour":
-          if (zdt.minute !== 0 || zdt.second !== 0 || zdt.millisecond !== 0 || zdt.microsecond !== 0 || zdt.nanosecond !== 0) {
-            throw new Error(`Expected hour-aligned bucket instant, got ${bucketInstant}`);
-          }
-          break;
-        case "day":
-          if (
-            zdt.hour !== 0 ||
-            zdt.minute !== 0 ||
-            zdt.second !== 0 ||
-            zdt.millisecond !== 0 ||
-            zdt.microsecond !== 0 ||
-            zdt.nanosecond !== 0
-          ) {
-            throw new Error(`Expected day-aligned bucket instant, got ${bucketInstant}`);
-          }
-          break;
-        case "month":
-          if (
-            zdt.day !== 1 ||
-            zdt.hour !== 0 ||
-            zdt.minute !== 0 ||
-            zdt.second !== 0 ||
-            zdt.millisecond !== 0 ||
-            zdt.microsecond !== 0 ||
-            zdt.nanosecond !== 0
-          ) {
-            throw new Error(`Expected month-aligned bucket instant, got ${bucketInstant}`);
-          }
-          break;
-      }
-      return bucketInstant;
-    }
-
-    public fillGaps(arg: {
-      data: TimeSeries.Point[];
-      tUnit: TimeSeries["tUnit"];
-      from: Temporal.Instant;
-      to: Temporal.Instant;
-      offset: Internal.FixedOffset;
-    }): TimeSeries.Point[] {
-      const { data, tUnit, from, to, offset } = arg;
-
-      const existing = new Map<string, number>();
-      for (const p of data) {
-        existing.set(p.t.toString(), p.y);
-      }
-      const tz = offset.timezone;
-      const startZdt = from.toZonedDateTimeISO(tz);
-      let current: Temporal.ZonedDateTime;
-      switch (tUnit) {
-        case "hour":
-          current = Temporal.ZonedDateTime.from({
-            timeZone: tz,
-            year: startZdt.year,
-            month: startZdt.month,
-            day: startZdt.day,
-            hour: startZdt.hour,
-          });
-          break;
-        case "day":
-          current = Temporal.ZonedDateTime.from({
-            timeZone: tz,
-            year: startZdt.year,
-            month: startZdt.month,
-            day: startZdt.day,
-          });
-          break;
-        case "month":
-          current = Temporal.ZonedDateTime.from({
-            timeZone: tz,
-            year: startZdt.year,
-            month: startZdt.month,
-            day: 1,
-          });
-          break;
-      }
-
-      const duration = tUnit === "hour" ? { hours: 1 } : tUnit === "day" ? { days: 1 } : { months: 1 };
-      const result: TimeSeries.Point[] = [];
-      while (Temporal.Instant.compare(current.toInstant(), to) < 0) {
-        const instant = current.toInstant();
-        result.push({
-          t: instant,
-          y: existing.get(instant.toString()) ?? 0,
-        });
-        current = current.add(duration);
-      }
-      return result;
-    }
-  }
 }

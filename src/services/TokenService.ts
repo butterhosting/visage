@@ -1,15 +1,23 @@
 import { ServerError } from "@/errors/ServerError";
 import { TokenError } from "@/errors/TokenError";
+import { Event } from "@/events/Event";
+import { EventBus } from "@/events/EventBus";
 import { ZodProblem } from "@/helpers/ZodIssues";
 import { Token } from "@/models/Token";
 import { TokenRM } from "@/models/TokenRM";
+import { Website } from "@/models/Website";
 import { TokenRepository } from "@/repositories/TokenRepository";
 import { Temporal } from "@js-temporal/polyfill";
 import { createHash } from "crypto";
 import z from "zod/v4";
 
 export class TokenService {
-  public constructor(private readonly tokenRepository: TokenRepository) {}
+  public constructor(
+    private readonly tokenRepository: TokenRepository,
+    eventBus: EventBus,
+  ) {
+    eventBus.subscribe(Event.Type.website_deleted, ({ data: { website } }) => tokenRepository.updateAllByRemovingWebsite(website.id));
+  }
 
   public async list(): Promise<TokenRM[]> {
     const tokens = await this.tokenRepository.list();
@@ -46,7 +54,7 @@ export class TokenService {
     if (token && secret) {
       const incomingHash = createHash("sha256").update(secret, "utf8").digest("hex");
       if (incomingHash === token.secretHash) {
-        await this.tokenRepository.recordUsage(id);
+        await this.tokenRepository.updateUsage(id);
         return this.convert(token);
       }
     }

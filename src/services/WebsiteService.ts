@@ -1,5 +1,8 @@
+import { Env } from "@/Env";
 import { ServerError } from "@/errors/ServerError";
 import { WebsiteError } from "@/errors/WebsiteError";
+import { Event } from "@/events/Event";
+import { EventBus } from "@/events/EventBus";
 import { ZodProblem } from "@/helpers/ZodIssues";
 import { Period } from "@/models/Period";
 import { Stats } from "@/models/Stats";
@@ -9,13 +12,13 @@ import { WebsiteRepository } from "@/repositories/WebsiteRepository";
 import { Temporal } from "@js-temporal/polyfill";
 import z from "zod/v4";
 import { StatsService } from "./StatsService";
-import { Env } from "@/Env";
 
 export class WebsiteService {
   public constructor(
     private readonly env: Env.Private,
     private readonly websiteRepository: WebsiteRepository,
     private readonly statsService: StatsService,
+    private readonly eventBus: EventBus,
   ) {}
 
   public async query(): Promise<WebsiteRM[]> {
@@ -42,6 +45,7 @@ export class WebsiteService {
       hostname,
       hasData: false,
     });
+    this.eventBus.publish(Event.Type.website_created, { website });
     return await this.enrich(website);
   }
 
@@ -55,14 +59,20 @@ export class WebsiteService {
         if (!w) throw WebsiteError.not_found({ ref });
         return w;
       });
+    this.eventBus.publish(Event.Type.website_updated, { website });
     return await this.enrich(website);
   }
 
   public async delete(ref: string): Promise<WebsiteRM> {
-    // TODO: message event to the TokenService --- might need to update its array of websites
-    const website = await this.find(ref);
+    const website = await this.websiteRepository.find(ref, () =>
+      WebsiteError.not_found({
+        ref,
+      }),
+    );
+    const websiteEnriched = await this.enrich(website);
     await this.websiteRepository.delete(website.id);
-    return website;
+    this.eventBus.publish(Event.Type.website_deleted, { website });
+    return websiteEnriched;
   }
 
   private async enrich(website: Website): Promise<WebsiteRM> {
