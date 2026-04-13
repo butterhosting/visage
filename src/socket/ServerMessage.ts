@@ -10,7 +10,7 @@ export namespace ServerMessage {
 
   export type WebsiteStatsUpdate = {
     type: Type.website_stats_update;
-    data: unknown; // TODO
+    websiteId: string;
   };
 
   export const parse = ZodParser.forType<ServerMessage>()
@@ -18,7 +18,7 @@ export namespace ServerMessage {
       return z.union([
         z.object({
           type: z.literal(Type.website_stats_update),
-          data: z.any(),
+          websiteId: z.string(),
         }),
       ]);
     })

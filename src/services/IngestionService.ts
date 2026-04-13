@@ -4,6 +4,8 @@ import { AnalyticsEvent } from "@/models/AnalyticsEvent";
 import { BrowserTrackingEvent } from "@/models/BrowserTrackingEvent";
 import { AnalyticsEventRepository } from "@/repositories/AnalyticsEventRepository";
 import { WebsiteRepository } from "@/repositories/WebsiteRepository";
+import { ServerMessage } from "@/socket/ServerMessage";
+import { Socket } from "@/socket/Socket";
 import { Temporal } from "@js-temporal/polyfill";
 import Bowser from "bowser";
 import { BotDetectionService } from "./BotDetectionService";
@@ -12,12 +14,40 @@ import { MaxMindGeoService } from "./MaxMindGeoService";
 export class IngestionService {
   private readonly log = new Logger(__filename);
 
+  private readonly sockets: Socket[] = [];
+  private readonly lastSocketNotifications: Map<string, Temporal.Instant> = new Map();
+  private readonly socketNotificationCooldown = Temporal.Duration.from({ seconds: 5 });
+
   public constructor(
     private readonly maxMindGeoService: MaxMindGeoService,
     private readonly botDetectionService: BotDetectionService,
     private readonly analyticsEventRepository: AnalyticsEventRepository,
     private readonly websiteRepository: WebsiteRepository,
   ) {}
+
+  public registerSocket = (socket: Socket) => {
+    this.sockets.push(socket);
+  };
+
+  public unregisterSocket = (socket: Socket) => {
+    const index = this.sockets.findIndex((s) => s.data.clientId === socket.data.clientId);
+    if (index >= 0) {
+      this.sockets.splice(index, 1);
+    }
+  };
+
+  private notifySockets = (websiteId: string) => {
+    const now = Temporal.Now.instant();
+    const last = this.lastSocketNotifications.get(websiteId);
+    if (!last || Temporal.Duration.compare(now.since(last), this.socketNotificationCooldown) > 0) {
+      const message: ServerMessage = {
+        type: ServerMessage.Type.website_stats_update,
+        websiteId,
+      };
+      this.sockets.forEach((socket) => socket.send(JSON.stringify(message)));
+      this.lastSocketNotifications.set(websiteId, now);
+    }
+  };
 
   public async ingest(ipAddress: string, unknown: BrowserTrackingEvent): Promise<void> {
     try {
@@ -98,6 +128,7 @@ export class IngestionService {
         await this.websiteRepository.update(website.id, { hasData: true });
       }
     }
+    this.notifySockets(analyticsEvent.websiteId);
   }
 
   private async ingestEnd(payload: BrowserTrackingEvent.End): Promise<void> {

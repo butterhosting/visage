@@ -21,6 +21,9 @@ import { useDocumentTitle } from "../hooks/useDocumentTitle";
 import { useRegistry } from "../hooks/useRegistry";
 import { useYesQuery } from "../hooks/useYesQuery";
 import { Route } from "../Route";
+import { useEffect } from "react";
+import { SocketClient } from "../clients/SocketClient";
+import { ServerMessage } from "@/socket/ServerMessage";
 
 export function websites$refPage() {
   const { ref } = useParams();
@@ -29,7 +32,11 @@ export function websites$refPage() {
   const { graph, graphTimeSeriesField, setGraph, period, setPeriod, filters, setFilters } = useDashboardUrlState();
 
   const websiteClient = useRegistry(WebsiteClient);
-  const { data: website } = useYesQuery({
+  const {
+    data: website,
+    getData: getWebsite,
+    setData: setWebsite,
+  } = useYesQuery({
     queryFn: () =>
       websiteClient.find(ref!).catch((e) => {
         if (WebsiteError.not_found.matches(e)) {
@@ -44,6 +51,7 @@ export function websites$refPage() {
     data: stats,
     setData: setStats,
     getData: getStats,
+    reload,
   } = useYesQuery(
     {
       queryFn: () =>
@@ -70,6 +78,22 @@ export function websites$refPage() {
     },
     [website?.id, graph, period.from?.toString(), period.to?.toString(), JSON.stringify(filters)],
   );
+
+  const socketClient = useRegistry(SocketClient);
+  useEffect(() => {
+    if (website?.id) {
+      const token = socketClient.subscribe({
+        type: ServerMessage.Type.website_stats_update,
+        callback: ({ websiteId }) => {
+          if (websiteId === website.id) {
+            reload();
+            setWebsite({ ...getWebsite()!, hasData: true });
+          }
+        },
+      });
+      return () => socketClient.unsubscribe(token);
+    }
+  }, [website?.id]);
 
   useDocumentTitle(website ? `${website.hostname} | Websites | Visage` : "Websites | Visage");
 

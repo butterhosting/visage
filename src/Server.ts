@@ -58,11 +58,11 @@ export class Server {
         message: () => {
           // Ignore any incoming client messages
         },
-        open: (_socket) => {
-          console.log("TODO; register socket in service(s)");
+        open: (socket) => {
+          this.ingestionService.registerSocket(socket);
         },
-        close: (_socket) => {
-          console.log("TODO; unregister socket in service(s)");
+        close: (socket) => {
+          this.ingestionService.unregisterSocket(socket);
         },
       },
       routes: {
