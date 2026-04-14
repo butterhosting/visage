@@ -4,11 +4,11 @@ import { rm } from "fs/promises";
 import { RegressionSuite } from "./RegressionSuite";
 
 describe("regression", () => {
-  let database!: Sqlite;
+  let sqlite!: Sqlite;
 
   beforeEach(async () => {
-    database?.close();
-    database = await RegressionSuite.Database.getRegressionDatabaseCopy();
+    sqlite?.close();
+    sqlite = await RegressionSuite.Database.getRegressionDatabaseCopy();
   });
 
   afterAll(async () => {
@@ -19,7 +19,7 @@ describe("regression", () => {
     for (const { table, queryFn } of RegressionSuite.Database.getQueryFns()) {
       it(table, async () => {
         // when
-        const records = await queryFn(database);
+        const records = await queryFn(sqlite);
         // then
         expect(records.length).toBeGreaterThan(0);
       });

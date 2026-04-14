@@ -2,7 +2,7 @@ import { AnalyticsEventConverter } from "@/drizzle/converters/AnalyticsEventConv
 import { TokenConverter } from "@/drizzle/converters/TokenConverter";
 import { WebsiteConverter } from "@/drizzle/converters/WebsiteConverter";
 import * as schema from "@/drizzle/schema";
-import { $analyticsEvent } from "@/drizzle/schema";
+import { $analyticsEvent, $botEvent, $token, $website } from "@/drizzle/schema";
 import { Sqlite } from "@/drizzle/sqlite";
 import { Env } from "@/Env";
 import { Website } from "@/models/Website";
@@ -10,7 +10,7 @@ import { test } from "bun:test";
 import { InferInsertModel } from "drizzle-orm";
 import { join } from "path";
 
-test.skip("regression suite management", async () => {
+test.only("regression suite management", async () => {
   // manually create a varied database file
 });
 
@@ -58,14 +58,28 @@ export namespace RegressionSuite {
     }
 
     /** @public */
-    export async function insertIntoRegressionDatabase({ $analyticsEvent: analyticsEvents }: TableRecords) {
+    export async function insertIntoRegressionDatabase({
+      $website: websites,
+      $analyticsEvent: analyticsEvents,
+      $botEvent: botEvents,
+      $token: tokens,
+    }: TableRecords) {
       const file = Bun.file(databasePath);
       if (await file.exists()) {
         await file.delete();
       }
       const sqlite = await Sqlite.initialize({ X_VISAGE_DATABASE: databasePath } as Env.Private);
+      if (websites.length > 0) {
+        await sqlite.insert($website).values(websites);
+      }
       if (analyticsEvents.length > 0) {
         await sqlite.insert($analyticsEvent).values(analyticsEvents);
+      }
+      if (botEvents.length > 0) {
+        await sqlite.insert($botEvent).values(botEvents);
+      }
+      if (tokens.length > 0) {
+        await sqlite.insert($token).values(tokens);
       }
       sqlite.close();
       return databasePath;

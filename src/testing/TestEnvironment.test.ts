@@ -5,7 +5,7 @@ import { LogLevel } from "@/models/LogLevel";
 import { AnalyticsEventRepository } from "@/repositories/AnalyticsEventRepository";
 import { OmitBetter } from "@/types/OmitBetter";
 import { jest, mock, Mock } from "bun:test";
-import { mkdir } from "fs/promises";
+import { mkdir, rm } from "fs/promises";
 import { dirname, join } from "path";
 
 export namespace TestEnvironment {
@@ -73,7 +73,7 @@ export namespace TestEnvironment {
     await Promise.all([
       mkdir(dirname(env.X_VISAGE_DATABASE), { recursive: true }),
       mkdir(dirname(env.X_VISAGE_TRACKER_SCRIPT), { recursive: true }),
-    ]);
+    ]).then(() => rm(env.X_VISAGE_DATABASE, { force: true }));
 
     // Setup SQLite
     const sqlite = await Sqlite.initialize(env);
