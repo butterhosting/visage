@@ -106,12 +106,16 @@ run_scenario() {
 # ─── verification functions ───
 
 verify_no_auth() {
-    assert_status "200" http://localhost:3000/internal-api/env
+    assert_status "200" http://localhost:3000/vis.js \
+    && assert_status "200" http://localhost:3000/i -d '{}' \
+    && assert_status "200" http://localhost:3000/internal-api/env
 }
 
 verify_auth() {
-    assert_status "401" http://localhost:3000/internal-api/env \
-        && assert_status "200" -u kim:possible http://localhost:3000/api/env
+    assert_status "200" http://localhost:3000/vis.js \
+    && assert_status "200" http://localhost:3000/i -d '{}' \
+    && assert_status "401" http://localhost:3000/internal-api/env \
+    && assert_status "200" http://localhost:3000/internal-api/env -u kim:possible
 }
 
 # ─── scenarios ───
@@ -119,8 +123,8 @@ verify_auth() {
 cd "$ROOT"
 
 build_image "default"
-run_scenario "default" "$SCRIPT_DIR/compose.yaml" verify_no_auth
-run_scenario "default-auth" "$SCRIPT_DIR/compose-auth.yaml" verify_auth
+run_scenario "fully-accessible" "$SCRIPT_DIR/compose.yaml" verify_no_auth
+run_scenario "basic-auth-restricted" "$SCRIPT_DIR/compose-auth.yaml" verify_auth
 
 # ─── summary ───
 

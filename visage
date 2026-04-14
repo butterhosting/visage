@@ -82,7 +82,7 @@ ARG VISAGE_COMMIT
 RUN bun -e "const p='./package.json'; const j=await Bun.file(p).json(); j.version='$VISAGE_VERSION'; j.commit='$VISAGE_COMMIT'; await Bun.write(p, JSON.stringify(j, null, 2))"
 RUN bun install --frozen-lockfile --production
 COPY src/ src/
-COPY dist/ dist/
+RUN bun tracker:build
 
 FROM oven/bun:alpine
 RUN apk update && apk add --no-cache bash
@@ -97,7 +97,7 @@ EOF
         printf "RUN apk add --no-cache su-exec\n" >> "$tmpfile"
         printf "RUN mkdir -p %s && chown bun:bun %s\n" "$visage_root" "$visage_root" >> "$tmpfile"
         cat >> "$tmpfile" <<ENTRY_EOF
-UN printf '#!/bin/sh\nchown -R bun:bun ${visage_root}\nexec su-exec bun "\$@"\n' > /entrypoint.sh && chmod +x /entrypoint.sh
+RUN printf '#!/bin/sh\nchown -R bun:bun ${visage_root}\nexec su-exec bun "\$@"\n' > /entrypoint.sh && chmod +x /entrypoint.sh
 ENTRY_EOF
     fi
 

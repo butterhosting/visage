@@ -19,6 +19,7 @@ import { TokenService } from "./services/TokenService";
 import { TrackerService } from "./tracker/TrackerService";
 import { WebsiteService } from "./services/WebsiteService";
 import { Socket } from "./socket/Socket";
+import { ServerEndpoint } from "./ServerEndpoint";
 
 export class Server {
   private readonly log = new Logger(__filename);
@@ -98,7 +99,7 @@ export class Server {
         /**
          * Public script
          */
-        "/vis.js": {
+        [ServerEndpoint.Public.script]: {
           GET: this.handleRoute(async () => {
             const script = await this.trackerService.getMinifiedScript();
             return new Response(script, {
@@ -112,7 +113,7 @@ export class Server {
         /**
          * Public ingestion endpoint
          */
-        "/i": {
+        [ServerEndpoint.Public.ingestion]: {
           POST: this.handleRoute(async (request) => {
             const ip = server.requestIP(request);
             if (ip) {

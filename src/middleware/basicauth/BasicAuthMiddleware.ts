@@ -3,6 +3,7 @@ import { ServerError } from "@/errors/ServerError";
 import { AuthHelper } from "@/helpers/AuthHelper";
 import { Credentials } from "@/models/Credentials";
 import { MiddlewareHandler } from "../MiddlewareHandler";
+import { ServerEndpoint } from "@/ServerEndpoint";
 
 type HashedCredentials = {
   username: string;
@@ -34,7 +35,8 @@ export class BasicAuthMiddleware implements MiddlewareHandler {
     if (typeof this.enabled !== "boolean") {
       throw new Error(`Please call \`${"initializeFromDisk" satisfies keyof typeof this}\` first`);
     }
-    if (this.enabled) {
+    const { pathname } = new URL(request.url);
+    if (this.enabled && !Object.values(ServerEndpoint.Public).includes(pathname)) {
       const { accessGranted } = await this.authenticate(request.headers);
       if (!accessGranted) {
         return Response.json(ServerError.unauthorized().json(), {

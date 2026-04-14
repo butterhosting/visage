@@ -15,11 +15,12 @@
     "tc": "bunx tsc --noEmit",
     "lint": "bunx tsc --noEmit -p tsconfig.lint.json && bunx knip-bun",
     "test:unit": "bun test",
-    "start:dev": "concurrently --kill-others \"bun tracker:watch\" \"bun --env-file=.env.dev --env-file=.env --hot src/index.ts\"",
-    "start:e2e": "bun tracker:build && bun --env-file=.env.e2e src/index.ts",
-    "start:prod": "bun tracker:build && bun --env-file=.env.prod src/index.ts",
+    "test:deployment": "deployment/test.sh",
     "e2e": "playwright test --ui",
-    "e2e:headless": "playwright test --max-failures 1 --reporter github"
+    "e2e:headless": "playwright test --max-failures 1 --reporter github",
+    "start:dev": "concurrently --kill-others \"bun tracker:watch\" \"bun --env-file=.env.dev --env-file=.env --hot src/index.ts\"",
+    "start:e2e": "bun --env-file=.env.e2e src/index.ts",
+    "start:prod": "bun --env-file=.env.prod src/index.ts"
   },
   "dependencies": {
     "@js-temporal/polyfill": "^0.5.1",
