@@ -10,8 +10,8 @@ import { test } from "bun:test";
 import { InferInsertModel } from "drizzle-orm";
 import { join } from "path";
 
-test.only("regression suite management", async () => {
-  // manually create a varied database file
+test.skip("regression suite management", async () => {
+  // manually update the regression database
 });
 
 export namespace RegressionSuite {
