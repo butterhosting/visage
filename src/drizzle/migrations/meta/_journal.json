@@ -34,14 +34,7 @@
       "idx": 4,
       "version": "6",
       "when": 1776110125012,
-      "tag": "0004_index_analytics_event_created",
-      "breakpoints": true
-    },
-    {
-      "idx": 5,
-      "version": "6",
-      "when": 1776110133181,
-      "tag": "0005_index_analytics_event_cpi",
+      "tag": "0004_index_analytics_events",
       "breakpoints": true
     }
   ]
