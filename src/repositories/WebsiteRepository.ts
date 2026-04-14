@@ -8,7 +8,7 @@ import { PersistenceError } from "./error/PersistenceError";
 export class WebsiteRepository {
   public constructor(private readonly sqlite: Sqlite) {}
 
-  public async query(): Promise<Website[]> {
+  public async list(): Promise<Website[]> {
     const websites = await this.sqlite.query.$website.findMany({
       orderBy: $website.id,
     });

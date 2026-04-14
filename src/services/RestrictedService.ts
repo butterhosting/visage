@@ -14,7 +14,7 @@ export class RestrictedService {
   ) {}
 
   public async purge(): Promise<void> {
-    const websites = await this.websiteService.query();
+    const websites = await this.websiteService.list();
     await Promise.all(websites.map(({ id }) => this.websiteService.delete(id)));
   }
 

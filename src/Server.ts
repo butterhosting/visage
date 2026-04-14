@@ -140,7 +140,7 @@ export class Server {
          */
         "/internal-api/websites": {
           GET: this.handleRoute(async () => {
-            const websites: WebsiteRM[] = await this.websiteService.query();
+            const websites: WebsiteRM[] = await this.websiteService.list();
             return Response.json(websites);
           }),
           POST: this.handleRoute(async (request) => {

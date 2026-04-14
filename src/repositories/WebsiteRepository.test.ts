@@ -5,8 +5,8 @@ import { PersistenceError } from "./error/PersistenceError";
 import { WebsiteRepository } from "./WebsiteRepository";
 
 describe(WebsiteRepository.name, () => {
-  let context!: TestEnvironment.Context;
-  let repository!: WebsiteRepository;
+  let context: TestEnvironment.Context;
+  let repository: WebsiteRepository;
 
   beforeEach(async () => {
     context = await TestEnvironment.initialize();
@@ -26,7 +26,7 @@ describe(WebsiteRepository.name, () => {
     await repository.create(redWebsite);
     await repository.create(blueWebsite);
     // then
-    expect(await repository.query()).toEqual([
+    expect(await repository.list()).toEqual([
       expect.objectContaining({ hostname: "www.red.com" }),
       expect.objectContaining({ hostname: "www.blue.com" }),
     ]);
@@ -54,6 +54,6 @@ describe(WebsiteRepository.name, () => {
     // then
     expect(deleted).toBeDefined();
     expect(await repository.find(redWebsite.id)).toBeUndefined();
-    expect(await repository.query()).toEqual([expect.objectContaining({ hostname: "www.blue.com" })]);
+    expect(await repository.list()).toEqual([expect.objectContaining({ hostname: "www.blue.com" })]);
   });
 });

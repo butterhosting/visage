@@ -4,7 +4,7 @@ import { rm } from "fs/promises";
 import { RegressionSuite } from "./RegressionSuite";
 
 describe("regression", () => {
-  let sqlite!: Sqlite;
+  let sqlite: Sqlite;
 
   beforeEach(async () => {
     sqlite?.close();

@@ -1,7 +1,8 @@
 import { AnalyticsEvent } from "@/models/AnalyticsEvent";
+import { Token } from "@/models/Token";
 import { Website } from "@/models/Website";
 import { Temporal } from "@js-temporal/polyfill";
-import { randomUUID } from "crypto";
+import { createHash, randomUUID } from "crypto";
 
 type DeepPartial<T> = T extends object ? { [P in keyof T]?: DeepPartial<T[P]> } : T;
 
@@ -54,6 +55,18 @@ export namespace TestFixture {
         countryCode: "DE",
         cityName: "Berlin",
       },
+    };
+    return deepMerge(defaults, overrides);
+  }
+
+  export function token(overrides: DeepPartial<Token> = {}): Token {
+    const secret = Token.generateSecret();
+    const defaults: Token = {
+      id: Token.generateId(),
+      object: "token_internal",
+      created: Temporal.Now.instant(),
+      websiteIds: "*",
+      secretHash: createHash("sha256").update(secret).digest("hex"),
     };
     return deepMerge(defaults, overrides);
   }

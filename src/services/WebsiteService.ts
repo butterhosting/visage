@@ -22,8 +22,8 @@ export class WebsiteService {
     private readonly eventBus: EventBus,
   ) {}
 
-  public async query(): Promise<WebsiteRM[]> {
-    const websites = await this.websiteRepository.query();
+  public async list(): Promise<WebsiteRM[]> {
+    const websites = await this.websiteRepository.list();
     const enrichedWebsites = await Promise.all(websites.map((w) => this.enrich(w)));
     return enrichedWebsites.sort((w1, w2) => -Math.sign(w1.visitorsTotal30d - w2.visitorsTotal30d));
   }
@@ -48,7 +48,7 @@ export class WebsiteService {
         hasData: false,
       })
       .catch((err) => {
-        if (PersistenceError.is(err, "unique_violation")) {
+        if (PersistenceError.is(err, PersistenceError.Reason.unique_violation)) {
           throw WebsiteError.already_exists({ hostname });
         }
         throw err;
@@ -69,7 +69,7 @@ export class WebsiteService {
           return w;
         },
         (err) => {
-          if (PersistenceError.is(err, "unique_violation")) {
+          if (PersistenceError.is(err, PersistenceError.Reason.unique_violation)) {
             throw WebsiteError.already_exists({ hostname });
           }
           throw err;
