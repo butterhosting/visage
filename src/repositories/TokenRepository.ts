@@ -21,7 +21,7 @@ export class TokenRepository {
     return token ? TokenConverter.convert(token) : undefined;
   }
 
-  public async create(token: Token): Promise<Token | undefined> {
+  public async create(token: Token): Promise<Token> {
     return await this.sqlite
       .insert($token)
       .values(TokenConverter.convert(token))

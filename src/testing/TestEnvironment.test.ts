@@ -1,8 +1,10 @@
 import { Sqlite } from "@/drizzle/sqlite";
 import { Env } from "@/Env";
+import { EventBus } from "@/events/EventBus";
 import { Logger } from "@/Logger";
 import { LogLevel } from "@/models/LogLevel";
 import { AnalyticsEventRepository } from "@/repositories/AnalyticsEventRepository";
+import { TokenRepository } from "@/repositories/TokenRepository";
 import { WebsiteRepository } from "@/repositories/WebsiteRepository";
 import { BotDetectionService } from "@/services/BotDetectionService";
 import { MaxMindGeoService } from "@/services/MaxMindGeoService";
@@ -22,8 +24,10 @@ export namespace TestEnvironment {
     env: Env.Private;
     sqlite: Sqlite;
     patchEnvironmentVariables(environment: Record<string, string>): void;
+    eventBus: EventBus;
     websiteRepository: WebsiteRepository;
     analyticsEventRepository: AnalyticsEventRepository;
+    tokenRepository: TokenRepository;
     maxMindGeoServiceMock: Mocked<MaxMindGeoService>;
     botDetectionServiceMock: Mocked<BotDetectionService>;
   }
@@ -95,7 +99,9 @@ export namespace TestEnvironment {
     }
 
     // Dependencies
+    const eventBus = new EventBus();
     const websiteRepository = new WebsiteRepository(sqlite);
+    const tokenRepository = new TokenRepository(sqlite);
     const analyticsEventRepository = new AnalyticsEventRepository(env, sqlite);
     const maxMindGeoServiceMock = registerMockObject<MaxMindGeoService>({
       lookup: mock(),
@@ -109,8 +115,10 @@ export namespace TestEnvironment {
       env,
       sqlite,
       patchEnvironmentVariables,
+      eventBus,
       websiteRepository,
       analyticsEventRepository,
+      tokenRepository,
       maxMindGeoServiceMock,
       botDetectionServiceMock,
     };

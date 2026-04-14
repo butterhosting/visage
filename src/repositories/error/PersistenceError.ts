@@ -27,7 +27,7 @@ export class PersistenceError extends Error {
     return error instanceof PersistenceError && error.reason === reason;
   }
 
-  private constructor(public readonly reason: Reason) {
+  public constructor(public readonly reason: Reason) {
     super(reason);
   }
 }

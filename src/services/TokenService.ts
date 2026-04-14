@@ -5,7 +5,9 @@ import { EventBus } from "@/events/EventBus";
 import { ZodProblem } from "@/helpers/ZodIssues";
 import { Token } from "@/models/Token";
 import { TokenRM } from "@/models/TokenRM";
+import { PersistenceError } from "@/repositories/error/PersistenceError";
 import { TokenRepository } from "@/repositories/TokenRepository";
+import { WebsiteRepository } from "@/repositories/WebsiteRepository";
 import { Temporal } from "@js-temporal/polyfill";
 import { createHash } from "crypto";
 import z from "zod/v4";
@@ -13,6 +15,7 @@ import z from "zod/v4";
 export class TokenService {
   public constructor(
     private readonly tokenRepository: TokenRepository,
+    private readonly websiteRepository: WebsiteRepository,
     eventBus: EventBus,
   ) {
     eventBus.subscribe(Event.Type.website_deleted, ({ data: { website } }) => tokenRepository.updateAllByRemovingWebsite(website.id));
@@ -26,32 +29,47 @@ export class TokenService {
   public async generate(unknown: z.output<typeof TokenService.Generate>): Promise<TokenRM> {
     const { websites } = TokenService.Generate.parse(unknown);
 
+    if (websites !== "*") {
+      const { nonExistingIds } = await this.websiteRepository.exist(websites);
+      if (nonExistingIds.length > 0) {
+        throw TokenError.websites_not_found({ ids: nonExistingIds });
+      }
+    }
+
     const secretPlain = Token.generateSecret();
     const secretHash = createHash("sha256").update(secretPlain, "utf8").digest("hex");
 
     let token: Token | undefined;
-    for (let attempt = 1, max = 100; attempt < max; attempt += 1) {
-      token = await this.tokenRepository.create({
-        id: Token.generateId(),
-        object: "token_internal",
-        created: Temporal.Now.instant(),
-        websiteIds: websites,
-        secretHash,
-        secretPlain,
-      });
+    let attempt = 1;
+    while (true) {
+      token = await this.tokenRepository
+        .create({
+          id: Token.generateId(),
+          object: "token_internal",
+          created: Temporal.Now.instant(),
+          websiteIds: websites,
+          secretHash,
+          secretPlain,
+        })
+        .catch((err) => {
+          if (PersistenceError.isPrimaryKeyViolation(err)) {
+            return undefined;
+          }
+          throw err;
+        });
       if (token) {
         break;
       }
-    }
-    if (!token) {
-      throw new Error("Illegal state: failed to generate a unique token id after many attempts");
+      if (attempt > 100) {
+        throw new Error(`Illegal state: failed to generate a unique token id after ${attempt} attempts`);
+      }
     }
 
     return this.convert(token);
   }
 
-  public async validate(serializedToken: string): Promise<TokenRM | undefined> {
-    const { id, secret } = Token.split(serializedToken);
+  public async validate(tokenValue: string): Promise<TokenRM | undefined> {
+    const { id, secret } = Token.split(tokenValue);
     const token = await this.tokenRepository.find(id);
     if (token && secret) {
       const incomingHash = createHash("sha256").update(secret, "utf8").digest("hex");

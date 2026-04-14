@@ -1,7 +1,7 @@
 import { $website } from "@/drizzle/schema";
 import { Sqlite } from "@/drizzle/sqlite";
 import { Website } from "@/models/Website";
-import { eq, or } from "drizzle-orm";
+import { eq, inArray, or } from "drizzle-orm";
 import { WebsiteConverter } from "../drizzle/converters/WebsiteConverter";
 import { PersistenceError } from "./error/PersistenceError";
 
@@ -13,6 +13,17 @@ export class WebsiteRepository {
       orderBy: $website.id,
     });
     return websites.map<Website>(WebsiteConverter.convert);
+  }
+
+  public async exist(ids: string[]): Promise<{ nonExistingIds: string[] }> {
+    const websiteIds = await this.sqlite
+      .select({ id: $website.id })
+      .from($website)
+      .where(inArray($website.id, ids))
+      .then((websites) => websites.map(({ id }) => id));
+    return {
+      nonExistingIds: ids.filter((id) => !websiteIds.includes(id)),
+    };
   }
 
   public async find(ref: string): Promise<Website | undefined>;
