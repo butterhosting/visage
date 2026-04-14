@@ -15,12 +15,12 @@ test("all main pages load and have the right title", async ({ page }) => {
       expectation: { title: "Websites | Visage" },
     },
     {
-      url: "script",
-      expectation: { title: "Script | Visage" },
+      url: "interface",
+      expectation: { title: "API | Visage" },
     },
     {
-      url: "data",
-      expectation: { title: "Data | Visage" },
+      url: "settings",
+      expectation: { title: "Settings | Visage" },
     },
   ];
   for (const { url, expectation } of testCases) {

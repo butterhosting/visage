@@ -1,6 +1,5 @@
 import { BrowserTrackingEvent } from "@/models/BrowserTrackingEvent";
 
-// TODO: e2e test to make sure the generated .js file is less than 1.3kb
 const ingestionEndpoint = new URL("i", document.currentScript?.getAttribute("src") as string);
 const originalPushState = history.pushState.bind(history);
 const originalReplaceState = history.replaceState.bind(history);
