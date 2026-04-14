@@ -9,7 +9,9 @@ export class WebsiteRepository {
   public constructor(private readonly sqlite: Sqlite) {}
 
   public async query(): Promise<Website[]> {
-    const websites = await this.sqlite.query.$website.findMany();
+    const websites = await this.sqlite.query.$website.findMany({
+      orderBy: $website.id,
+    });
     return websites.map<Website>(WebsiteConverter.convert);
   }
 

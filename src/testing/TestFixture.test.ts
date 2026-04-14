@@ -1,15 +1,27 @@
 import { AnalyticsEvent } from "@/models/AnalyticsEvent";
+import { Website } from "@/models/Website";
 import { Temporal } from "@js-temporal/polyfill";
 import { randomUUID } from "crypto";
 
 type DeepPartial<T> = T extends object ? { [P in keyof T]?: DeepPartial<T[P]> } : T;
 
 export namespace TestFixture {
-  export function createAnalyticsEvent(overrides: DeepPartial<AnalyticsEvent> = {}): AnalyticsEvent {
+  export function website(overrides: DeepPartial<Website> = {}): Website {
+    const defaults: Website = {
+      id: Bun.randomUUIDv7(),
+      object: "website",
+      created: Temporal.Now.instant(),
+      hasData: false,
+      hostname: "www.example.com",
+    };
+    return deepMerge(defaults, overrides);
+  }
+  export function analyticsEvent(overrides: DeepPartial<AnalyticsEvent> = {}): AnalyticsEvent {
     const defaults: AnalyticsEvent = {
-      id: randomUUID(), // client-generated
+      id: Bun.randomUUIDv7(),
       object: "analytics_event",
-      websiteId: Bun.randomUUIDv7(), // server-generated
+      websiteId: Bun.randomUUIDv7(),
+      clientPageId: randomUUID(), // client-generated
       created: Temporal.Now.instant(),
       url: {
         hostname: "example.com",
