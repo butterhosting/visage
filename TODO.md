@@ -45,6 +45,8 @@
 - [ ] **WebSocket live functionality** — verify live pageview count updates via WebSocket
 - [ ] **Stats endpoint** — verify error responses for invalid data
 
+## Deployment tests
+
 ## Infrastructure
 
 - [ ] **Add Postgres support?** — currently SQLite only ([sqlite.ts:10](src/drizzle/sqlite.ts))

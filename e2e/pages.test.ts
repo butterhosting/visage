@@ -1,14 +1,19 @@
 import { expect, test } from "@playwright/test";
+import { ResetBoundary } from "./boundaries/ResetBoundary";
 
-type TestCase = {
-  url: string;
-  expectation: {
-    title: string;
-  };
-};
+test.beforeEach(async ({ request, page }) => {
+  await ResetBoundary.reset(request);
+  await page.goto("");
+});
 
 test("all main pages load and have the right title", async ({ page }) => {
   // given
+  type TestCase = {
+    url: string;
+    expectation: {
+      title: string;
+    };
+  };
   const testCases: TestCase[] = [
     {
       url: "",

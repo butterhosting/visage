@@ -42,7 +42,7 @@ export function settingsPage() {
     <Skeleton>
       <Paper>
         {websites?.map((website) => (
-          <div key={website.id} className="flex sm:flex-col items-center sm:items-start gap-4 px-6 py-4">
+          <div key={website.id} data-testid="website-row" className="flex sm:flex-col items-center sm:items-start gap-4 px-6 py-4">
             <span className="flex-1 font-bold">{website.hostname}</span>
             <div className="flex gap-4 items-center">
               <button

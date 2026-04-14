@@ -52,7 +52,7 @@ export function WebsiteModal({ existing, close, done }: Props) {
             Cancel
           </Button>
           <Button onClick={handleSubmit} disabled={!hostname.trim()} loading={busy}>
-            {existing ? "Update" : "Create"}
+            {existing ? "Update" : "Add"}
           </Button>
         </div>
       </div>
