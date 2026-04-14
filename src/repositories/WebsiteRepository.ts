@@ -37,7 +37,7 @@ export class WebsiteRepository {
       .then(
         () => website,
         (err) => {
-          throw PersistenceError.cast(err);
+          throw PersistenceError.tryCast(err);
         },
       );
   }
@@ -49,7 +49,7 @@ export class WebsiteRepository {
       .where(or(eq($website.id, ref), eq($website.hostname, ref)))
       .returning()
       .catch((err) => {
-        throw PersistenceError.cast(err);
+        throw PersistenceError.tryCast(err);
       });
     return website ? WebsiteConverter.convert(website) : undefined;
   }

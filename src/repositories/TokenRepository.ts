@@ -28,7 +28,7 @@ export class TokenRepository {
       .then(
         () => token,
         (err) => {
-          throw PersistenceError.cast(err);
+          throw PersistenceError.tryCast(err);
         },
       );
   }

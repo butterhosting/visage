@@ -48,7 +48,7 @@ export class WebsiteService {
         hasData: false,
       })
       .catch((err) => {
-        if (PersistenceError.is(err, PersistenceError.Reason.unique_violation)) {
+        if (PersistenceError.isUniqueViolation(err)) {
           throw WebsiteError.already_exists({ hostname });
         }
         throw err;
@@ -69,7 +69,7 @@ export class WebsiteService {
           return w;
         },
         (err) => {
-          if (PersistenceError.is(err, PersistenceError.Reason.unique_violation)) {
+          if (PersistenceError.isUniqueViolation(err)) {
             throw WebsiteError.already_exists({ hostname });
           }
           throw err;
