@@ -1,5 +1,5 @@
 export namespace NullSentinel {
-  const VALUE = "@null";
+  export const VALUE = "@null";
 
   export function encode(value: string | null): string {
     return value === null ? VALUE : value;

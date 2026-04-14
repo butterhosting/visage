@@ -43,7 +43,7 @@ export class ServerRegistry {
     const { botDetectionService } = this.register({ BotDetectionService }, []);
     const { trackerService } = this.register({ TrackerService }, [env]);
     const { exportService } = this.register({ ExportService }, [sqlite, websiteRepository]);
-    const { tokenService } = this.register({ TokenService }, [tokenRepository, eventBus]);
+    const { tokenService } = this.register({ TokenService }, [tokenRepository, websiteRepository, eventBus]);
     const { statsService } = this.register({ StatsService }, [env, sqlite, tokenService, websiteRepository]);
     const { websiteService } = this.register({ WebsiteService }, [env, websiteRepository, statsService, eventBus]);
     const { restrictedService } = this.register({ RestrictedService }, [websiteService, sqlite]);

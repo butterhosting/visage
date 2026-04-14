@@ -49,8 +49,8 @@ export function DistributionTable({ distribution, pageviewsTotal, filterKey, fil
                 {filterKey === StatsQuery.Filter.country && point.value && (
                   <CountryFlag countryCode={point.value} className="h-3.5 rounded-[1px] shrink-0" />
                 )}
-                {filterKey === StatsQuery.Filter.city && point.value && typeof point.meta?.country === "string" && (
-                  <CountryFlag countryCode={point.meta.country} className="h-3.5 rounded-[1px] shrink-0" />
+                {filterKey === StatsQuery.Filter.city && point.value && typeof point.meta?.countryCode === "string" && (
+                  <CountryFlag countryCode={point.meta.countryCode} className="h-3.5 rounded-[1px] shrink-0" />
                 )}
                 {DistributionFilter.renderValue(filterKey, point.value)}
               </span>

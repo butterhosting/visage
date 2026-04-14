@@ -8,6 +8,7 @@ import { TokenRepository } from "@/repositories/TokenRepository";
 import { WebsiteRepository } from "@/repositories/WebsiteRepository";
 import { BotDetectionService } from "@/services/BotDetectionService";
 import { MaxMindGeoService } from "@/services/MaxMindGeoService";
+import { TokenService } from "@/services/TokenService";
 import { OmitBetter } from "@/types/OmitBetter";
 import { jest, mock, Mock } from "bun:test";
 import { mkdir, rm } from "fs/promises";
@@ -28,6 +29,7 @@ export namespace TestEnvironment {
     websiteRepository: WebsiteRepository;
     analyticsEventRepository: AnalyticsEventRepository;
     tokenRepository: TokenRepository;
+    tokenServiceMock: Mocked<TokenService>;
     maxMindGeoServiceMock: Mocked<MaxMindGeoService>;
     botDetectionServiceMock: Mocked<BotDetectionService>;
   }
@@ -102,6 +104,12 @@ export namespace TestEnvironment {
     const eventBus = new EventBus();
     const websiteRepository = new WebsiteRepository(sqlite);
     const tokenRepository = new TokenRepository(sqlite);
+    const tokenServiceMock = registerMockObject<TokenService>({
+      list: mock(),
+      generate: mock(),
+      validate: mock(),
+      delete: mock(),
+    });
     const analyticsEventRepository = new AnalyticsEventRepository(env, sqlite);
     const maxMindGeoServiceMock = registerMockObject<MaxMindGeoService>({
       lookup: mock(),
@@ -119,6 +127,7 @@ export namespace TestEnvironment {
       websiteRepository,
       analyticsEventRepository,
       tokenRepository,
+      tokenServiceMock,
       maxMindGeoServiceMock,
       botDetectionServiceMock,
     };

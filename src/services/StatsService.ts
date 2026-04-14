@@ -278,14 +278,14 @@ export class StatsService {
         .offset(offset);
     } else if (column.name === $analyticsEvent.geoCityName.name) {
       rows = await this.sqlite
-        .select({ value: column, count: c, meta: { country: $analyticsEvent.geoCountryCode } })
+        .select({ value: column, count: c, meta: { countryCode: $analyticsEvent.geoCountryCode } })
         .from($analyticsEvent)
         .where(and(...where))
         .groupBy(column)
         .orderBy(desc(c))
         .limit(limit + 1)
         .offset(offset);
-      rows = rows.map((r) => (r.value === null ? { ...r, meta: { country: null } } : r));
+      rows = rows.map((r) => (r.value === null ? { ...r, meta: { countryCode: null } } : r));
     } else {
       rows = await this.sqlite
         .select({ value: column, count: c })
