@@ -3,6 +3,7 @@ import { Env } from "@/Env";
 import { Logger } from "@/Logger";
 import { LogLevel } from "@/models/LogLevel";
 import { AnalyticsEventRepository } from "@/repositories/AnalyticsEventRepository";
+import { WebsiteRepository } from "@/repositories/WebsiteRepository";
 import { OmitBetter } from "@/types/OmitBetter";
 import { jest, mock, Mock } from "bun:test";
 import { mkdir, rm } from "fs/promises";
@@ -18,6 +19,8 @@ export namespace TestEnvironment {
   export interface Context {
     env: Env.Private;
     sqlite: Sqlite;
+    websiteRepository: WebsiteRepository;
+    websiteRepositoryMock: Mocked<WebsiteRepository>;
     analyticsEventRepository: AnalyticsEventRepository;
     analyticsEventRepositoryMock: Mocked<AnalyticsEventRepository>;
     patchEnvironmentVariables(environment: Record<string, string>): void;
@@ -87,6 +90,14 @@ export namespace TestEnvironment {
     }
 
     // Dependencies
+    const websiteRepository = new WebsiteRepository(sqlite);
+    const websiteRepositoryMock = registerMockObject<WebsiteRepository>({
+      list: mock(),
+      find: mock(),
+      create: mock(),
+      update: mock(),
+      delete: mock(),
+    });
     const analyticsEventRepository = new AnalyticsEventRepository(env, sqlite);
     const analyticsEventRepositoryMock = registerMockObject<AnalyticsEventRepository>({
       create: mock(),
@@ -100,6 +111,8 @@ export namespace TestEnvironment {
     return {
       env,
       sqlite,
+      websiteRepository,
+      websiteRepositoryMock,
       analyticsEventRepository,
       analyticsEventRepositoryMock,
       patchEnvironmentVariables,

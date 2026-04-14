@@ -17,6 +17,14 @@ export namespace TestFixture {
     };
     return deepMerge(defaults, overrides);
   }
+
+  export function analyticsEventList(total: number, overrides: DeepPartial<AnalyticsEvent> = {}): AnalyticsEvent[] {
+    const result: AnalyticsEvent[] = [];
+    for (let i = 0; i < total; i++) {
+      result.push(analyticsEvent(overrides));
+    }
+    return result;
+  }
   export function analyticsEvent(overrides: DeepPartial<AnalyticsEvent> = {}): AnalyticsEvent {
     const defaults: AnalyticsEvent = {
       id: Bun.randomUUIDv7(),
