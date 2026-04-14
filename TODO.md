@@ -36,15 +36,15 @@
 
 ## Unit tests
 
-- [ ] **Implement unit tests** - and try to make everything work
+- [x] **Implement unit tests** - and try to make everything work
 
 ## E2E tests
 
-- [ ] **Tracker location** - there's a bug in `package.json` because it incorrectly assumes a fixed location for writing the tracker script (could drift away from the .env files)
+- [x] **Tracker location** - there's a bug in `package.json` because it incorrectly assumes a fixed location for writing the tracker script (could drift away from the .env files)
 - [ ] **Tracker bundle size** — ensure `vis.js` stays under 1.3kb ([vis.ts:3](src/tracker/vis.ts))
 - [ ] **WebSocket live functionality** — verify live pageview count updates via WebSocket
 - [ ] **Stats endpoint** — verify error responses for invalid data
 
 ## Infrastructure
 
-- [ ] **Add Postgres support** — currently SQLite only ([sqlite.ts:10](src/drizzle/sqlite.ts))
+- [ ] **Add Postgres support?** — currently SQLite only ([sqlite.ts:10](src/drizzle/sqlite.ts))

@@ -1,4 +1,3 @@
-import { Artifact } from "@/models/Artifact";
 import { TestEnvironment } from "@/testing/TestEnvironment.test";
 import { TestFixture } from "@/testing/TestFixture.test";
 import { beforeEach, describe, expect, it } from "bun:test";

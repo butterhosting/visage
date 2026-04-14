@@ -84,10 +84,8 @@ export namespace TestEnvironment {
     Logger.initialize(env);
 
     // Setup filesystem
-    await Promise.all([
-      mkdir(dirname(env.X_VISAGE_DATABASE), { recursive: true }),
-      mkdir(dirname(env.X_VISAGE_TRACKER_SCRIPT), { recursive: true }),
-    ]).then(() => rm(env.X_VISAGE_DATABASE, { force: true }));
+    await mkdir(dirname(env.X_VISAGE_DATABASE), { recursive: true });
+    await rm(env.X_VISAGE_DATABASE, { force: true });
 
     // Setup SQLite
     const sqlite = await Sqlite.initialize(env);

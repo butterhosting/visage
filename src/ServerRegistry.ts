@@ -15,7 +15,7 @@ import { MaxMindGeoService } from "./services/MaxMindGeoService";
 import { RestrictedService } from "./services/RestrictedService";
 import { StatsService } from "./services/StatsService";
 import { TokenService } from "./services/TokenService";
-import { TrackerService } from "./services/TrackerService";
+import { TrackerService } from "./tracker/TrackerService";
 import { WebsiteService } from "./services/WebsiteService";
 import { EventBus } from "./events/EventBus";
 

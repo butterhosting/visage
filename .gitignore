@@ -38,6 +38,7 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 
 # Local artifacts (for during development)
 /opt
+/src/tracker/vis.js
 
 # Playwright
 e2e/.test-results/

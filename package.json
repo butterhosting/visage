@@ -10,7 +10,7 @@
     "drizzle": "sh -c ': \"${1:?Please pass a migration name}\"; bunx drizzle-kit generate --name=$1 --custom' _",
     "install:browsers": "playwright install chromium --with-deps",
     "dev": "docker compose up",
-    "tracker:build": "bun build --minify --outfile=opt/visage/tracker/vis.js src/tracker/vis.ts",
+    "tracker:build": "bun build --minify --outfile=src/tracker/vis.js src/tracker/vis.ts",
     "tracker:watch": "bun tracker:build --watch",
     "tc": "bunx tsc --noEmit",
     "lint": "bunx tsc --noEmit -p tsconfig.lint.json && bunx knip-bun",

@@ -23,7 +23,6 @@ Logger.initialize(env);
  */
 await Promise.all([
   mkdir(dirname(env.X_VISAGE_DATABASE), { recursive: true }),
-  mkdir(dirname(env.X_VISAGE_TRACKER_SCRIPT), { recursive: true }),
   env.X_MAXMIND ? mkdir(env.X_MAXMIND.ROOT, { recursive: true }) : Promise.resolve(),
 ]);
 
