@@ -4,6 +4,8 @@ import { Logger } from "@/Logger";
 import { LogLevel } from "@/models/LogLevel";
 import { AnalyticsEventRepository } from "@/repositories/AnalyticsEventRepository";
 import { WebsiteRepository } from "@/repositories/WebsiteRepository";
+import { BotDetectionService } from "@/services/BotDetectionService";
+import { MaxMindGeoService } from "@/services/MaxMindGeoService";
 import { OmitBetter } from "@/types/OmitBetter";
 import { jest, mock, Mock } from "bun:test";
 import { mkdir, rm } from "fs/promises";
@@ -19,11 +21,11 @@ export namespace TestEnvironment {
   export interface Context {
     env: Env.Private;
     sqlite: Sqlite;
-    websiteRepository: WebsiteRepository;
-    websiteRepositoryMock: Mocked<WebsiteRepository>;
-    analyticsEventRepository: AnalyticsEventRepository;
-    analyticsEventRepositoryMock: Mocked<AnalyticsEventRepository>;
     patchEnvironmentVariables(environment: Record<string, string>): void;
+    websiteRepository: WebsiteRepository;
+    analyticsEventRepository: AnalyticsEventRepository;
+    maxMindGeoServiceMock: Mocked<MaxMindGeoService>;
+    botDetectionServiceMock: Mocked<BotDetectionService>;
   }
 
   const cleanupTasks: Array<() => unknown | Promise<unknown>> = [];
@@ -68,6 +70,9 @@ export namespace TestEnvironment {
         "-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEAalpLQu9Fkn/R3WylORAad6UB0XAOowFIjF2/FwAyjpc=\n-----END PUBLIC KEY-----",
       X_VISAGE_ENABLE_RESTRICTED_ENTPOINTS: "false",
     });
+    const patchEnvironmentVariables = (environment: Record<string, string>) => {
+      Object.assign(Bun.env, environment);
+    };
 
     // Initialize the logger
     Logger.initialize(env);
@@ -91,31 +96,23 @@ export namespace TestEnvironment {
 
     // Dependencies
     const websiteRepository = new WebsiteRepository(sqlite);
-    const websiteRepositoryMock = registerMockObject<WebsiteRepository>({
-      list: mock(),
-      find: mock(),
-      create: mock(),
-      update: mock(),
-      delete: mock(),
-    });
     const analyticsEventRepository = new AnalyticsEventRepository(env, sqlite);
-    const analyticsEventRepositoryMock = registerMockObject<AnalyticsEventRepository>({
-      create: mock(),
-      update: mock(),
+    const maxMindGeoServiceMock = registerMockObject<MaxMindGeoService>({
+      lookup: mock(),
+      keepDatabaseUpToDate: mock(),
     });
-
-    function patchEnvironmentVariables(environment: Record<string, string>) {
-      Object.assign(Bun.env, environment);
-    }
+    const botDetectionServiceMock = registerMockObject<BotDetectionService>({
+      isBot: mock(),
+    });
 
     return {
       env,
       sqlite,
-      websiteRepository,
-      websiteRepositoryMock,
-      analyticsEventRepository,
-      analyticsEventRepositoryMock,
       patchEnvironmentVariables,
+      websiteRepository,
+      analyticsEventRepository,
+      maxMindGeoServiceMock,
+      botDetectionServiceMock,
     };
   }
 }

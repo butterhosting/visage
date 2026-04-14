@@ -1,4 +1,5 @@
 import { AnalyticsEvent } from "@/models/AnalyticsEvent";
+import { BrowserTrackingEvent } from "@/models/BrowserTrackingEvent";
 import { Token } from "@/models/Token";
 import { Website } from "@/models/Website";
 import { Temporal } from "@js-temporal/polyfill";
@@ -77,6 +78,30 @@ export namespace TestFixture {
       secretHash: createHash("sha256").update(secret).digest("hex"),
     };
     return deepMerge(defaults, overrides);
+  }
+
+  export function btStartEvent(hostname: string, overrides: Partial<BrowserTrackingEvent.Start> = {}): BrowserTrackingEvent.Start {
+    return {
+      t: "s",
+      cpi: randomUUID(),
+      u: `https://${hostname}/page`,
+      sc: 0,
+      ua: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36",
+      sw: 1920,
+      sh: 1080,
+      vw: 1440,
+      vh: 900,
+      ...overrides,
+    };
+  }
+
+  export function btEndEvent(cpi: string, overrides: Partial<BrowserTrackingEvent.End> = {}): BrowserTrackingEvent.End {
+    return {
+      t: "e",
+      cpi,
+      dms: 15_000,
+      ...overrides,
+    };
   }
 
   function isPlainObject(value: unknown): value is Record<string, unknown> {
