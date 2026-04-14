@@ -36,7 +36,7 @@ export class BasicAuthMiddleware implements MiddlewareHandler {
       throw new Error(`Please call \`${"initializeFromDisk" satisfies keyof typeof this}\` first`);
     }
     const { pathname } = new URL(request.url);
-    if (this.enabled && !Object.values(ServerEndpoint.Public).includes(pathname)) {
+    if (this.enabled && !Object.values<string>(ServerEndpoint.Public).includes(pathname)) {
       const { accessGranted } = await this.authenticate(request.headers);
       if (!accessGranted) {
         return Response.json(ServerError.unauthorized().json(), {
