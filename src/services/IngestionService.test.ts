@@ -78,29 +78,40 @@ describe(IngestionService.name, () => {
     );
   });
 
-  it.each(["traditional", "SPA"])("should not declare pageviews as `visitors` without a secondary event (%s website)", async (variant) => {
-    // given
-    await context.websiteRepository.create(TestFixture.website({ hostname: "example.com" }));
+  it.each(["traditional", "SPA", "reload", "back_forward"])(
+    "should not declare pageviews as `visitors` without a secondary event, or in case of reload/back/forward (%s website)",
+    async (variant) => {
+      // given
+      await context.websiteRepository.create(TestFixture.website({ hostname: "example.com" }));
 
-    // when
-    switch (variant) {
-      case "traditional": {
-        await service.ingest("1.2.3.4", TestFixture.btStartEvent("example.com", { r: "https://example.com/other", sc: 0 }));
-        break;
+      // when
+      switch (variant) {
+        case "traditional": {
+          await service.ingest("1.2.3.4", TestFixture.btStartEvent("example.com", { r: "https://example.com/other", sc: 0 }));
+          break;
+        }
+        case "SPA": {
+          await service.ingest("1.2.3.4", TestFixture.btStartEvent("example.com", { sc: 1, r: undefined }));
+          break;
+        }
+        case "reload": {
+          await service.ingest("1.2.3.4", TestFixture.btStartEvent("example.com", { r: "https://google.com", sc: 0, nt: "reload" }));
+          break;
+        }
+        case "back_forward": {
+          await service.ingest("1.2.3.4", TestFixture.btStartEvent("example.com", { r: "https://google.com", sc: 0, nt: "back_forward" }));
+          break;
+        }
       }
-      case "SPA": {
-        await service.ingest("1.2.3.4", TestFixture.btStartEvent("example.com", { sc: 1, r: undefined }));
-        break;
-      }
-    }
 
-    // then
-    expect(await context.sqlite.query.$analyticsEvent.findMany()).toEqual([
-      expect.objectContaining({
-        isVisitor: false,
-      }),
-    ]);
-  });
+      // then
+      expect(await context.sqlite.query.$analyticsEvent.findMany()).toEqual([
+        expect.objectContaining({
+          isVisitor: false,
+        }),
+      ]);
+    },
+  );
 
   it.each(["shorthand", "full"])("should extract %s UTM parameters from the URL", async (variant) => {
     // given

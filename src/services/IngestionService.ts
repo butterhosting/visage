@@ -83,7 +83,8 @@ export class IngestionService {
     );
 
     const referrerUrl = payload.r ? new URL(payload.r) : undefined;
-    const isVisitor = (!referrerUrl || referrerUrl.hostname !== url.hostname) && payload.sc === 0;
+    const isReentry = payload.nt === "reload" || payload.nt === "back_forward";
+    const isVisitor = !isReentry && (!referrerUrl || referrerUrl.hostname !== url.hostname) && payload.sc === 0;
     const analyticsEvent: AnalyticsEvent = {
       id: Bun.randomUUIDv7(),
       object: "analytics_event",

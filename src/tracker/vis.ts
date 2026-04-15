@@ -27,6 +27,15 @@ function shouldSkipRequest(): boolean {
   return false;
 }
 
+function getNavigationType(): BrowserTrackingEvent.Start["nt"] {
+  try {
+    const entry = performance.getEntriesByType("navigation")[0] as PerformanceNavigationTiming | undefined;
+    return entry?.type;
+  } catch {
+    return undefined;
+  }
+}
+
 function submitStart(): void {
   if (shouldSkipRequest()) {
     return;
@@ -36,13 +45,14 @@ function submitStart(): void {
     cpi,
     u: window.location.href,
     r: document.referrer || undefined,
+    sc: spaCount,
+    nt: spaCount === 0 ? getNavigationType() : "navigate",
     ua: navigator.userAgent,
     sw: screen.width,
     sh: screen.height,
     vw: window.innerWidth,
     vh: window.innerHeight,
     l: navigator.language || undefined,
-    sc: spaCount,
   };
   navigator.sendBeacon(ingestionEndpoint, JSON.stringify(event));
   spaCount++;

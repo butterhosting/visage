@@ -26,6 +26,10 @@ export namespace BrowserTrackingEvent {
      */
     sc: number;
     /**
+     * Navigation type
+     */
+    nt?: "navigate" | "reload" | "back_forward" | "prerender";
+    /**
      * User agent
      */
     ua: string;
@@ -75,6 +79,7 @@ export namespace BrowserTrackingEvent {
           u: z.url().max(2048),
           r: z.url().max(2048).optional(),
           sc: z.int().nonnegative().max(10_000),
+          nt: z.enum(["navigate", "reload", "back_forward", "prerender"]).optional(),
           ua: z.string().max(1024),
           sw: z.int().nonnegative().max(10_000),
           sh: z.int().nonnegative().max(10_000),
