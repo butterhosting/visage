@@ -20,7 +20,6 @@ for (const websiteType of ["SPA", "traditional"] as const) {
       });
       // then
       await expect(page.getByText("Please add the following script to your website.")).not.toBeVisible();
-      await page.reload(); // TODO <--- shouldnt need this by improving the websocket setup :-)
       await expect
         .poll(() => AnalyticsFlow.readAggregateStats(page))
         .toEqual({
@@ -41,7 +40,6 @@ for (const websiteType of ["SPA", "traditional"] as const) {
         sequence: ["contact", "home", "about", "about", "contact", "home", "about", "about", "contact", "about"],
       });
       // then
-      await page.reload(); // TODO <--- shouldnt need this by improving the websocket setup :-)
       await expect
         .poll(() => AnalyticsFlow.readAggregateStats(page))
         .toEqual({
