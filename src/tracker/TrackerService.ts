@@ -10,7 +10,8 @@ export class TrackerService {
   public async getMinifiedScript(): Promise<string> {
     if (!this.cachedScript || this.env.O_VISAGE_STAGE !== "production") {
       this.cachedScript = this.replaceVariables(await readFile(join(import.meta.dir, "vis.js"), "utf-8"), {
-        SKIP_LOCALHOST_COLLECTION: (this.env.O_VISAGE_STAGE === "production" ? "true" : "false") satisfies "true" | "false",
+        CLIENT_SIDE_BOT_DETECTION: (this.env.O_VISAGE_STAGE === "production" ? "T" : "F") satisfies "T" | "F",
+        SKIP_LOCALHOST_COLLECTION: (this.env.O_VISAGE_STAGE === "production" ? "T" : "F") satisfies "T" | "F",
       });
     }
     return this.cachedScript;

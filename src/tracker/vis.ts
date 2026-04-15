@@ -3,7 +3,8 @@ import { BrowserTrackingEvent } from "@/models/BrowserTrackingEvent";
 const ingestionEndpoint = new URL("i", document.currentScript?.getAttribute("src") as string);
 const originalPushState = history.pushState.bind(history);
 const originalReplaceState = history.replaceState.bind(history);
-const skipLocalhostCollection = "{{SKIP_LOCALHOST_COLLECTION}}" as "true" | "false";
+const clientSideBotDetection = "{{CLIENT_SIDE_BOT_DETECTION}}" as "T" | "F";
+const skipLocalhostCollection = "{{SKIP_LOCALHOST_COLLECTION}}" as "T" | "F";
 
 let spaCount: number = 0;
 let cpi: string;
@@ -20,7 +21,7 @@ function resetPage(): void {
 resetPage();
 
 function shouldSkipRequest(): boolean {
-  if (skipLocalhostCollection === "true" && window.location.hostname === "localhost") {
+  if (skipLocalhostCollection === "T" && window.location.hostname === "localhost") {
     console.warn("[Visage] Skipping analytics on `localhost`");
     return true;
   }
@@ -37,17 +38,21 @@ function getNavigationType(): BrowserTrackingEvent.Start["nt"] {
 }
 
 function detectBot(): true | undefined {
-  const w = window as any;
-  const isBot =
-    navigator.webdriver ||
-    !!w.__nightmare ||
-    !!w.callPhantom ||
-    !!w._phantom ||
-    !!w.phantom ||
-    !!w.__polypane ||
-    !!w._bot ||
-    Math.random() === Math.random();
-  return isBot ? true : undefined;
+  if (clientSideBotDetection === "T") {
+    const w = window as any;
+    const isBot =
+      navigator.webdriver ||
+      !!w.__nightmare ||
+      !!w.callPhantom ||
+      !!w._phantom ||
+      !!w.phantom ||
+      !!w.__polypane ||
+      !!w._bot ||
+      Math.random() === Math.random();
+    if (isBot) {
+      return true;
+    }
+  }
 }
 
 function submitStart(): void {

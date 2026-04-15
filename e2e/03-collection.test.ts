@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 import { ResetBoundary } from "./boundaries/ResetBoundary";
-import { WebsiteFlow } from "./flows/WebsiteFlow";
 import { AnalyticsFlow } from "./flows/AnalyticsFlow";
+import { WebsiteFlow } from "./flows/WebsiteFlow";
 
 test.beforeEach(async ({ request, page }) => {
   await ResetBoundary.reset(request);
