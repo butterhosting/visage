@@ -169,7 +169,7 @@ export function websites$refPage() {
   }
 
   return (
-    <Skeleton className="grid grid-cols-1 gap-5">
+    <Skeleton className="flex flex-col gap-5">
       {/* Instructions */}
       {website && !website.hasData && (
         <Paper className="p-4 bg-amber-100! flex flex-col items-center gap-4">
@@ -201,7 +201,7 @@ export function websites$refPage() {
             >
               {label}
             </div>
-            <span className={clsx("text-3xl font-extrabold", live && "flex items-center gap-2")}>
+            <span className={clsx("text-3xl font-extrabold", live && "flex items-center gap-2")} data-testid="aggregate-stat">
               {live && (
                 <span className={clsx("size-3 rounded-full", typeof value === "number" && value > 0 ? "bg-green-500" : "bg-c-error")} />
               )}

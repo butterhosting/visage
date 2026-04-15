@@ -13,9 +13,9 @@
 </head>
 <body>
   <nav>
-    <a data-href="/">Home</a>
-    <a data-href="/about">About</a>
-    <a data-href="/contact">Contact</a>
+    <a href="/">Home</a>
+    <a href="/about">About</a>
+    <a href="/contact">Contact</a>
   </nav>
   <div id="app"></div>
   <script>
@@ -30,10 +30,9 @@
     }
 
     document.addEventListener("click", (e) => {
-      const href = e.target.dataset?.href;
-      if (href) {
+      if (e.target.tagName === "A") {
         e.preventDefault();
-        history.pushState(null, "", href);
+        history.pushState(null, "", e.target.getAttribute("href"));
         render();
       }
     });

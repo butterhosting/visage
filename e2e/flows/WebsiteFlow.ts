@@ -1,10 +1,10 @@
 import { expect, Page } from "@playwright/test";
 
 export namespace WebsiteFlow {
-  export type CreateOptions = {
+  export type Create = {
     hostname: string;
   };
-  export async function create(page: Page, { hostname }: CreateOptions): Promise<void> {
+  export async function create(page: Page, { hostname }: Create): Promise<{ hostname: string }> {
     const dialog = page.getByRole("dialog");
 
     await page.getByRole("link", { name: "Websites", exact: true }).click();
@@ -16,13 +16,14 @@ export namespace WebsiteFlow {
 
     await expect(dialog).not.toBeVisible();
     await expect(page.getByText("Please add the following script to your website.")).toBeVisible();
+    return { hostname };
   }
 
-  export type UpdateOptions = {
+  export type Update = {
     hostname: string;
     nextHostname: string;
   };
-  export async function update(page: Page, { hostname, nextHostname }: UpdateOptions): Promise<void> {
+  export async function update(page: Page, { hostname, nextHostname }: Update): Promise<void> {
     const dialog = page.getByRole("dialog");
 
     await page.getByRole("link", { name: "Settings", exact: true }).click();
@@ -36,10 +37,10 @@ export namespace WebsiteFlow {
     await expect(dialog).not.toBeVisible();
   }
 
-  export type RemoveOptions = {
+  export type Remove = {
     hostname: string;
   };
-  export async function remove(page: Page, { hostname }: RemoveOptions): Promise<void> {
+  export async function remove(page: Page, { hostname }: Remove): Promise<void> {
     const dialog = page.getByRole("dialog");
 
     await page.getByRole("link", { name: "Settings", exact: true }).click();

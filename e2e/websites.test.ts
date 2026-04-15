@@ -9,23 +9,23 @@ test.beforeEach(async ({ request, page }) => {
 
 test("websites can be managed", async ({ page }) => {
   // given
-  const hostname = "www.blue.com";
+  const hostnameBlue = "www.blue.com";
 
   // when
-  await WebsiteFlow.create(page, { hostname });
+  await WebsiteFlow.create(page, { hostname: hostnameBlue });
   // then
   await page.getByRole("link", { name: "Websites", exact: true }).click();
-  await expect(page.getByRole("link", { name: hostname })).toBeVisible();
+  await expect(page.getByRole("link", { name: hostnameBlue })).toBeVisible();
 
   // when
-  const nextHostname = "wwww.red.com";
-  await WebsiteFlow.update(page, { hostname, nextHostname });
+  const hostnameYellow = "www.yellow.com";
+  await WebsiteFlow.update(page, { hostname: hostnameBlue, nextHostname: hostnameYellow });
   // then
   await page.getByRole("link", { name: "Websites", exact: true }).click();
-  await expect(page.getByRole("link", { name: nextHostname })).toBeVisible();
+  await expect(page.getByRole("link", { name: hostnameYellow })).toBeVisible();
 
   // when
-  await WebsiteFlow.remove(page, { hostname: nextHostname });
+  await WebsiteFlow.remove(page, { hostname: hostnameYellow });
   // then
   await page.getByRole("link", { name: "Websites", exact: true }).click();
   await expect(page.getByRole("button", { name: "add website", exact: true })).toBeVisible();
