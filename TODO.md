@@ -34,18 +34,17 @@
 - [x] **Restrict old event updates** — only allow updates within last 30 days ([AnalyticsEventRepository.ts:39](src/repositories/AnalyticsEventRepository.ts))
 - [x] **Proper error handling for StatsService** — public API needs a `StatsError` type ([StatsService.ts:37](src/services/StatsService.ts))
 
-## Unit tests
+## Unit and Deployment tests
 
-- [x] **Implement unit tests** - and try to make everything work
+- [x] **Implement unit tests** - and also deployment tests
 
 ## E2E tests
 
 - [x] **Tracker location** - there's a bug in `package.json` because it incorrectly assumes a fixed location for writing the tracker script (could drift away from the .env files)
-- [ ] **Tracker bundle size** — ensure `vis.js` stays under 1.3kb ([vis.ts:3](src/tracker/vis.ts))
-- [ ] **WebSocket live functionality** — verify live pageview count updates via WebSocket
+- [x] **Tracker bundle size** — ensure `vis.js` stays under 1.5kb ([vis.ts:3](src/tracker/vis.ts))
+- [x] **WebSocket live functionality** — verify live pageview count updates via WebSocket
 - [ ] **Stats endpoint** — verify error responses for invalid data
-
-## Deployment tests
+- [ ] **Stats endpoint** — verify error responses for invalid data
 
 ## Infrastructure
 

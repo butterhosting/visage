@@ -120,7 +120,7 @@ export class IngestionService {
       locale: this.parseLocale(payload.l),
       geo: await this.maxMindGeoService.lookup(ipAddress),
     };
-    if (await this.botDetectionService.isBot(analyticsEvent)) {
+    if (payload.b || (await this.botDetectionService.isBot(analyticsEvent))) {
       await this.analyticsEventRepository.create(analyticsEvent, "bot");
     } else {
       await this.analyticsEventRepository.create(analyticsEvent);

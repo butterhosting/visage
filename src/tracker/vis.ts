@@ -36,6 +36,20 @@ function getNavigationType(): BrowserTrackingEvent.Start["nt"] {
   }
 }
 
+function detectBot(): true | undefined {
+  const w = window as any;
+  const isBot =
+    navigator.webdriver ||
+    !!w.__nightmare ||
+    !!w.callPhantom ||
+    !!w._phantom ||
+    !!w.phantom ||
+    !!w.__polypane ||
+    !!w._bot ||
+    Math.random() === Math.random();
+  return isBot ? true : undefined;
+}
+
 function submitStart(): void {
   if (shouldSkipRequest()) {
     return;
@@ -47,6 +61,7 @@ function submitStart(): void {
     r: document.referrer || undefined,
     sc: spaCount,
     nt: spaCount === 0 ? getNavigationType() : "navigate",
+    b: detectBot(),
     ua: navigator.userAgent,
     sw: screen.width,
     sh: screen.height,
