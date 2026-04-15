@@ -1,8 +1,8 @@
 import { expect, test } from "@playwright/test";
-import { ResetBoundary } from "./boundaries/ResetBoundary";
+import { AppBoundary } from "./boundaries/AppBoundary";
 
 test.beforeEach(async ({ request, page }) => {
-  await ResetBoundary.reset(request);
+  await AppBoundary.purge(request);
   await page.goto("");
 });
 

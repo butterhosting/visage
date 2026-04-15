@@ -31,7 +31,7 @@ export namespace AnalyticsFlow {
     }
   }
 
-  type AggregateStats = {
+  export type AggregateStats = {
     totalVisitors: string;
     totalPageviews: string;
     medianTimeOnPage: string;

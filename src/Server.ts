@@ -11,15 +11,15 @@ import { Middleware } from "./middleware/Middleware";
 import { TokenRM } from "./models/TokenRM";
 import { Website } from "./models/Website";
 import { WebsiteRM } from "./models/WebsiteRM";
+import { ServerEndpoint } from "./ServerEndpoint";
 import { ExportService } from "./services/ExportService";
 import { IngestionService } from "./services/IngestionService";
 import { RestrictedService } from "./services/RestrictedService";
 import { StatsService } from "./services/StatsService";
 import { TokenService } from "./services/TokenService";
-import { TrackerService } from "./tracker/TrackerService";
 import { WebsiteService } from "./services/WebsiteService";
 import { Socket } from "./socket/Socket";
-import { ServerEndpoint } from "./ServerEndpoint";
+import { TrackerService } from "./tracker/TrackerService";
 
 export class Server {
   private readonly log = new Logger(__filename);
@@ -217,9 +217,9 @@ export class Server {
           }),
         },
         "/internal-api/restricted/seed": {
-          POST: this.handleRoute(async () => {
+          POST: this.handleRoute(async (request) => {
             if (this.env.X_VISAGE_ENABLE_RESTRICTED_ENTPOINTS) {
-              await this.restrictedService.seed();
+              await this.restrictedService.seed(await request.json().catch(() => ({})));
               return new Response();
             }
             return Response.json(ServerError.route_not_found().json(), { status: 404 });
