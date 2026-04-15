@@ -13,7 +13,14 @@ export namespace AnalyticsFlow {
     for (let i = 0; i < sequence.length; i++) {
       const destination = sequence[i];
       if (i === 0) {
-        await page.goto(`${baseURL}${destination === "home" ? "" : `/${destination}`}`);
+        let url = baseURL;
+        if (destination !== "home") {
+          url += `/${destination}`;
+          if (websiteType === "traditional") {
+            url += ".html";
+          }
+        }
+        await page.goto(url);
       } else if (destination === sequence[i - 1]) {
         await page.reload();
       } else {

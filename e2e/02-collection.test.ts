@@ -20,7 +20,7 @@ for (const websiteType of ["SPA", "traditional"] as const) {
       });
       // then
       await expect(page.getByText("Please add the following script to your website.")).not.toBeVisible();
-      await page.reload();
+      await page.reload(); // TODO <--- shouldnt need this by improving the websocket setup :-)
       await expect
         .poll(() => AnalyticsFlow.readAggregateStats(page))
         .toEqual({
@@ -38,29 +38,42 @@ for (const websiteType of ["SPA", "traditional"] as const) {
       // when
       await AnalyticsFlow.triggerViews(browser, {
         websiteType,
-        sequence: ["home", "about", "about", "contact", "home", "about", "about", "contact", "about"],
+        sequence: ["contact", "home", "about", "about", "contact", "home", "about", "about", "contact", "about"],
       });
       // then
-      await page.reload();
+      await page.reload(); // TODO <--- shouldnt need this by improving the websocket setup :-)
       await expect
         .poll(() => AnalyticsFlow.readAggregateStats(page))
         .toEqual({
           totalVisitors: "1",
-          totalPageviews: "9",
+          totalPageviews: "10",
           medianTimeOnPage: "0s",
-          livePageviews: "9",
+          livePageviews: "10",
         });
 
       // when
-      await page.getByRole("button", { name: /^\/about/ }).click();
+      await page.getByRole("button", { name: "about" }).click();
       // then
       await expect
         .poll(() => AnalyticsFlow.readAggregateStats(page))
         .toEqual({
+          totalVisitors: "0",
           totalPageviews: "5",
-          totalVisitors: "1",
           medianTimeOnPage: "0s",
-          livePageviews: "9",
+          livePageviews: "10",
+        });
+
+      // when
+      await page.getByRole("button", { name: "Reset", exact: true }).click();
+      await page.getByRole("button", { name: "contact" }).click();
+      // then
+      await expect
+        .poll(() => AnalyticsFlow.readAggregateStats(page))
+        .toEqual({
+          totalVisitors: "1",
+          totalPageviews: "3",
+          medianTimeOnPage: "0s",
+          livePageviews: "10",
         });
     });
   });
