@@ -142,10 +142,8 @@ export class IngestionService {
   private parseDevice(userAgent: string): AnalyticsEvent["device"] {
     const { os, browser } = Bowser.parse(userAgent);
     return {
-      osName: os.name,
-      osVersion: os.version,
-      browserName: browser.name,
-      browserVersion: browser.version,
+      os: os.name,
+      browser: browser.name,
     };
   }
 

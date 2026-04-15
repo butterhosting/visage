@@ -119,18 +119,13 @@ export class StatsService {
     if (q.fields?.includes(Stats.Field.browserDistribution)) {
       stats.browserDistribution = await this.distribution(
         queryWhere,
-        $analyticsEvent.deviceBrowserName,
+        $analyticsEvent.deviceBrowser,
         q.browserDistributionLimit,
         q.browserDistributionOffset,
       );
     }
     if (q.fields?.includes(Stats.Field.osDistribution)) {
-      stats.osDistribution = await this.distribution(
-        queryWhere,
-        $analyticsEvent.deviceOsName,
-        q.osDistributionLimit,
-        q.osDistributionOffset,
-      );
+      stats.osDistribution = await this.distribution(queryWhere, $analyticsEvent.deviceOs, q.osDistributionLimit, q.osDistributionOffset);
     }
     if (q.fields?.includes(Stats.Field.countryDistribution)) {
       stats.countryDistribution = await this.distribution(
@@ -169,10 +164,10 @@ export class StatsService {
       where.push(this.screenClassification(q.screen));
     }
     if (q.browser !== undefined) {
-      where.push(q.browser === null ? isNull($analyticsEvent.deviceBrowserName) : eq($analyticsEvent.deviceBrowserName, q.browser));
+      where.push(q.browser === null ? isNull($analyticsEvent.deviceBrowser) : eq($analyticsEvent.deviceBrowser, q.browser));
     }
     if (q.os !== undefined) {
-      where.push(q.os === null ? isNull($analyticsEvent.deviceOsName) : eq($analyticsEvent.deviceOsName, q.os));
+      where.push(q.os === null ? isNull($analyticsEvent.deviceOs) : eq($analyticsEvent.deviceOs, q.os));
     }
     if (q.country !== undefined) {
       where.push(q.country === null ? isNull($analyticsEvent.geoCountryCode) : eq($analyticsEvent.geoCountryCode, q.country));

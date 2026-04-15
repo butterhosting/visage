@@ -51,10 +51,8 @@ export namespace TestFixture {
         viewportHeight: 982,
       },
       device: {
-        osName: "macOS",
-        osVersion: "10.15.7",
-        browserName: "Chrome",
-        browserVersion: "146",
+        os: "macOS",
+        browser: "Chrome",
       },
       locale: {
         language: "de",

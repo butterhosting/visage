@@ -88,7 +88,7 @@ export class RestrictedService {
             viewportWidth: screen[0] - Math.floor(Math.random() * 40),
             viewportHeight: screen[1] - Math.floor(80 + Math.random() * 80),
           },
-          device: { browserName: device.browser, browserVersion: device.browserVersion, osName: device.os, osVersion: device.osVersion },
+          device: { browser: device.browser, os: device.os },
           locale: { language: geo.language, region: geo.region },
           geo: { countryCode: geo.country, cityName: geo.city },
         };

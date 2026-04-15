@@ -115,13 +115,13 @@ describe(StatsService.name, () => {
       },
       {
         name: "browser filter",
-        events: [{ device: { browserName: "Chrome" } }, { device: { browserName: "Firefox" } }],
+        events: [{ device: { browser: "Chrome" } }, { device: { browser: "Firefox" } }],
         filter: { browser: "Chrome" },
         expectedCount: 1,
       },
       {
         name: "os filter",
-        events: [{ device: { osName: "macOS" } }, { device: { osName: "Windows" } }],
+        events: [{ device: { os: "macOS" } }, { device: { os: "Windows" } }],
         filter: { os: "macOS" },
         expectedCount: 1,
       },
@@ -153,7 +153,7 @@ describe(StatsService.name, () => {
     // deepMerge can't clear optional fields to undefined, so construct directly
     it("browser filter (null)", async () => {
       // given
-      const withBrowser = TestFixture.analyticsEvent({ websiteId: website.id, device: { browserName: "Chrome" } });
+      const withBrowser = TestFixture.analyticsEvent({ websiteId: website.id, device: { browser: "Chrome" } });
       const withoutBrowser: AnalyticsEvent = {
         ...TestFixture.analyticsEvent({ websiteId: website.id }),
         device: {},
@@ -207,7 +207,7 @@ describe(StatsService.name, () => {
       },
       {
         field: Stats.Field.browserDistribution,
-        events: [{ device: { browserName: "Chrome" } }, { device: { browserName: "Chrome" } }, { device: { browserName: "Safari" } }],
+        events: [{ device: { browser: "Chrome" } }, { device: { browser: "Chrome" } }, { device: { browser: "Safari" } }],
         expected: {
           Chrome: 2,
           Safari: 1,
@@ -215,7 +215,7 @@ describe(StatsService.name, () => {
       },
       {
         field: Stats.Field.osDistribution,
-        events: [{ device: { osName: "macOS" } }, { device: { osName: "macOS" } }, { device: { osName: "Linux" } }],
+        events: [{ device: { os: "macOS" } }, { device: { os: "macOS" } }, { device: { os: "Linux" } }],
         expected: {
           macOS: 2,
           Linux: 1,
