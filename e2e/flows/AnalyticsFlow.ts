@@ -27,6 +27,7 @@ export namespace AnalyticsFlow {
         await page.getByRole("link", { name: destination }).click();
       }
       await expect(page.getByRole("heading", { name: destination })).toBeVisible();
+      await page.waitForTimeout(50); // give the script some time to send beacons
     }
   }
 

@@ -85,15 +85,21 @@ export function websites$refPage() {
       const token = socketClient.subscribe({
         type: ServerMessage.Type.website_stats_update,
         callback: ({ websiteId }) => {
-          if (websiteId === website.id) {
-            reload();
+          if (websiteId === website.id && typeof stats?.pageviewsTotal === "number") {
+            if (stats.pageviewsTotal < 10_000) {
+              reload();
+            } else {
+              statsClient.query({ website: ref!, fields: [Stats.Field.livePageviewsTotal] }).then(({ livePageviewsTotal }) => {
+                setStats({ ...getStats(), livePageviewsTotal });
+              });
+            }
             setWebsite({ ...getWebsite()!, hasData: true });
           }
         },
       });
       return () => socketClient.unsubscribe(token);
     }
-  }, [website?.id]);
+  }, [website?.id, stats?.pageviewsTotal]);
 
   useDocumentTitle(website ? `${website.hostname} | Websites | Visage` : "Websites | Visage");
 

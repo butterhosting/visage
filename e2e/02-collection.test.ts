@@ -50,7 +50,7 @@ for (const websiteType of ["SPA", "traditional"] as const) {
         });
 
       // when
-      await page.getByRole("button", { name: "about" }).click();
+      await page.getByRole("button", { name: "/about" }).click();
       // then
       await expect
         .poll(() => AnalyticsFlow.readAggregateStats(page))
@@ -63,7 +63,7 @@ for (const websiteType of ["SPA", "traditional"] as const) {
 
       // when
       await page.getByRole("button", { name: "Reset", exact: true }).click();
-      await page.getByRole("button", { name: "contact" }).click();
+      await page.getByRole("button", { name: "/contact" }).click();
       // then
       await expect
         .poll(() => AnalyticsFlow.readAggregateStats(page))
