@@ -81,7 +81,7 @@ export class StatsService {
     }
     if (q.fields?.includes(Stats.Field.livePageviewsTotal)) {
       const to = Temporal.Now.instant();
-      const from = to.subtract({ minutes: 10 });
+      const from = to.subtract({ minutes: 5 });
       stats.livePageviewsTotal = await this.count([
         baseWhere,
         gte($analyticsEvent.created, from.toString()),

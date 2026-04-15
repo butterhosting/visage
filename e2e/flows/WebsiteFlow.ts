@@ -1,7 +1,7 @@
 import { expect, Page } from "@playwright/test";
 
 export namespace WebsiteFlow {
-  export type Create = {
+  type Create = {
     hostname: string;
   };
   export async function create(page: Page, { hostname }: Create): Promise<{ hostname: string }> {
@@ -19,7 +19,7 @@ export namespace WebsiteFlow {
     return { hostname };
   }
 
-  export type Update = {
+  type Update = {
     hostname: string;
     nextHostname: string;
   };
@@ -37,7 +37,7 @@ export namespace WebsiteFlow {
     await expect(dialog).not.toBeVisible();
   }
 
-  export type Remove = {
+  type Remove = {
     hostname: string;
   };
   export async function remove(page: Page, { hostname }: Remove): Promise<void> {

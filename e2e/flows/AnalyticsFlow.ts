@@ -24,15 +24,15 @@ export namespace AnalyticsFlow {
   }
 
   type AggregateStats = {
-    totalPageviews: string;
     totalVisitors: string;
+    totalPageviews: string;
     medianTimeOnPage: string;
     livePageviews: string;
   };
   export async function readAggregateStats(page: Page): Promise<AggregateStats> {
     const translation: Record<keyof AggregateStats, string> = {
-      totalPageviews: "TOTAL PAGEVIEWS",
       totalVisitors: "TOTAL VISITORS",
+      totalPageviews: "TOTAL PAGEVIEWS",
       medianTimeOnPage: "MEDIAN TIME ON PAGE",
       livePageviews: "LIVE PAGEVIEWS",
     };
