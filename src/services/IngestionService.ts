@@ -1,4 +1,5 @@
 import { WebsiteError } from "@/errors/WebsiteError";
+import { Throttler } from "@/helpers/Throttler";
 import { Logger } from "@/Logger";
 import { AnalyticsEvent } from "@/models/AnalyticsEvent";
 import { BrowserTrackingEvent } from "@/models/BrowserTrackingEvent";
@@ -15,8 +16,9 @@ export class IngestionService {
   private readonly log = new Logger(__filename);
 
   private readonly sockets: Socket[] = [];
-  private readonly socketNotificationHistory: Map<string, { t: Temporal.Instant; timeoutId?: NodeJS.Timeout }> = new Map();
-  private readonly socketNotificationCooldown = Temporal.Duration.from({ milliseconds: 500 });
+  private readonly throttler = new Throttler({
+    cooldown: Temporal.Duration.from({ milliseconds: 500 }),
+  });
 
   public constructor(
     private readonly maxMindGeoService: MaxMindGeoService,
@@ -37,38 +39,13 @@ export class IngestionService {
   };
 
   private notifySockets = (websiteId: string) => {
-    const now = Temporal.Now.instant();
-    const previous = this.socketNotificationHistory.get(websiteId);
-
-    const notify = () => {
+    this.throttler.submit(websiteId, () => {
       const message: ServerMessage = {
         type: ServerMessage.Type.website_stats_update,
         websiteId,
       };
       this.sockets.forEach((socket) => socket.send(JSON.stringify(message)));
-    };
-
-    if (previous) {
-      const existingTimeout = Boolean(previous.timeoutId);
-      if (!existingTimeout) {
-        const elapsed = now.since(previous.t);
-        const remainingWaitTime = this.socketNotificationCooldown.subtract(elapsed);
-        if (remainingWaitTime.sign > 0) {
-          previous.timeoutId = setTimeout(() => {
-            previous.t = Temporal.Now.instant();
-            previous.timeoutId = undefined;
-            notify();
-          }, remainingWaitTime.total("milliseconds"));
-        } else {
-          previous.t = now;
-          previous.timeoutId = undefined;
-          notify();
-        }
-      }
-    } else {
-      this.socketNotificationHistory.set(websiteId, { t: now });
-      notify();
-    }
+    });
   };
 
   public async ingest(ipAddress: string, unknown: BrowserTrackingEvent): Promise<void> {
