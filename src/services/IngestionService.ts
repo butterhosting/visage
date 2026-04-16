@@ -11,6 +11,7 @@ import { Temporal } from "@js-temporal/polyfill";
 import Bowser from "bowser";
 import { BotDetectionService } from "./BotDetectionService";
 import { MaxMindGeoService } from "./MaxMindGeoService";
+import { UserAgent } from "@/models/UserAgent";
 
 export class IngestionService {
   private readonly log = new Logger(__filename);
@@ -84,6 +85,7 @@ export class IngestionService {
     const referrerUrl = payload.r ? new URL(payload.r) : undefined;
     const isReentry = payload.nt === "reload" || payload.nt === "back_forward";
     const isVisitor = !isReentry && (!referrerUrl || referrerUrl.hostname !== url.hostname) && payload.sc === 0;
+    const userAgent = new UserAgent(payload.ua);
     const analyticsEvent: AnalyticsEvent = {
       id: Bun.randomUUIDv7(),
       object: "analytics_event",
@@ -116,11 +118,14 @@ export class IngestionService {
         viewportWidth: payload.vw,
         viewportHeight: payload.vh,
       },
-      device: this.parseDevice(payload.ua),
+      device: {
+        os: userAgent.os(),
+        browser: userAgent.browser(),
+      },
       locale: this.parseLocale(payload.l),
       geo: await this.maxMindGeoService.lookup(ipAddress),
     };
-    if (payload.b || (await this.botDetectionService.isBot(analyticsEvent))) {
+    if (await this.botDetectionService.isBot({ userAgent: userAgent, clientSignal: Boolean(payload.b) })) {
       await this.analyticsEventRepository.create(analyticsEvent, "bot");
     } else {
       await this.analyticsEventRepository.create(analyticsEvent);
@@ -137,14 +142,6 @@ export class IngestionService {
         durationSeconds: Temporal.Duration.from({ milliseconds: payload.dms }).round("seconds").total("seconds"),
       });
     }
-  }
-
-  private parseDevice(userAgent: string): AnalyticsEvent["device"] {
-    const { os, browser } = Bowser.parse(userAgent);
-    return {
-      os: os.name,
-      browser: browser.name,
-    };
   }
 
   private parseLocale(locale: string | undefined): AnalyticsEvent["locale"] {

@@ -3,7 +3,6 @@ import { BrowserTrackingEvent } from "@/models/BrowserTrackingEvent";
 const ingestionEndpoint = new URL("i", document.currentScript?.getAttribute("src") as string);
 const originalPushState = history.pushState.bind(history);
 const originalReplaceState = history.replaceState.bind(history);
-const clientSideBotDetection = "{{CLIENT_SIDE_BOT_DETECTION}}" as "T" | "F";
 const skipLocalhostCollection = "{{SKIP_LOCALHOST_COLLECTION}}" as "T" | "F";
 
 let spaCount: number = 0;
@@ -38,20 +37,18 @@ function getNavigationType(): BrowserTrackingEvent.Start["nt"] {
 }
 
 function detectBot(): true | undefined {
-  if (clientSideBotDetection === "T") {
-    const w = window as any;
-    const isBot =
-      navigator.webdriver ||
-      !!w.__nightmare ||
-      !!w.callPhantom ||
-      !!w._phantom ||
-      !!w.phantom ||
-      !!w.__polypane ||
-      !!w._bot ||
-      Math.random() === Math.random();
-    if (isBot) {
-      return true;
-    }
+  const w = window as any;
+  const isBot =
+    navigator.webdriver ||
+    !!w.__nightmare ||
+    !!w.callPhantom ||
+    !!w._phantom ||
+    !!w.phantom ||
+    !!w.__polypane ||
+    !!w._bot ||
+    Math.random() === Math.random();
+  if (isBot) {
+    return true;
   }
 }
 

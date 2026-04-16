@@ -40,7 +40,7 @@ export class ServerRegistry {
 
     // Services
     const { maxMindGeoService } = this.register({ MaxMindGeoService }, [env]);
-    const { botDetectionService } = this.register({ BotDetectionService }, []);
+    const { botDetectionService } = this.register({ BotDetectionService }, [env]);
     const { trackerService } = this.register({ TrackerService }, [env]);
     const { exportService } = this.register({ ExportService }, [sqlite, websiteRepository]);
     const { tokenService } = this.register({ TokenService }, [tokenRepository, websiteRepository, eventBus]);
