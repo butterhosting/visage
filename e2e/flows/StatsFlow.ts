@@ -1,4 +1,4 @@
-import { APIRequestContext, Page } from "@playwright/test";
+import { expect, Locator, Page } from "@playwright/test";
 import { join } from "path";
 import { AppBoundary } from "../boundaries/AppBoundary";
 import { Scenario } from "../snapshots/Scenario";
@@ -7,34 +7,26 @@ import { Snapshot } from "../snapshots/Snapshot";
 export namespace StatsFlow {
   export const snapshotDirectory = (...files: string[]) => join(process.cwd(), "e2e", "snapshots", "specs", ...files);
 
-  async function untilStatsHttpRequestIsFinished(page: Page): Promise<void> {
-    await page.waitForResponse((res) => /\/stats(\?|$)/.test(res.url()) && res.ok());
-  }
-
-  export async function applyScenario(page: Page, request: APIRequestContext, scenario: Scenario): Promise<void> {
+  export async function applyScenario(page: Page, scenario: Scenario): Promise<void> {
     // given
-    await AppBoundary.seed(request, { rngSeed: scenario.rngSeed });
+    await AppBoundary.seed(page, { rngSeed: scenario.rngSeed });
     // when
     await page.goto("");
-    await page.getByRole("link", { name: "www.example.com" }).click();
-    await untilStatsHttpRequestIsFinished(page);
+    await wrapInStatsQueryExpectation(page, () => page.getByRole("link", { name: "www.example.com" }).click());
     // then
     for (const filter of scenario.filters) {
       if (filter.type === "period") {
         if (typeof filter.period === "string") {
-          await page.getByRole("combobox").selectOption(filter.period);
-          await untilStatsHttpRequestIsFinished(page);
+          await wrapInStatsQueryExpectation(page, () => page.getByRole("combobox").selectOption(filter.period as string));
         } else {
           await page.getByRole("combobox").selectOption("Custom");
           await page.getByLabel("FROM").fill(filter.period.from.toString());
           await page.getByLabel("TO").fill(filter.period.to.toString());
-          await page.getByRole("button", { name: "Apply" }).click();
-          await untilStatsHttpRequestIsFinished(page);
+          await wrapInStatsQueryExpectation(page, () => page.getByRole("button", { name: "Apply" }).click());
         }
       } else {
-        const panel = page.locator(`[data-testid="distribution-panel"][data-active-label="${filter.label}"]`);
-        await panel.locator(`[data-testid="distribution-row"][data-value="${filter.value}"]`).click();
-        await untilStatsHttpRequestIsFinished(page);
+        const distributionTab = new DistributionTabHelper(page, filter.distributionTab);
+        await distributionTab.applyFilter(filter.value);
       }
     }
   }
@@ -44,7 +36,6 @@ export namespace StatsFlow {
   }
 
   export async function scrapeEverything(page: Page): Promise<Snapshot.Data> {
-    await untilStatsHttpRequestIsFinished(page);
     return (await scrape(page, "everything")) as Snapshot.Data;
   }
 
@@ -67,35 +58,10 @@ export namespace StatsFlow {
     }
 
     const distributions = {} as Snapshot.Data["distributions"];
-    for (const tabLabel of Snapshot.listDistributionTabs()) {
-      const correspondingPanel = page.getByTestId("distribution-panel").filter({
-        hasText: tabLabel,
-      });
-      // Some tabs need to be clicked, before becoming visible
-      const tab = correspondingPanel.getByRole("button", { name: tabLabel, exact: true });
-      if (await tab.isVisible()) {
-        await tab.click();
-      }
-      // Read the distribution values
-      distributions[tabLabel] = [];
-      while (true) {
-        const rows = correspondingPanel.getByTestId("distribution-row");
-        for (let i = 0; i < (await rows.count()); i++) {
-          const row = rows.nth(i);
-          distributions[tabLabel].push([
-            (await row.getByTestId("distribution-percentage").textContent()) as string,
-            (await row.getByTestId("distribution-value").textContent()) as string,
-            (await row.getByTestId("distribution-pvs").textContent()) as string,
-          ]);
-        }
-        const paginationNext = correspondingPanel.getByTestId("pagination-next");
-        if ((await paginationNext.isVisible()) && (await paginationNext.isEnabled())) {
-          await paginationNext.click();
-          await untilStatsHttpRequestIsFinished(page);
-          continue;
-        }
-        break;
-      }
+    for (const tabLabel of Snapshot.distributionTabLabels()) {
+      const distributionTab = new DistributionTabHelper(page, tabLabel);
+      const values = await distributionTab.readValues();
+      distributions[tabLabel] = values.map(({ percentage, value, pvs }) => [percentage, value, pvs]);
     }
     return {
       aggregates: {
@@ -105,5 +71,82 @@ export namespace StatsFlow {
       },
       distributions,
     };
+  }
+
+  /**
+   * Helper function for when we expect a /stats query
+   */
+  async function wrapInStatsQueryExpectation<T>(page: Page, fn: () => Promise<T>): Promise<T> {
+    const dataFetch = page.waitForResponse(/internal-api\/stats/);
+    const result = await fn();
+    await dataFetch;
+    return result;
+  }
+
+  /**
+   * Helper class
+   */
+  class DistributionTabHelper {
+    private readonly correspondingPanel: Locator;
+
+    public constructor(
+      private readonly page: Page,
+      private readonly tabLabel: string,
+    ) {
+      this.correspondingPanel = page.getByTestId("distribution-panel").filter({
+        hasText: tabLabel,
+      });
+    }
+
+    public async applyFilter(value: string) {
+      await this.prepare();
+      const clickableValues = this.correspondingPanel.getByTestId("distribution-value");
+      outer: while (true) {
+        for (let i = 0; i < (await clickableValues.count()); i++) {
+          const clickableValue = clickableValues.nth(i);
+          if ((await clickableValue.textContent()) === value) {
+            await wrapInStatsQueryExpectation(this.page, () => clickableValue.click());
+            break outer;
+          }
+        }
+        const paginationNext = this.correspondingPanel.getByTestId("pagination-next");
+        if ((await paginationNext.isVisible()) && (await paginationNext.isEnabled())) {
+          await wrapInStatsQueryExpectation(this.page, () => paginationNext.click());
+          continue;
+        }
+        throw new Error(`Couldn't apply filter ${this.tabLabel}: ${value}`);
+      }
+    }
+
+    public async readValues(): Promise<Array<{ percentage: string; value: string; pvs: string }>> {
+      const values: Awaited<ReturnType<typeof this.readValues>> = [];
+      while (true) {
+        const rows = this.correspondingPanel.getByTestId("distribution-row");
+        for (let i = 0; i < (await rows.count()); i++) {
+          const row = rows.nth(i);
+          await expect(row).toBeVisible();
+          values.push({
+            percentage: (await row.getByTestId("distribution-percentage").textContent()) as string,
+            value: (await row.getByTestId("distribution-value").textContent()) as string,
+            pvs: (await row.getByTestId("distribution-pvs").textContent()) as string,
+          });
+        }
+        const paginationNext = this.correspondingPanel.getByTestId("pagination-next");
+        if ((await paginationNext.isVisible()) && (await paginationNext.isEnabled())) {
+          await wrapInStatsQueryExpectation(this.page, () => paginationNext.click());
+          continue;
+        }
+        break;
+      }
+      return values;
+    }
+
+    private async prepare() {
+      await expect(this.correspondingPanel).toBeVisible();
+      const tabButton = this.correspondingPanel.getByRole("button", { name: this.tabLabel, exact: true });
+      if ((await tabButton.isVisible()) && (await tabButton.isEnabled())) {
+        await tabButton.click(); // no network request
+      }
+    }
   }
 }

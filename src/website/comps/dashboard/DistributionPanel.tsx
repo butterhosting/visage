@@ -28,6 +28,7 @@ export function DistributionPanel({ panel, stats, filters, toggleFilter, onPageC
               <button
                 key={tab.label}
                 onClick={() => setActiveIndex(i)}
+                disabled={isActive}
                 className={clsx(
                   "px-5 py-3 text-xs font-bold tracking-wide cursor-pointer transition-colors",
                   isActive

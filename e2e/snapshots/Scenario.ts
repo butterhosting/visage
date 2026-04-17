@@ -8,7 +8,7 @@ type Filter =
     }
   | {
       type: "distribution";
-      label: string;
+      distributionTab: string;
       value: string;
     };
 

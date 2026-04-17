@@ -2,8 +2,8 @@ import { expect, test } from "@playwright/test";
 import { AppBoundary } from "./boundaries/AppBoundary";
 import { WebsiteFlow } from "./flows/WebsiteFlow";
 
-test.beforeEach(async ({ request, page }) => {
-  await AppBoundary.purge(request);
+test.beforeEach(async ({ page }) => {
+  await AppBoundary.purge(page);
   await page.goto("");
 });
 

@@ -2,9 +2,12 @@ import { WebsiteError } from "@/errors/WebsiteError";
 import { Prettify } from "@/helpers/Prettify";
 import { Stats } from "@/models/Stats";
 import { StatsQuery } from "@/models/StatsQuery";
+import { ServerMessage } from "@/socket/ServerMessage";
 import clsx from "clsx";
+import { useEffect } from "react";
 import { useNavigate, useParams } from "react-router";
 import { Period } from "../../models/Period";
+import { SocketClient } from "../clients/SocketClient";
 import { StatsClient } from "../clients/StatsClient";
 import { WebsiteClient } from "../clients/WebsiteClient";
 import { ActiveFiltersBar } from "../comps/dashboard/ActiveFiltersBar";
@@ -21,9 +24,6 @@ import { useDocumentTitle } from "../hooks/useDocumentTitle";
 import { useRegistry } from "../hooks/useRegistry";
 import { useYesQuery } from "../hooks/useYesQuery";
 import { Route } from "../Route";
-import { useEffect } from "react";
-import { SocketClient } from "../clients/SocketClient";
-import { ServerMessage } from "@/socket/ServerMessage";
 
 export function websites$refPage() {
   const { ref } = useParams();
@@ -76,7 +76,7 @@ export function websites$refPage() {
           ...filters.reduce((previous, { key, value }) => ({ ...previous, [key]: value }), {}),
         }),
     },
-    [website?.id, graph, period.from?.toString(), period.to?.toString(), JSON.stringify(filters)],
+    [graph, period.from?.toString(), period.to?.toString(), JSON.stringify(filters)],
   );
 
   const socketClient = useRegistry(SocketClient);

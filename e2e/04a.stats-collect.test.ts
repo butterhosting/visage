@@ -6,15 +6,26 @@ import { StatsFlow } from "./flows/StatsFlow";
 import { Scenario } from "./snapshots/Scenario";
 import { Snapshot } from "./snapshots/Snapshot";
 
-// test.skip(true, "collector — run manually to regenerate dashboard specs");
+test.skip(true, "run manually to regenerate dashboard specs");
 
 test.beforeAll(async () => {
   await mkdir(StatsFlow.snapshotDirectory(), { recursive: true });
 });
 
-test.beforeEach(async ({ request }) => {
-  await AppBoundary.purge(request);
+test.beforeEach(async ({ page }) => {
+  await AppBoundary.purge(page);
 });
+
+for (const scenario of generateScenarios(5398438)) {
+  test(`collect: ${scenario.name}`, async ({ page, request }) => {
+    await StatsFlow.applyScenario(page, scenario);
+    const snapshot: Snapshot = {
+      scenario,
+      data: await StatsFlow.scrapeEverything(page),
+    };
+    await writeFile(StatsFlow.snapshotDirectory(`${scenario.name}.spec.json`), JSON.stringify(snapshot));
+  });
+}
 
 function generateScenarios(rngSeed: number): Scenario[] {
   return [
@@ -61,44 +72,33 @@ function generateScenarios(rngSeed: number): Scenario[] {
     {
       name: "filtered-by-page",
       rngSeed,
-      filters: [{ type: "distribution", label: "PAGES", value: "/" }],
+      filters: [{ type: "distribution", distributionTab: "PAGES", value: "/" }],
     },
     {
       name: "filtered-by-country",
       rngSeed,
-      filters: [{ type: "distribution", label: "COUNTRIES", value: "US" }],
+      filters: [{ type: "distribution", distributionTab: "COUNTRIES", value: "United States" }],
     },
     {
       name: "filtered-by-browser",
       rngSeed,
-      filters: [{ type: "distribution", label: "BROWSERS", value: "Chrome" }],
+      filters: [{ type: "distribution", distributionTab: "BROWSERS", value: "Chrome" }],
     },
     {
       name: "filtered-by-page-and-country",
       rngSeed,
       filters: [
-        { type: "distribution", label: "PAGES", value: "/" },
-        { type: "distribution", label: "COUNTRIES", value: "US" },
+        { type: "distribution", distributionTab: "PAGES", value: "/" },
+        { type: "distribution", distributionTab: "COUNTRIES", value: "United States" },
       ],
     },
     {
       name: "filtered-by-source-and-os",
       rngSeed,
       filters: [
-        { type: "distribution", label: "TRAFFIC SOURCES", value: "twitter" },
-        { type: "distribution", label: "OPERATING SYSTEMS", value: "macOS" },
+        { type: "distribution", distributionTab: "TRAFFIC SOURCES", value: "twitter" },
+        { type: "distribution", distributionTab: "OPERATING SYSTEMS", value: "macOS" },
       ],
     },
   ];
-}
-
-for (const scenario of generateScenarios(5398438)) {
-  test(`collect: ${scenario.name}`, async ({ page, request }) => {
-    await StatsFlow.applyScenario(page, request, scenario);
-    const snapshot: Snapshot = {
-      scenario,
-      data: await StatsFlow.scrapeEverything(page),
-    };
-    await writeFile(StatsFlow.snapshotDirectory(`${scenario.name}.spec.json`), JSON.stringify(snapshot));
-  });
 }

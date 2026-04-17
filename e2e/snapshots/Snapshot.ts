@@ -7,7 +7,7 @@ export type Snapshot = {
 };
 
 export namespace Snapshot {
-  export const listDistributionTabs = () => {
+  export const distributionTabLabels = () => {
     return ["PAGES", "TRAFFIC SOURCES", "COUNTRIES", "CITIES", "SCREENS", "BROWSERS", "OPERATING SYSTEMS"] as const;
   };
 
@@ -22,6 +22,6 @@ export namespace Snapshot {
     distributions: Record<DistributionTab, DistributionRow[]>;
   };
 
-  type DistributionTab = ReturnType<typeof listDistributionTabs>[number];
+  type DistributionTab = ReturnType<typeof distributionTabLabels>[number];
   type DistributionRow = [string, string, string]; // percentage, value, pvs
 }

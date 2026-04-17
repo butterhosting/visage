@@ -4,8 +4,8 @@ import { AnalyticsFlow } from "./flows/AnalyticsFlow";
 import { StatsFlow } from "./flows/StatsFlow";
 import { WebsiteFlow } from "./flows/WebsiteFlow";
 
-test.beforeEach(async ({ request, page }) => {
-  await AppBoundary.purge(request);
+test.beforeEach(async ({ page }) => {
+  await AppBoundary.purge(page);
   await page.goto("");
 });
 
