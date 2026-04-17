@@ -100,6 +100,7 @@ export namespace StatsFlow {
 
     public async applyFilter(value: string) {
       await this.prepare();
+      await this.resetPagination();
       const clickableValues = this.correspondingPanel.getByTestId("distribution-value");
       outer: while (true) {
         for (let i = 0; i < (await clickableValues.count()); i++) {
@@ -119,6 +120,7 @@ export namespace StatsFlow {
     }
 
     public async readValues(): Promise<Array<{ percentage: string; value: string; pvs: string }>> {
+      await this.resetPagination();
       const values: Awaited<ReturnType<typeof this.readValues>> = [];
       while (true) {
         const rows = this.correspondingPanel.getByTestId("distribution-row");
@@ -146,6 +148,13 @@ export namespace StatsFlow {
       const tabButton = this.correspondingPanel.getByRole("button", { name: this.tabLabel, exact: true });
       if ((await tabButton.isVisible()) && (await tabButton.isEnabled())) {
         await tabButton.click(); // no network request
+      }
+    }
+
+    private async resetPagination() {
+      const paginationPrev = this.correspondingPanel.getByTestId("pagination-prev");
+      while ((await paginationPrev.isVisible()) && (await paginationPrev.isEnabled())) {
+        await wrapInStatsQueryExpectation(this.page, () => paginationPrev.click());
       }
     }
   }
