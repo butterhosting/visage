@@ -120,6 +120,7 @@ export namespace StatsFlow {
     }
 
     public async readValues(): Promise<Array<{ percentage: string; value: string; pvs: string }>> {
+      await this.prepare();
       await this.resetPagination();
       const values: Awaited<ReturnType<typeof this.readValues>> = [];
       while (true) {
