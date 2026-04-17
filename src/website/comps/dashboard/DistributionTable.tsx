@@ -33,8 +33,11 @@ export function DistributionTable({ distribution, pageviewsTotal, filterKey, fil
             key={point.value}
             onClick={() => toggleFilter(filterKey, point.value)}
             className="flex items-center gap-3 cursor-pointer text-left"
+            data-testid="distribution-row"
           >
-            <div className="w-18">{Prettify.percentage(percentage)}</div>
+            <div className="w-18" data-testid="distribution-percentage">
+              {Prettify.percentage(percentage)}
+            </div>
             <div className={clsx("relative flex-1 h-7 rounded overflow-hidden", isActive ? "bg-c-accent/15" : "bg-c-accent/5")}>
               <div
                 className={clsx("absolute inset-y-0 left-0 rounded", isActive ? "bg-c-accent/25" : "bg-c-accent/10")}
@@ -45,6 +48,7 @@ export function DistributionTable({ distribution, pageviewsTotal, filterKey, fil
                   "relative px-2 text-sm leading-7 truncate flex items-center gap-1.5",
                   isActive && "font-semibold text-c-accent",
                 )}
+                data-testid="distribution-value"
               >
                 {filterKey === StatsQuery.Filter.country && point.value && (
                   <CountryFlag countryCode={point.value} className="h-3.5 rounded-[1px] shrink-0" />
@@ -55,7 +59,9 @@ export function DistributionTable({ distribution, pageviewsTotal, filterKey, fil
                 {DistributionFilter.renderValue(filterKey, point.value)}
               </span>
             </div>
-            <div className="text-xs tabular-nums w-18">{Prettify.number(point.count)} pvs</div>
+            <div className="text-xs tabular-nums w-18" data-testid="distribution-pvs">
+              {Prettify.number(point.count)} pvs
+            </div>
           </button>
         );
       })}
@@ -65,6 +71,7 @@ export function DistributionTable({ distribution, pageviewsTotal, filterKey, fil
             disabled={distribution.offset === 0}
             onClick={() => onPageChange(Math.max(0, distribution.offset - distribution.limit))}
             className="p-1.5 rounded text-c-dark-half hover:text-c-dark-full hover:bg-c-accent/5 disabled:opacity-20 disabled:pointer-events-none transition-colors cursor-pointer"
+            data-testid="pagination-prev"
           >
             <Icon.ChevronLeft className="size-4" />
           </button>
@@ -72,6 +79,7 @@ export function DistributionTable({ distribution, pageviewsTotal, filterKey, fil
             disabled={!distribution.hasMore}
             onClick={() => onPageChange(distribution.offset + distribution.limit)}
             className="p-1.5 rounded text-c-dark-half hover:text-c-dark-full hover:bg-c-accent/5 disabled:opacity-20 disabled:pointer-events-none transition-colors cursor-pointer"
+            data-testid="pagination-next"
           >
             <Icon.ChevronRight className="size-4" />
           </button>

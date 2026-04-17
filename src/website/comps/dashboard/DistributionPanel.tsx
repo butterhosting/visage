@@ -18,7 +18,7 @@ export function DistributionPanel({ panel, stats, filters, toggleFilter, onPageC
   const [activeIndex, setActiveIndex] = useState(0);
   const activeTab = panel[activeIndex];
   return (
-    <Paper>
+    <Paper data-testid="distribution-panel" data-active-label={activeTab.label}>
       {panel.length > 1 && (
         <div className="flex justify-center border-b border-black/10">
           {panel.map((tab, i) => {

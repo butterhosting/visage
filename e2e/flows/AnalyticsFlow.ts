@@ -1,4 +1,4 @@
-import { Browser, expect, Page } from "@playwright/test";
+import { Browser, expect } from "@playwright/test";
 
 export namespace AnalyticsFlow {
   type TriggerViews = {
@@ -29,25 +29,5 @@ export namespace AnalyticsFlow {
       await expect(page.getByRole("heading", { name: destination })).toBeVisible();
       await page.waitForTimeout(50); // give the script some time to send beacons
     }
-  }
-
-  export type AggregateStats = {
-    totalVisitors: string;
-    totalPageviews: string;
-    medianTimeOnPage: string;
-    livePageviews: string;
-  };
-  export async function readAggregateStats(page: Page): Promise<AggregateStats> {
-    const translation: Record<keyof AggregateStats, string> = {
-      totalVisitors: "TOTAL VISITORS",
-      totalPageviews: "TOTAL PAGEVIEWS",
-      medianTimeOnPage: "MEDIAN TIME ON PAGE",
-      livePageviews: "LIVE PAGEVIEWS",
-    };
-    const result: Record<string, string | null> = {};
-    for (const [key, label] of Object.entries(translation)) {
-      result[key] = await page.getByRole("button", { name: label }).getByTestId("aggregate-stat").textContent();
-    }
-    return result as AggregateStats;
   }
 }

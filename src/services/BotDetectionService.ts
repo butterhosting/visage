@@ -1,7 +1,6 @@
 import { Env } from "@/Env";
 import { Logger } from "@/Logger";
 import { UserAgent } from "@/models/UserAgent";
-import Bowser from "bowser";
 
 type Input = {
   userAgent: UserAgent;

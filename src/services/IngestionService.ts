@@ -3,15 +3,14 @@ import { Throttler } from "@/helpers/Throttler";
 import { Logger } from "@/Logger";
 import { AnalyticsEvent } from "@/models/AnalyticsEvent";
 import { BrowserTrackingEvent } from "@/models/BrowserTrackingEvent";
+import { UserAgent } from "@/models/UserAgent";
 import { AnalyticsEventRepository } from "@/repositories/AnalyticsEventRepository";
 import { WebsiteRepository } from "@/repositories/WebsiteRepository";
 import { ServerMessage } from "@/socket/ServerMessage";
 import { Socket } from "@/socket/Socket";
 import { Temporal } from "@js-temporal/polyfill";
-import Bowser from "bowser";
 import { BotDetectionService } from "./BotDetectionService";
 import { MaxMindGeoService } from "./MaxMindGeoService";
-import { UserAgent } from "@/models/UserAgent";
 
 export class IngestionService {
   private readonly log = new Logger(__filename);

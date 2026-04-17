@@ -1,6 +1,7 @@
 import { expect, test } from "@playwright/test";
 import { AppBoundary } from "./boundaries/AppBoundary";
 import { AnalyticsFlow } from "./flows/AnalyticsFlow";
+import { StatsFlow } from "./flows/StatsFlow";
 import { WebsiteFlow } from "./flows/WebsiteFlow";
 
 test.beforeEach(async ({ request, page }) => {
@@ -21,7 +22,7 @@ for (const websiteType of ["SPA", "traditional"] as const) {
       // then
       await expect(page.getByText("Please add the following script to your website.")).not.toBeVisible();
       await expect
-        .poll(() => AnalyticsFlow.readAggregateStats(page))
+        .poll(() => StatsFlow.scrapeAggregateStats(page))
         .toEqual({
           totalVisitors: "1",
           totalPageviews: "3",
@@ -41,7 +42,7 @@ for (const websiteType of ["SPA", "traditional"] as const) {
       });
       // then
       await expect
-        .poll(() => AnalyticsFlow.readAggregateStats(page))
+        .poll(() => StatsFlow.scrapeAggregateStats(page))
         .toEqual({
           totalVisitors: "1",
           totalPageviews: "10",
@@ -53,7 +54,7 @@ for (const websiteType of ["SPA", "traditional"] as const) {
       await page.getByRole("button", { name: "/about" }).click();
       // then
       await expect
-        .poll(() => AnalyticsFlow.readAggregateStats(page))
+        .poll(() => StatsFlow.scrapeAggregateStats(page))
         .toEqual({
           totalVisitors: "0",
           totalPageviews: "5",
@@ -66,7 +67,7 @@ for (const websiteType of ["SPA", "traditional"] as const) {
       await page.getByRole("button", { name: "/contact" }).click();
       // then
       await expect
-        .poll(() => AnalyticsFlow.readAggregateStats(page))
+        .poll(() => StatsFlow.scrapeAggregateStats(page))
         .toEqual({
           totalVisitors: "1",
           totalPageviews: "3",
