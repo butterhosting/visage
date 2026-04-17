@@ -17,7 +17,7 @@ test.beforeEach(async ({ page }) => {
 });
 
 for (const scenario of generateScenarios(5398438)) {
-  test(`collect: ${scenario.name}`, async ({ page, request }) => {
+  test(`collect: ${scenario.name}`, async ({ page }) => {
     await StatsFlow.applyScenario(page, scenario);
     const snapshot: Snapshot = {
       scenario,
