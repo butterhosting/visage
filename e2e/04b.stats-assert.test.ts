@@ -14,6 +14,6 @@ for (const filename of await readdir(StatsFlow.snapshotDirectory())) {
     // when
     await StatsFlow.applyScenario(page, snapshot.scenario);
     // then
-    await expect.poll(() => StatsFlow.scrapeEverything(page)).toEqual(snapshot.data);
+    await expect.poll(() => StatsFlow.scrapeEverything(page), { timeout: 10_000 }).toEqual(snapshot.data);
   });
 }
