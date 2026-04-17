@@ -118,8 +118,8 @@ verify_auth() {
     && assert_status "200" http://localhost:3000/i -d '{}' \
     && assert_status "401" http://localhost:3000/internal-api/env \
     && assert_status "200" http://localhost:3000/internal-api/env -u kim:possible \
-    && assert_status "404" http://localhost:3000/internal-api/restricted/seed -X POST \
-    && assert_status "404" http://localhost:3000/internal-api/restricted/purge -X POST
+    && assert_status "404" http://localhost:3000/internal-api/restricted/seed -u kim:possible -X POST \
+    && assert_status "404" http://localhost:3000/internal-api/restricted/purge -u kim:possible -X POST
 }
 
 # ─── scenarios ───
