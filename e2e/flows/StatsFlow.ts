@@ -1,3 +1,4 @@
+import { OmitBetter } from "@/types/OmitBetter";
 import { expect, Locator, Page } from "@playwright/test";
 import { join } from "path";
 import { AppBoundary } from "../boundaries/AppBoundary";
@@ -7,7 +8,7 @@ import { Snapshot } from "../snapshots/Snapshot";
 export namespace StatsFlow {
   export const snapshotDirectory = (...files: string[]) => join(process.cwd(), "e2e", "snapshots", "specs", ...files);
 
-  export async function applyScenario(page: Page, scenario: Scenario): Promise<void> {
+  export async function applyScenario(page: Page, scenario: OmitBetter<Scenario, "name">): Promise<void> {
     // given
     await AppBoundary.seed(page, { rngSeed: scenario.rngSeed });
     // when
@@ -31,7 +32,12 @@ export namespace StatsFlow {
     }
   }
 
-  export async function scrapeAggregateStats(page: Page): Promise<Snapshot.AggregateStats> {
+  export async function scrapeAggregateStats(page: Page): Promise<Snapshot.AggregateStats>;
+  export async function scrapeAggregateStats(page: Page, exact: "exact"): Promise<AggregateStatsExact>;
+  export async function scrapeAggregateStats(page: Page, exact?: "exact"): Promise<Snapshot.AggregateStats | AggregateStatsExact> {
+    if (exact) {
+      return await wrapInStatsQueryExpectation(page, () => page.reload());
+    }
     return (await scrape(page, "aggregate_stats")) as Snapshot.AggregateStats;
   }
 
@@ -76,11 +82,17 @@ export namespace StatsFlow {
   /**
    * Helper function for when we expect a /stats query
    */
-  async function wrapInStatsQueryExpectation<T>(page: Page, fn: () => Promise<T>): Promise<T> {
-    const dataFetch = page.waitForResponse(/internal-api\/stats/);
-    const result = await fn();
-    await dataFetch;
-    return result;
+  type AggregateStatsExact = {
+    visitorsTotal: number;
+    pageviewsTotal: number;
+    pagetimeMedian: number;
+    livePageviewsTotal: number;
+  };
+  async function wrapInStatsQueryExpectation(page: Page, fn: () => unknown): Promise<AggregateStatsExact> {
+    const responsePromise = page.waitForResponse(/internal-api\/stats/);
+    await fn();
+    const response = await responsePromise;
+    return await response.json();
   }
 
   /**

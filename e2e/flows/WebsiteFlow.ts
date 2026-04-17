@@ -1,4 +1,5 @@
 import { expect, Page } from "@playwright/test";
+import { readFile } from "fs/promises";
 
 export namespace WebsiteFlow {
   type Create = {
@@ -35,6 +36,26 @@ export namespace WebsiteFlow {
     await dialog.getByRole("textbox").fill(nextHostname);
     await dialog.getByRole("button", { name: "Update", exact: true }).click();
     await expect(dialog).not.toBeVisible();
+  }
+
+  type Export = {
+    hostname: string;
+  };
+  export async function doExport(page: Page, { hostname }: Export): Promise<string> {
+    const dialog = page.getByRole("dialog");
+
+    await page.getByRole("link", { name: "Settings", exact: true }).click();
+
+    const row = page.getByTestId("website-row").filter({ hasText: hostname });
+    await row.getByRole("button", { name: "Export", exact: true }).click();
+    await expect(dialog).toBeVisible();
+
+    const downloadPromise = page.waitForEvent("download");
+    await dialog.getByRole("button", { name: "Download", exact: true }).click();
+    const download = await downloadPromise;
+    await expect(dialog).not.toBeVisible();
+
+    return await readFile(await download.path(), "utf-8");
   }
 
   type Remove = {
