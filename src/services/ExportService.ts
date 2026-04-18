@@ -28,7 +28,6 @@ export class ExportService {
   }
 
   private streamJson(websiteId: string, request: z.output<typeof ExportService.Export>): ReadableStream<Uint8Array> {
-    const sqlite = this.sqlite;
     const encoder = new TextEncoder();
 
     return new ReadableStream({
@@ -37,7 +36,7 @@ export class ExportService {
         let cursor: string | undefined;
         let first = true;
         while (true) {
-          const rows = await this.queryBatch(sqlite, websiteId, request, cursor);
+          const rows = await this.queryBatch(websiteId, request, cursor);
           if (rows.length === 0) break;
           for (const { event } of rows) {
             const prefix = first ? "" : ",";
@@ -54,7 +53,6 @@ export class ExportService {
   }
 
   private async queryBatch(
-    sqlite: Sqlite,
     websiteId: string,
     { artifact, from, to }: z.output<typeof ExportService.Export>,
     cursor?: string,
@@ -67,7 +65,7 @@ export class ExportService {
         if (cursor) {
           where.push(gt($analyticsEvent.id, cursor));
         }
-        const records = await sqlite
+        const records = await this.sqlite
           .select()
           .from($analyticsEvent)
           .where(and(...where))
@@ -82,7 +80,7 @@ export class ExportService {
         if (cursor) {
           where.push(gt($botEvent.id, cursor));
         }
-        const records = await sqlite
+        const records = await this.sqlite
           .select()
           .from($botEvent)
           .where(and(...where))

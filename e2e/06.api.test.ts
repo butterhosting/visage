@@ -87,6 +87,11 @@ test("the API fails when the token scope doesn't match the website", async ({ pa
 });
 
 test.describe("the API fails for invalid query parameters", () => {
+  type ValidationFailureTest = {
+    description: string;
+    queryParams: Record<string, string>;
+    expectation: { errorFields: string[] };
+  };
   const validationFailureTests: ValidationFailureTest[] = [
     {
       description: "from is malformed",
@@ -160,9 +165,3 @@ async function queryStats(
     json,
   };
 }
-
-type ValidationFailureTest = {
-  description: string;
-  queryParams: Record<string, string>;
-  expectation: { errorFields: string[] };
-};
