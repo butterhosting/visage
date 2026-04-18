@@ -21,7 +21,7 @@ export namespace TimeSeries {
         yUnit: z.literal(["visitor", "pageview", "second"]),
         data: z.array(
           z.object({
-            t: z.string().transform((t) => Temporal.Instant.from(t)),
+            t: z.string().transform(ZodParser.instant),
             y: z.number(),
           }),
         ),

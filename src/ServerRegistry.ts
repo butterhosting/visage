@@ -46,7 +46,7 @@ export class ServerRegistry {
     const { tokenService } = this.register({ TokenService }, [tokenRepository, websiteRepository, eventBus]);
     const { statsService } = this.register({ StatsService }, [env, sqlite, tokenService, websiteRepository]);
     const { websiteService } = this.register({ WebsiteService }, [env, websiteRepository, statsService, eventBus]);
-    const { restrictedService } = this.register({ RestrictedService }, [websiteService, sqlite]);
+    const { restrictedService } = this.register({ RestrictedService }, [websiteService, tokenService, sqlite]);
     const { ingestionService } = this.register({ IngestionService }, [
       maxMindGeoService,
       botDetectionService,

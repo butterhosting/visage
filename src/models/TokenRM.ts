@@ -18,12 +18,9 @@ export namespace TokenRM {
       z.object({
         id: z.string(),
         object: z.literal("token"),
-        created: z.string().transform((t) => Temporal.Instant.from(t)),
+        created: z.string().transform(ZodParser.instant),
         websiteIds: z.union([z.literal("*"), z.array(z.string())]),
-        lastUsed: z
-          .string()
-          .transform((t) => Temporal.Instant.from(t))
-          .optional(),
+        lastUsed: z.string().transform(ZodParser.instant).optional(),
         value: z.string().optional(),
       }),
     )

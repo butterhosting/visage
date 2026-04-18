@@ -60,6 +60,7 @@ export namespace StatsQuery {
     cityDistributionLimit = "cityDistributionLimit",
     cityDistributionOffset = "cityDistributionOffset",
   }
+
   export const parse = ZodParser.forType<StatsQuery>()
     .ensureSchemaMatchesType(() =>
       z.object({
@@ -69,14 +70,8 @@ export namespace StatsQuery {
           .transform((s) => s.split(",") as Stats.Field[])
           .refine((fields) => fields.every((f) => Object.values(Stats.Field).includes(f)))
           .optional(),
-        from: z
-          .string()
-          .transform((t) => Temporal.Instant.from(t))
-          .optional(),
-        to: z
-          .string()
-          .transform((t) => Temporal.Instant.from(t))
-          .optional(),
+        from: z.string().transform(ZodParser.instant).optional(),
+        to: z.string().transform(ZodParser.instant).optional(),
         page: z.string().optional(),
         source: z.string().transform(NullSentinel.decode).optional(),
         screen: z.string().optional(),

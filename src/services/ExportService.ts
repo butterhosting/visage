@@ -1,13 +1,13 @@
+import { AnalyticsEventConverter } from "@/drizzle/converters/AnalyticsEventConverter";
 import { $analyticsEvent, $botEvent } from "@/drizzle/schema";
 import { Sqlite } from "@/drizzle/sqlite";
 import { ServerError } from "@/errors/ServerError";
 import { WebsiteError } from "@/errors/WebsiteError";
 import { ZodProblem } from "@/helpers/ZodIssues";
+import { ZodParser } from "@/helpers/ZodParser";
 import { AnalyticsEvent } from "@/models/AnalyticsEvent";
 import { Artifact } from "@/models/Artifact";
-import { AnalyticsEventConverter } from "@/drizzle/converters/AnalyticsEventConverter";
 import { WebsiteRepository } from "@/repositories/WebsiteRepository";
-import { Temporal } from "@js-temporal/polyfill";
 import { and, eq, gt, gte, lt, SQL } from "drizzle-orm";
 import { z } from "zod/v4";
 
@@ -98,14 +98,8 @@ export namespace ExportService {
   export const Export = z
     .object({
       artifact: z.enum(Artifact.Enum),
-      from: z
-        .string()
-        .transform((s) => Temporal.Instant.from(s))
-        .optional(),
-      to: z
-        .string()
-        .transform((s) => Temporal.Instant.from(s))
-        .optional(),
+      from: z.string().transform(ZodParser.instant).optional(),
+      to: z.string().transform(ZodParser.instant).optional(),
     })
     .catch((e) => {
       throw ServerError.invalid_request_body(ZodProblem.issuesSummary(e));

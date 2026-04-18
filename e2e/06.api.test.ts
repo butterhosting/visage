@@ -33,25 +33,27 @@ test("the API fails without a website parameter", async ({ page }) => {
   );
 });
 
-for (const scope of ["*", "specific"] as const) {
-  test(`the API returns empty data for a token of type "${scope}"`, async ({ page }) => {
-    // given
-    const { hostname } = await WebsiteFlow.create(page, { hostname: "www.seabass.com" });
-    const token = await TokenFlow.generate(page, {
-      hostnames: scope === "*" ? "*" : [hostname],
+test.describe("the API returns empty data for a valid token", () => {
+  for (const scope of ["*", "specific"] as const) {
+    test(`scope = ${scope}`, async ({ page }) => {
+      // given
+      const { hostname } = await WebsiteFlow.create(page, { hostname: "www.seabass.com" });
+      const token = await TokenFlow.generate(page, {
+        hostnames: scope === "*" ? "*" : [hostname],
+      });
+      // when
+      const { status, json } = await queryStats(page, {
+        token,
+        query: {
+          website: hostname,
+        },
+      });
+      // then
+      expect(status).toEqual(200);
+      expect(json).toEqual({});
     });
-    // when
-    const { status, json } = await queryStats(page, {
-      token,
-      query: {
-        website: hostname,
-      },
-    });
-    // then
-    expect(status).toEqual(200);
-    expect(json).toEqual({});
-  });
-}
+  }
+});
 
 test("the API fails when the token scope doesn't match the website", async ({ page }) => {
   // given
@@ -84,6 +86,66 @@ test("the API fails when the token scope doesn't match the website", async ({ pa
   });
 });
 
+test.describe("the API fails for invalid query parameters", () => {
+  const validationFailureTests: ValidationFailureTest[] = [
+    {
+      description: "from is malformed",
+      queryParams: { from: "not-a-date" },
+      expectation: { errorFields: ["from"] },
+    },
+    {
+      description: "to is malformed",
+      queryParams: { to: "banana" },
+      expectation: { errorFields: ["to"] },
+    },
+    {
+      description: "from and to are both malformed",
+      queryParams: { from: "x", to: "y" },
+      expectation: { errorFields: ["from", "to"] },
+    },
+    {
+      description: "from equals to",
+      queryParams: { from: "2026-04-01T00:00:00Z", to: "2026-04-01T00:00:00Z" },
+      expectation: { errorFields: ["from", "to"] },
+    },
+    {
+      description: "from is after to",
+      queryParams: { from: "2026-04-10T00:00:00Z", to: "2026-04-01T00:00:00Z" },
+      expectation: { errorFields: ["from", "to"] },
+    },
+    {
+      description: "fields contains an unknown value",
+      queryParams: { fields: "bogus" },
+      expectation: { errorFields: ["fields"] },
+    },
+    {
+      description: "fields mixes valid and unknown values",
+      queryParams: { fields: "visitorsTotal,bogus" },
+      expectation: { errorFields: ["fields"] },
+    },
+  ];
+  for (const { description, queryParams, expectation } of validationFailureTests) {
+    test(description, async ({ page }) => {
+      // given
+      const { hostname } = await WebsiteFlow.create(page, { hostname: "www.fishandchips.co.uk" });
+      const token = await TokenFlow.generate(page);
+      // when
+      const { status, json } = await queryStats(page, {
+        token,
+        query: { website: hostname, ...queryParams },
+      });
+      // then
+      expect(status).toEqual(400);
+      expect(json).toEqual({
+        problem: "StatsError::invalid_query",
+        details: {
+          errorQueryParams: expectation.errorFields,
+        },
+      });
+    });
+  }
+});
+
 async function queryStats(
   page: Page,
   options?: { token?: string; query?: Record<string, string> },
@@ -98,3 +160,9 @@ async function queryStats(
     json,
   };
 }
+
+type ValidationFailureTest = {
+  description: string;
+  queryParams: Record<string, string>;
+  expectation: { errorFields: string[] };
+};

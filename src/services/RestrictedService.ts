@@ -1,20 +1,25 @@
+import { AnalyticsEventConverter } from "@/drizzle/converters/AnalyticsEventConverter";
 import { $analyticsEvent, $website } from "@/drizzle/schema";
 import { Sqlite } from "@/drizzle/sqlite";
+import { ZodParser } from "@/helpers/ZodParser";
 import { AnalyticsEvent } from "@/models/AnalyticsEvent";
 import { Website } from "@/models/Website";
-import { AnalyticsEventConverter } from "@/drizzle/converters/AnalyticsEventConverter";
 import { Temporal } from "@js-temporal/polyfill";
 import { eq, InferInsertModel } from "drizzle-orm";
-import { WebsiteService } from "./WebsiteService";
 import z from "zod/v4";
+import { TokenService } from "./TokenService";
+import { WebsiteService } from "./WebsiteService";
 
 export class RestrictedService {
   public constructor(
     private readonly websiteService: WebsiteService,
+    private readonly tokenService: TokenService,
     private readonly sqlite: Sqlite,
   ) {}
 
   public async purge(): Promise<void> {
+    const tokens = await this.tokenService.list();
+    await Promise.all(tokens.map(({ id }) => this.tokenService.delete(id)));
     const websites = await this.websiteService.list();
     await Promise.all(websites.map(({ id }) => this.websiteService.delete(id)));
   }
@@ -119,10 +124,7 @@ export class RestrictedService {
 export namespace RestrictedService {
   export const Seed = z.object({
     rngSeed: z.number().int().optional(),
-    referenceDate: z
-      .string()
-      .transform((s) => Temporal.PlainDate.from(s))
-      .optional(),
+    referenceDate: z.string().transform(ZodParser.date).optional(),
   });
 }
 

@@ -16,7 +16,7 @@ export namespace Website {
       z.object({
         id: z.uuid(),
         object: z.literal("website"),
-        created: z.string().transform((t) => Temporal.Instant.from(t)),
+        created: z.string().transform(ZodParser.instant),
         hostname: z.string(),
         hasData: z.boolean(),
       }),
