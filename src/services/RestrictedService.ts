@@ -64,8 +64,7 @@ export class RestrictedService {
 
     for (let day = 0; day < totalDays; day++) {
       const dayStart = from.add({ hours: day * 24 });
-      const dayInstant = new Date(dayStart.epochMilliseconds);
-      const dayOfWeek = dayInstant.getUTCDay(); // 0=Sun, 6=Sat
+      const dayOfWeek = day % 7; // loop-index based so the rng stream stays stable across runs
       const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
 
       // organic growth curve: starts low, accelerates

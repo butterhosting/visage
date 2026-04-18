@@ -1,4 +1,5 @@
 import { OmitBetter } from "@/types/OmitBetter";
+import { Temporal } from "@js-temporal/polyfill";
 import { expect, Locator, Page } from "@playwright/test";
 import { join } from "path";
 import { AppBoundary } from "../boundaries/AppBoundary";
@@ -20,9 +21,12 @@ export namespace StatsFlow {
         if (typeof filter.period === "string") {
           await wrapInStatsQueryExpectation(page, () => page.getByRole("combobox").selectOption(filter.period as string));
         } else {
+          const today = Temporal.Now.plainDateISO();
+          const from = today.subtract(filter.period.fromAgo);
+          const to = today.subtract(filter.period.toAgo);
           await page.getByRole("combobox").selectOption("Custom");
-          await page.getByLabel("FROM").fill(filter.period.from.toString());
-          await page.getByLabel("TO").fill(filter.period.to.toString());
+          await page.getByLabel("FROM").fill(from.toString());
+          await page.getByLabel("TO").fill(to.toString());
           await wrapInStatsQueryExpectation(page, () => page.getByRole("button", { name: "Apply" }).click());
         }
       } else {

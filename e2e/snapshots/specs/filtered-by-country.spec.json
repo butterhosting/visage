@@ -1,1 +1,59 @@
-{"scenario":{"name":"filtered-by-country","rngSeed":5398438,"filters":[{"type":"distribution","distributionTab":"COUNTRIES","value":"United States"}]},"data":{"aggregates":{"totalVisitors":"678","totalPageviews":"1.0k","medianTimeOnPage":"2m 31s"},"distributions":{"PAGES":[["34.7%","/","363 pvs"],["15.3%","/docs","160 pvs"],["12.4%","/pricing","130 pvs"],["8.9%","/docs/getting-started","93 pvs"],["7.7%","/docs/api-reference","81 pvs"],["7.7%","/blog","81 pvs"],["6.4%","/blog/announcing-v2","67 pvs"],["4.1%","/about","43 pvs"],["2.7%","/blog/performance-update","28 pvs"]],"TRAFFIC SOURCES":[["85.5%","(direct)","894 pvs"],["3.5%","twitter","37 pvs"],["2.6%","newsletter","27 pvs"],["2.4%","github","25 pvs"],["2.2%","hackernews","23 pvs"],["1.4%","linkedin","15 pvs"],["1.3%","google","14 pvs"],["1.1%","producthunt","11 pvs"]],"COUNTRIES":[["100%","United States","1.0k pvs"]],"CITIES":[["39.8%","New York","416 pvs"],["24.7%","San Francisco","258 pvs"],["15.1%","(unknown)","158 pvs"],["13.1%","Chicago","137 pvs"],["7.4%","Austin","77 pvs"]],"SCREENS":[["63.5%","desktop","664 pvs"],["32.2%","mobile","337 pvs"],["4.3%","tablet","45 pvs"]],"BROWSERS":[["56.9%","Chrome","595 pvs"],["25.3%","Safari","265 pvs"],["10.2%","Firefox","107 pvs"],["7.6%","Edge","79 pvs"]],"OPERATING SYSTEMS":[["46.1%","Windows","482 pvs"],["23.6%","macOS","247 pvs"],["16.3%","iOS","170 pvs"],["11.0%","Android","115 pvs"],["3.1%","Linux","32 pvs"]]}}}
+{
+  "scenario": {
+    "name": "filtered-by-country",
+    "rngSeed": 5398438,
+    "filters": [{ "type": "distribution", "distributionTab": "COUNTRIES", "value": "United States" }]
+  },
+  "data": {
+    "aggregates": { "totalVisitors": "650", "totalPageviews": "1.0k", "medianTimeOnPage": "2m 34s" },
+    "distributions": {
+      "PAGES": [
+        ["36.4%", "/", "364 pvs"],
+        ["14.7%", "/docs", "147 pvs"],
+        ["11.6%", "/pricing", "116 pvs"],
+        ["9.4%", "/docs/getting-started", "94 pvs"],
+        ["8.2%", "/docs/api-reference", "82 pvs"],
+        ["7.4%", "/blog", "74 pvs"],
+        ["5.6%", "/blog/announcing-v2", "56 pvs"],
+        ["4.2%", "/about", "42 pvs"],
+        ["2.6%", "/blog/performance-update", "26 pvs"]
+      ],
+      "TRAFFIC SOURCES": [
+        ["85.6%", "(direct)", "857 pvs"],
+        ["3.5%", "twitter", "35 pvs"],
+        ["2.7%", "newsletter", "27 pvs"],
+        ["2.4%", "github", "24 pvs"],
+        ["1.8%", "hackernews", "18 pvs"],
+        ["1.6%", "linkedin", "16 pvs"],
+        ["1.2%", "producthunt", "12 pvs"],
+        ["1.2%", "google", "12 pvs"]
+      ],
+      "COUNTRIES": [["100%", "United States", "1.0k pvs"]],
+      "CITIES": [
+        ["38.7%", "New York", "387 pvs"],
+        ["25.7%", "San Francisco", "257 pvs"],
+        ["15.7%", "(unknown)", "157 pvs"],
+        ["11.4%", "Chicago", "114 pvs"],
+        ["8.6%", "Austin", "86 pvs"]
+      ],
+      "SCREENS": [
+        ["63.9%", "desktop", "640 pvs"],
+        ["32.1%", "mobile", "321 pvs"],
+        ["4.0%", "tablet", "40 pvs"]
+      ],
+      "BROWSERS": [
+        ["55.5%", "Chrome", "556 pvs"],
+        ["25.1%", "Safari", "251 pvs"],
+        ["11.3%", "Firefox", "113 pvs"],
+        ["8.1%", "Edge", "81 pvs"]
+      ],
+      "OPERATING SYSTEMS": [
+        ["46.9%", "Windows", "469 pvs"],
+        ["24.1%", "macOS", "241 pvs"],
+        ["15.0%", "iOS", "150 pvs"],
+        ["10.9%", "Android", "109 pvs"],
+        ["3.2%", "Linux", "32 pvs"]
+      ]
+    }
+  }
+}

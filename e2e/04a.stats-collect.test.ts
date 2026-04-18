@@ -1,4 +1,3 @@
-import { Temporal } from "@js-temporal/polyfill";
 import { test } from "@playwright/test";
 import { mkdir, writeFile } from "fs/promises";
 import { AppBoundary } from "./boundaries/AppBoundary";
@@ -65,7 +64,7 @@ function generateScenarios(rngSeed: number): Scenario[] {
       filters: [
         {
           type: "period",
-          period: { from: Temporal.Now.plainDateISO().subtract({ months: 17 }), to: Temporal.Now.plainDateISO().subtract({ months: 14 }) },
+          period: { fromAgo: { months: 17 }, toAgo: { months: 14 } },
         },
       ],
     },

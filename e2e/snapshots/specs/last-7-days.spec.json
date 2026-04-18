@@ -1,1 +1,85 @@
-{"scenario":{"name":"last-7-days","rngSeed":5398438,"filters":[{"type":"period","period":"Last 7 days"}]},"data":{"aggregates":{"totalVisitors":"605","totalPageviews":"920","medianTimeOnPage":"2m 26s"},"distributions":{"PAGES":[["36.1%","/","332 pvs"],["15.3%","/docs","141 pvs"],["13.2%","/pricing","121 pvs"],["8.7%","/blog","80 pvs"],["8.2%","/docs/getting-started","75 pvs"],["7.3%","/docs/api-reference","67 pvs"],["4.9%","/blog/announcing-v2","45 pvs"],["4.1%","/about","38 pvs"],["2.3%","/blog/performance-update","21 pvs"]],"TRAFFIC SOURCES":[["84.9%","(direct)","781 pvs"],["3.8%","twitter","35 pvs"],["2.8%","github","26 pvs"],["2.5%","newsletter","23 pvs"],["1.7%","hackernews","16 pvs"],["1.5%","google","14 pvs"],["1.4%","linkedin","13 pvs"],["1.3%","producthunt","12 pvs"]],"COUNTRIES":[["34.2%","United States","315 pvs"],["15.3%","India","141 pvs"],["9.3%","Netherlands","86 pvs"],["8.0%","United Kingdom","74 pvs"],["7.0%","Germany","64 pvs"],["5.2%","Canada","48 pvs"],["5.1%","France","47 pvs"],["4.0%","Russia","37 pvs"],["3.7%","Brazil","34 pvs"],["2.6%","Australia","24 pvs"],["2.3%","Poland","21 pvs"],["2.3%","Japan","21 pvs"],["0.9%","Sweden","8 pvs"]],"CITIES":[["12.4%","New York","114 pvs"],["10.3%","(unknown)","95 pvs"],["8.4%","San Francisco","77 pvs"],["5.9%","Mumbai","54 pvs"],["5.9%","London","54 pvs"],["5.8%","Amsterdam","53 pvs"],["5.2%","Toronto","48 pvs"],["5.1%","Paris","47 pvs"],["4.9%","Bangalore","45 pvs"],["4.8%","Berlin","44 pvs"],["4.6%","New Delhi","42 pvs"],["4.6%","Chicago","42 pvs"],["3.7%","São Paulo","34 pvs"],["3.6%","Rotterdam","33 pvs"],["2.6%","Sydney","24 pvs"],["2.6%","Austin","24 pvs"],["2.3%","Warsaw","21 pvs"],["2.3%","Tokyo","21 pvs"],["2.2%","Munich","20 pvs"],["2.2%","Manchester","20 pvs"],["0.9%","Stockholm","8 pvs"]],"SCREENS":[["64.2%","desktop","591 pvs"],["31.5%","mobile","290 pvs"],["4.2%","tablet","39 pvs"]],"BROWSERS":[["53.6%","Chrome","493 pvs"],["29.3%","Safari","270 pvs"],["12.2%","Firefox","112 pvs"],["4.9%","Edge","45 pvs"]],"OPERATING SYSTEMS":[["43.6%","Windows","401 pvs"],["29.6%","macOS","272 pvs"],["15.5%","iOS","143 pvs"],["8.5%","Android","78 pvs"],["2.8%","Linux","26 pvs"]]}}}
+{
+  "scenario": { "name": "last-7-days", "rngSeed": 5398438, "filters": [{ "type": "period", "period": "Last 7 days" }] },
+  "data": {
+    "aggregates": { "totalVisitors": "583", "totalPageviews": "883", "medianTimeOnPage": "2m 19s" },
+    "distributions": {
+      "PAGES": [
+        ["37.8%", "/", "334 pvs"],
+        ["15.4%", "/docs", "136 pvs"],
+        ["14.3%", "/pricing", "126 pvs"],
+        ["7.5%", "/docs/api-reference", "66 pvs"],
+        ["6.9%", "/docs/getting-started", "61 pvs"],
+        ["6.9%", "/blog", "61 pvs"],
+        ["4.9%", "/blog/announcing-v2", "43 pvs"],
+        ["4.3%", "/about", "38 pvs"],
+        ["2.0%", "/blog/performance-update", "18 pvs"]
+      ],
+      "TRAFFIC SOURCES": [
+        ["85.2%", "(direct)", "752 pvs"],
+        ["3.3%", "twitter", "29 pvs"],
+        ["3.3%", "newsletter", "29 pvs"],
+        ["2.7%", "github", "24 pvs"],
+        ["2.0%", "producthunt", "18 pvs"],
+        ["1.4%", "google", "12 pvs"],
+        ["1.1%", "hackernews", "10 pvs"],
+        ["1.0%", "linkedin", "9 pvs"]
+      ],
+      "COUNTRIES": [
+        ["33.5%", "United States", "296 pvs"],
+        ["14.9%", "India", "132 pvs"],
+        ["8.5%", "United Kingdom", "75 pvs"],
+        ["8.0%", "Netherlands", "71 pvs"],
+        ["8.0%", "Germany", "71 pvs"],
+        ["5.2%", "France", "46 pvs"],
+        ["4.4%", "Canada", "39 pvs"],
+        ["4.1%", "Russia", "36 pvs"],
+        ["4.1%", "Brazil", "36 pvs"],
+        ["3.4%", "Australia", "30 pvs"],
+        ["2.6%", "Japan", "23 pvs"],
+        ["2.4%", "Poland", "21 pvs"],
+        ["0.8%", "Sweden", "7 pvs"]
+      ],
+      "CITIES": [
+        ["12.2%", "New York", "108 pvs"],
+        ["10.0%", "(unknown)", "88 pvs"],
+        ["8.2%", "San Francisco", "72 pvs"],
+        ["6.1%", "London", "54 pvs"],
+        ["5.8%", "Mumbai", "51 pvs"],
+        ["5.3%", "Berlin", "47 pvs"],
+        ["5.3%", "Bangalore", "47 pvs"],
+        ["5.2%", "Paris", "46 pvs"],
+        ["5.0%", "Amsterdam", "44 pvs"],
+        ["4.4%", "Toronto", "39 pvs"],
+        ["4.1%", "São Paulo", "36 pvs"],
+        ["4.1%", "Chicago", "36 pvs"],
+        ["3.9%", "New Delhi", "34 pvs"],
+        ["3.4%", "Sydney", "30 pvs"],
+        ["3.2%", "Austin", "28 pvs"],
+        ["3.1%", "Rotterdam", "27 pvs"],
+        ["2.7%", "Munich", "24 pvs"],
+        ["2.6%", "Tokyo", "23 pvs"],
+        ["2.4%", "Warsaw", "21 pvs"],
+        ["2.4%", "Manchester", "21 pvs"],
+        ["0.8%", "Stockholm", "7 pvs"]
+      ],
+      "SCREENS": [
+        ["64.8%", "desktop", "572 pvs"],
+        ["31.3%", "mobile", "276 pvs"],
+        ["4.0%", "tablet", "35 pvs"]
+      ],
+      "BROWSERS": [
+        ["54.8%", "Chrome", "484 pvs"],
+        ["30.0%", "Safari", "265 pvs"],
+        ["10.2%", "Firefox", "90 pvs"],
+        ["5.0%", "Edge", "44 pvs"]
+      ],
+      "OPERATING SYSTEMS": [
+        ["40.4%", "Windows", "357 pvs"],
+        ["29.7%", "macOS", "262 pvs"],
+        ["16.2%", "iOS", "143 pvs"],
+        ["11.0%", "Android", "97 pvs"],
+        ["2.7%", "Linux", "24 pvs"]
+      ]
+    }
+  }
+}

@@ -4,7 +4,7 @@ type Preset = "Today" | "Yesterday" | "Last 7 days" | "Last 30 days" | "Last 90 
 type Filter =
   | {
       type: "period";
-      period: Preset | { from: Temporal.PlainDate; to: Temporal.PlainDate };
+      period: Preset | { fromAgo: Temporal.DurationLike; toAgo: Temporal.DurationLike };
     }
   | {
       type: "distribution";
