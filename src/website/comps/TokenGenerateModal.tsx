@@ -72,6 +72,7 @@ export function TokenGenerateModal({ close, done }: Props) {
                 setTimeout(() => setCopied(false), 1500);
               }}
               className="absolute top-1/2 -translate-y-1/2 right-2.5 z-10 p-1.5 rounded-md bg-white/10 text-c-dark-half hover:text-c-dark-full hover:bg-black/5 opacity-0 group-hover:opacity-100 transition-all cursor-pointer"
+              data-testid="copy-button"
             >
               {copied ? <Icon.Check className="size-4" /> : <Icon.Copy className="size-4" />}
             </button>

@@ -290,9 +290,15 @@ export class Server {
 
   private async handleError(e: ErrorLike): Promise<Response> {
     if (Exception.isInstance(e)) {
-      if (e.problem === "SERVER::unauthorized" || e.problem === "SERVER::forbidden") {
+      if (ServerError.unauthorized.matches(e)) {
         return Response.json(e.json(), {
           status: 401,
+          headers: { "www-authenticate": "basic" },
+        });
+      }
+      if (ServerError.forbidden.matches(e)) {
+        return Response.json(e.json(), {
+          status: 403,
           headers: { "www-authenticate": "basic" },
         });
       }

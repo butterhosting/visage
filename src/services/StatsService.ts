@@ -9,6 +9,7 @@ import { Distribution } from "@/models/Distribution";
 import { Stats } from "@/models/Stats";
 import { StatsQuery } from "@/models/StatsQuery";
 import { TimeSeries } from "@/models/TimeSeries";
+import { TokenRM } from "@/models/TokenRM";
 import { Website } from "@/models/Website";
 import { WebsiteRepository } from "@/repositories/WebsiteRepository";
 import { Temporal } from "@js-temporal/polyfill";
@@ -42,14 +43,15 @@ export class StatsService {
     return await this.query(q, website);
   }
 
-  public async queryExternal(query: unknown, authorization?: string): Promise<Stats> {
+  public async queryExternal(query: unknown, authorizationHeader?: string): Promise<Stats> {
+    const token = await this.authenticate(authorizationHeader);
     const q = this.parseAndValidate(query);
     const website = await this.websiteRepository.find(q.website, () =>
       WebsiteError.not_found({
         ref: q.website,
       }),
     );
-    await this.authnz(website, authorization);
+    await this.authorize(token, website);
     return await this.query(q, website);
   }
 
@@ -454,8 +456,8 @@ export class StatsService {
     return result;
   }
 
-  private async authnz(website: Website, authorization?: string): Promise<void> {
-    const headerToken = AuthHelper.extractBearerToken(authorization) || AuthHelper.extractBasicAuth(authorization)?.password;
+  private async authenticate(header?: string): Promise<TokenRM> {
+    const headerToken = AuthHelper.extractBearerToken(header) || AuthHelper.extractBasicAuth(header)?.password;
     if (!headerToken) {
       throw ServerError.unauthorized();
     }
@@ -463,7 +465,11 @@ export class StatsService {
     if (!databaseToken) {
       throw ServerError.unauthorized();
     }
-    if (databaseToken.websiteIds !== "*" && !databaseToken.websiteIds.includes(website.id)) {
+    return databaseToken;
+  }
+
+  private async authorize(token: TokenRM, website: Website): Promise<void> {
+    if (token.websiteIds !== "*" && !token.websiteIds.includes(website.id)) {
       throw ServerError.forbidden();
     }
   }

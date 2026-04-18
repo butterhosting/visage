@@ -7,7 +7,7 @@ test.beforeEach(async ({ page }) => {
   await AppBoundary.purge(page);
 });
 
-test(`data can be exported`, async ({ page }) => {
+test("data can be exported", async ({ page }) => {
   // given
   await StatsFlow.applyScenario(page, {
     rngSeed: 92311484,
