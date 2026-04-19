@@ -108,12 +108,14 @@ export class WebsiteService {
 }
 
 export namespace WebsiteService {
+  const hostnameRegex = /^(?=.{1,253}$)([a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?)(\.[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?)+$/;
+
   export const Upsert = z
     .object({
       hostname: z
         .string()
         .transform((s) => s.trim().toLowerCase())
-        .refine((s) => s === "localhost" || s.includes(".")),
+        .refine((s) => s === "localhost" || hostnameRegex.test(s)),
     })
     .catch((e) => {
       throw ServerError.invalid_request_body(ZodProblem.issuesSummary(e));
