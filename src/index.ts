@@ -9,14 +9,14 @@ import { ServerRegistry } from "./ServerRegistry";
 import { MaxMindGeoService } from "./services/MaxMindGeoService";
 
 /**
+ * Initialize the logger
+ */
+Logger.initialize(Env.initializePartiallyForLogger());
+
+/**
  * Initialize the env configuration
  */
 const env = Env.initialize();
-
-/**
- * Initialize the logger
- */
-Logger.initialize(env);
 
 /**
  * Create the main directories

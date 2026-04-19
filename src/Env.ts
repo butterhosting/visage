@@ -25,6 +25,16 @@ export namespace Env {
     X_MAXMIND_AWAIT_DOWNLOAD: z.enum(["true", "false"]).optional(),
   });
 
+  export function initializePartiallyForLogger(environment = Bun.env) {
+    return baseEnv
+      .partial()
+      .required({
+        O_VISAGE_TIMEZONE: true,
+        X_VISAGE_LOGGING: true,
+      })
+      .parse(environment);
+  }
+
   export function initialize(timezone = Temporal.Now.timeZoneId() as "UTC", environment = Bun.env as z.output<typeof baseEnv>) {
     if (timezone !== "UTC") {
       throw new Error(`Invalid timezone: ${timezone}`);

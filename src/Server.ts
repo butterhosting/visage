@@ -258,7 +258,7 @@ export class Server {
             ]
           : [
               `  \x1b[1mMode\x1b[0m      Running normally`, //
-              `            https://butterhost.ing/visage/with-love`, //
+              `            https://butterhost.ing/visage/love`, //
             ]),
         "",
       ].join("\n"),
