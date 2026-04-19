@@ -38,10 +38,12 @@ export class MaxMindGeoService {
     if (this.reader) {
       try {
         const result = this.reader.city(ipAddress);
-        return {
+        const geo = {
           countryCode: result.country?.isoCode ?? undefined,
           cityName: result.city?.names.en ?? undefined,
         };
+        this.log.warn("Found geo", geo);
+        return geo;
       } catch (err) {
         if (err instanceof Error && err.name === "AddressNotFoundError") {
           this.log.warn(`Lookup failed for ${ipAddress}`, JSON.stringify(err, null, 2));
