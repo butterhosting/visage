@@ -5,6 +5,7 @@ import { ChevronRight } from "./icons/ChevronRight";
 import { Copy } from "./icons/Copy";
 import { Error } from "./icons/Error";
 import { Heart } from "./icons/Heart";
+import { Logo } from "./icons/Logo";
 import { Plus } from "./icons/Plus";
 
 export const Icon = {
@@ -16,4 +17,5 @@ export const Icon = {
   Error,
   Heart,
   Plus,
+  Logo,
 };

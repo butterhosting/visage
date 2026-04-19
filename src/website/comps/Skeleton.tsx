@@ -80,11 +80,7 @@ namespace Internal {
     return (
       <footer className="my-12 flex flex-col items-center gap-4">
         <div className="flex items-center gap-2">
-          {O_VISAGE_SUPPORTER ? (
-            <Icon.Heart className="size-8 -mr-1 text-c-accent" />
-          ) : (
-            <div className="size-6 aspect-square bg-c-accent rounded" />
-          )}
+          <Icon.Logo className="h-10 w-auto" withLove={O_VISAGE_SUPPORTER} />
           <div className="text-4xl font-extrabold italic pr-5">Visage</div>
         </div>
         <div className="italic -mt-3 pl-5">
