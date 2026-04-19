@@ -101,6 +101,18 @@ export function websites$refPage() {
     }
   }, [website?.id, stats?.pageviewsTotal]);
 
+  const hasLiveVisitors = Boolean(stats?.livePageviewsTotal);
+  useEffect(() => {
+    if (hasLiveVisitors) {
+      const interval = setInterval(() => {
+        statsClient.query({ website: ref!, fields: [Stats.Field.livePageviewsTotal] }).then(({ livePageviewsTotal }) => {
+          setStats({ ...getStats(), livePageviewsTotal });
+        });
+      }, 30_000);
+      return () => clearInterval(interval);
+    }
+  }, [hasLiveVisitors]);
+
   useDocumentTitle(website ? `${website.hostname} | Websites | Visage` : "Websites | Visage");
 
   function toggleFilter(targetKey: DistributionFilter.Key, targetValue: string | null) {
