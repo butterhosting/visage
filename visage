@@ -85,7 +85,7 @@ COPY src/ src/
 RUN bun tracker:build
 
 FROM oven/bun:alpine
-RUN apk update && apk add --no-cache bash
+RUN apk update && apk add --no-cache bash sqlite
 EOF
     # Check if visage_root is an absolute path
     case "$visage_root" in

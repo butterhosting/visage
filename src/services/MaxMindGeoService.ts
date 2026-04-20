@@ -55,7 +55,7 @@ export class MaxMindGeoService {
 
   public async keepDatabaseUpToDate() {
     if (!this.configuration) {
-      this.log.info("Geo enrichment disabled");
+      this.log.info("Analytics geo enrichment disabled");
       return;
     }
     setInterval(() => this.download(), Temporal.Duration.from({ days: 1 }).total("millisecond"));
@@ -142,7 +142,7 @@ export class MaxMindGeoService {
       await unlink(tarball);
       return await this.succeedDownload();
     } catch (err) {
-      return this.failDownload("An unknown error occurred while downloading database", err);
+      return this.failDownload("An unknown error occurred while downloading the database", err);
     }
   }
 
