@@ -35,7 +35,6 @@ export class MaxMindGeoService {
   }
 
   public async lookup(ipAddress: string): Promise<AnalyticsEvent["geo"]> {
-    this.log.warn({ ipAddress });
     if (this.reader) {
       try {
         const result = this.reader.city(ipAddress);
