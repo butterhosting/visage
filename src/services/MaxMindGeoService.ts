@@ -35,25 +35,21 @@ export class MaxMindGeoService {
   }
 
   public async lookup(ipAddress: string): Promise<AnalyticsEvent["geo"]> {
+    this.log.warn({ ipAddress });
     if (this.reader) {
       try {
         const result = this.reader.city(ipAddress);
-        const geo = {
+        return {
           countryCode: result.country?.isoCode ?? undefined,
           cityName: result.city?.names.en ?? undefined,
         };
-        this.log.warn("Found geo", geo);
-        return geo;
       } catch (err) {
         if (err instanceof Error && err.name === "AddressNotFoundError") {
-          this.log.warn(`Lookup failed for ${ipAddress}`, JSON.stringify(err, null, 2));
           // do nothing
         } else {
           this.log.warn(`Lookup unexpectedly failed`, err);
         }
       }
-    } else {
-      this.log.warn("missing reader!");
     }
     return {};
   }

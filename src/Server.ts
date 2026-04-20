@@ -115,9 +115,9 @@ export class Server {
          */
         [ServerEndpoint.Public.ingestion]: {
           POST: this.handleRoute(async (request) => {
-            const ip = server.requestIP(request);
-            if (ip) {
-              await this.ingestionService.ingest(ip.address, await request.json());
+            const ipAddress = this.resolveClientIp(request, server);
+            if (ipAddress) {
+              await this.ingestionService.ingest(ipAddress, await request.json());
             }
             return new Response();
           }),
@@ -268,6 +268,25 @@ export class Server {
   private searchParams(request: Bun.BunRequest): Record<string, string> {
     const url = new URL(request.url);
     return Object.fromEntries(url.searchParams);
+  }
+
+  private resolveClientIp(request: Bun.BunRequest, server: Bun.Server<Socket.Context>): string | undefined {
+    if (this.env.X_VISAGE_TRUST_PROXY) {
+      const forwarded = request.headers.get("x-forwarded-for");
+      if (forwarded) {
+        const leftmost = forwarded.split(",")[0]?.trim();
+        if (leftmost) {
+          return this.normalizeIp(leftmost);
+        }
+      }
+    }
+    const peer = server.requestIP(request);
+    return peer ? this.normalizeIp(peer.address) : undefined;
+  }
+
+  private normalizeIp(ip: string): string {
+    const v4Mapped = /^::ffff:(\d{1,3}(?:\.\d{1,3}){3})$/i.exec(ip);
+    return v4Mapped ? v4Mapped[1]! : ip;
   }
 
   private handleFetch<C>(

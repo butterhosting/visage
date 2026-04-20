@@ -72,6 +72,7 @@ export namespace TestEnvironment {
       O_VISAGE_TIMEZONE: "UTC",
       X_VISAGE_ROOT: join(unitTestRoot, "visage"),
       X_VISAGE_LOGGING: LogLevel.warn,
+      X_VISAGE_TRUST_PROXY: "false",
       X_VISAGE_VERIFICATION_KEY:
         "-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEAalpLQu9Fkn/R3WylORAad6UB0XAOowFIjF2/FwAyjpc=\n-----END PUBLIC KEY-----",
       X_VISAGE_ENABLE_RESTRICTED_ENTPOINTS: "false",

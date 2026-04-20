@@ -15,6 +15,7 @@ export namespace Env {
 
     X_VISAGE_ROOT: z.string(),
     X_VISAGE_LOGGING: z.enum(LogLevel),
+    X_VISAGE_TRUST_PROXY: z.enum(["true", "false"]),
     X_VISAGE_SUPPORT_TOKEN: z.string().optional(),
     X_VISAGE_VERIFICATION_KEY: z.string().transform((str) => str.replaceAll("\\n", "\n")),
     X_VISAGE_ENABLE_RESTRICTED_ENTPOINTS: z.enum(["true", "false"]),
@@ -63,6 +64,7 @@ export namespace Env {
                 }
               : undefined,
           X_VISAGE_ENABLE_RESTRICTED_ENTPOINTS: env.X_VISAGE_ENABLE_RESTRICTED_ENTPOINTS === "true",
+          X_VISAGE_TRUST_PROXY: env.X_VISAGE_TRUST_PROXY === "true",
         };
       })
       .parse(environment);
