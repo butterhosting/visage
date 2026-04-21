@@ -15,7 +15,6 @@ export class MaxMindGeoService {
     localRoot: string;
     localVersionFile: string;
     localDatabaseFile: string;
-    awaitDownload: boolean;
   };
   private reader?: ReaderModel;
 
@@ -29,7 +28,6 @@ export class MaxMindGeoService {
         localRoot: env.X_MAXMIND.ROOT,
         localDatabaseFile: join(env.X_MAXMIND.ROOT, "GeoLite2-City.mmdb"),
         localVersionFile: join(env.X_MAXMIND.ROOT, "GeoLite2-City.version"),
-        awaitDownload: env.X_MAXMIND.AWAIT_DOWNLOAD,
       };
     }
   }
@@ -59,10 +57,7 @@ export class MaxMindGeoService {
       return;
     }
     setInterval(() => this.download(), Temporal.Duration.from({ days: 1 }).total("millisecond"));
-    const promise = this.download();
-    if (this.configuration.awaitDownload) {
-      await promise;
-    }
+    await this.download();
   }
 
   private async download(): Promise<Reader | "error"> {

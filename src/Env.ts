@@ -23,7 +23,6 @@ export namespace Env {
     X_MAXMIND_BASE_URL: z.string().optional(),
     X_MAXMIND_ACCOUNT_ID: z.string().optional(),
     X_MAXMIND_LICENSE_KEY: z.string().optional(),
-    X_MAXMIND_AWAIT_DOWNLOAD: z.enum(["true", "false"]).optional(),
   });
 
   export function initializePartiallyForLogger(environment = Bun.env) {
@@ -46,7 +45,7 @@ export namespace Env {
         X_VISAGE_ROOT: isAbsolute(X_VISAGE_ROOT) ? X_VISAGE_ROOT : join(process.cwd(), X_VISAGE_ROOT),
         O_VISAGE_SUPPORTER: Boolean(SupportToken.verify({ hexToken: X_VISAGE_SUPPORT_TOKEN, publicKey: X_VISAGE_VERIFICATION_KEY })),
       }))
-      .transform(({ X_MAXMIND_BASE_URL, X_MAXMIND_ACCOUNT_ID, X_MAXMIND_LICENSE_KEY, X_MAXMIND_AWAIT_DOWNLOAD, ...env }) => {
+      .transform(({ X_MAXMIND_BASE_URL, X_MAXMIND_ACCOUNT_ID, X_MAXMIND_LICENSE_KEY, ...env }) => {
         return {
           ...env,
           O_VISAGE_COMMIT: packageJson.commit.slice(0, 7),
@@ -60,7 +59,6 @@ export namespace Env {
                   BASE_URL: X_MAXMIND_BASE_URL,
                   ACCOUNT_ID: X_MAXMIND_ACCOUNT_ID,
                   LICENSE_KEY: X_MAXMIND_LICENSE_KEY,
-                  AWAIT_DOWNLOAD: X_MAXMIND_AWAIT_DOWNLOAD === "true",
                 }
               : undefined,
           X_VISAGE_ENABLE_RESTRICTED_ENTPOINTS: env.X_VISAGE_ENABLE_RESTRICTED_ENTPOINTS === "true",
