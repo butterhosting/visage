@@ -53,7 +53,7 @@ export class MaxMindGeoService {
 
   public async keepDatabaseUpToDate() {
     if (!this.configuration) {
-      this.log.info("Analytics geo enrichment disabled");
+      this.log.info("Geolocation enrichment disabled");
       return;
     }
     setInterval(() => this.download(), Temporal.Duration.from({ days: 1 }).total("millisecond"));
