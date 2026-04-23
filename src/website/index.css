@@ -45,7 +45,7 @@
     }
 
     html {
-        font-size: 14px; /* 80% of default 16px */
+        font-size: 13px;
     }
     body {
         @apply relative min-w-[320px] min-h-screen font-f-everywhere text-c-dark-full;

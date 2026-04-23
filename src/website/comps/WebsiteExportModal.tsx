@@ -48,7 +48,7 @@ export function WebsiteExportModal({ website, close, done }: Props) {
 
   return (
     <Modal isOpen issueCloseRequestWhenClickingBackdrop onCloseRequest={() => !busy && close()} className="p-6 overflow-visible">
-      <div className="flex flex-col gap-5">
+      <div className="flex flex-col gap-10">
         <PeriodPicker period={period} onChange={setPeriod} className="self-start" />
         <div className="flex flex-col gap-2">
           {Object.values(Artifact.Enum).map((option) => {
