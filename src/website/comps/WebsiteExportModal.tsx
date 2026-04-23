@@ -23,7 +23,7 @@ export function WebsiteExportModal({ website, close, done }: Props) {
   const [error, setError] = useState<string>();
   const [busy, setBusy] = useState(false);
 
-  async function handleDownload() {
+  async function handleExport() {
     let objectUrl: string | undefined;
     try {
       setError(undefined);
@@ -81,8 +81,8 @@ export function WebsiteExportModal({ website, close, done }: Props) {
           <Button variant="ghost" theme="neutral" onClick={close} disabled={busy}>
             Cancel
           </Button>
-          <Button onClick={handleDownload} loading={busy}>
-            Download
+          <Button onClick={handleExport} loading={busy}>
+            Export
           </Button>
         </div>
       </div>

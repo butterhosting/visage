@@ -48,7 +48,7 @@ export namespace WebsiteFlow {
     const dialog = page.getByRole("dialog");
     await expect(dialog).toBeVisible();
     const downloadPromise = page.waitForEvent("download");
-    await dialog.getByRole("button", { name: "Download", exact: true }).click();
+    await dialog.getByRole("button", { name: "Export", exact: true }).click();
     const download = await downloadPromise;
     await expect(dialog).not.toBeVisible();
 
