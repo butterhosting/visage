@@ -14,7 +14,7 @@ Drop a tiny tracking snippet into your websites and get a dashboard with:
 * Live pageviews
 * Time-series charts over custom date ranges
 * Top pages and traffic sources
-* Per-website API access
+* ... and much more!
 
 ## Quickstart
 
