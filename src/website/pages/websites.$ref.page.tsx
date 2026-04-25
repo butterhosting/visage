@@ -192,7 +192,7 @@ export function websites$refPage() {
       {website && !website.hasData && (
         <Paper className="p-4 bg-amber-100! flex flex-col items-center gap-4">
           <p>Please add the following script to your website.</p>
-          <code className="text-lg">&lt;script defer src="{window.location.origin}/vis.js"&gt;&lt;/script&gt;</code>
+          <code className="text-lg">&lt;script async src="{window.location.origin}/vis.js"&gt;&lt;/script&gt;</code>
         </Paper>
       )}
       {/* Stats */}
