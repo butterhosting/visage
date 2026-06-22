@@ -1,10 +1,10 @@
 import { Env } from "@/Env";
-import { Exception } from "@/errors/exception/Exception";
 import { ServerError } from "@/errors/ServerError";
 import index from "@/website/index.html";
 import { Temporal } from "@js-temporal/polyfill";
 import { ErrorLike } from "bun";
 import { randomUUID } from "crypto";
+import { Yexception } from "yexception";
 import { Prettify } from "./helpers/Prettify";
 import { Logger } from "./Logger";
 import { Middleware } from "./middleware/Middleware";
@@ -51,9 +51,9 @@ export class Server {
           if (server.upgrade(request, { data: context })) {
             return new Response(null, { status: 200 });
           }
-          return Response.json(ServerError.socket_upgrade_failed().json());
+          return Response.json(ServerError.socket_upgrade_failed().problemDetails());
         }
-        return Response.json(ServerError.route_not_found().json());
+        return Response.json(ServerError.route_not_found().problemDetails());
       }),
       websocket: {
         message: () => {
@@ -77,10 +77,10 @@ export class Server {
          */
         "/*": index,
         "/api/*": this.handleRoute(() => {
-          return Response.json(ServerError.route_not_found().json(), { status: 404 });
+          return Response.json(ServerError.route_not_found().problemDetails(), { status: 404 });
         }),
         "/internal-api/*": this.handleRoute(() => {
-          return Response.json(ServerError.route_not_found().json(), { status: 404 });
+          return Response.json(ServerError.route_not_found().problemDetails(), { status: 404 });
         }),
 
         /**
@@ -213,7 +213,7 @@ export class Server {
               await this.restrictedService.purge();
               return new Response();
             }
-            return Response.json(ServerError.route_not_found().json(), { status: 404 });
+            return Response.json(ServerError.route_not_found().problemDetails(), { status: 404 });
           }),
         },
         "/internal-api/restricted/seed": {
@@ -222,7 +222,7 @@ export class Server {
               await this.restrictedService.seed(await request.json().catch(() => ({})));
               return new Response();
             }
-            return Response.json(ServerError.route_not_found().json(), { status: 404 });
+            return Response.json(ServerError.route_not_found().problemDetails(), { status: 404 });
           }),
         },
       },
@@ -308,25 +308,25 @@ export class Server {
   }
 
   private async handleError(e: ErrorLike): Promise<Response> {
-    if (Exception.isInstance(e)) {
+    if (Yexception.isInstance(e)) {
       if (ServerError.unauthorized.matches(e)) {
-        return Response.json(e.json(), {
+        return Response.json(e.problemDetails(), {
           status: 401,
           headers: { "www-authenticate": "basic" },
         });
       }
       if (ServerError.forbidden.matches(e)) {
-        return Response.json(e.json(), {
+        return Response.json(e.problemDetails(), {
           status: 403,
           headers: { "www-authenticate": "basic" },
         });
       }
-      return Response.json(e.json(), { status: 400 });
+      return Response.json(e.problemDetails(), { status: 400 });
     }
     if (e.message?.includes("invalid input syntax for type")) {
-      return Response.json(ServerError.invalid_request_body().json(), { status: 400 });
+      return Response.json(ServerError.invalid_request_body().problemDetails(), { status: 400 });
     }
     this.log.error("An unknown error occurred", e);
-    return Response.json(ServerError.unknown().json(), { status: 500 });
+    return Response.json(ServerError.unknown().problemDetails(), { status: 500 });
   }
 }

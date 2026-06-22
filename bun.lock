@@ -19,6 +19,7 @@
         "shiki": "^4.0.2",
         "tailwindcss": "^4.2.1",
         "yesttp": "^2.0.1",
+        "yexception": "^1.0.0",
         "zod": "^4.1.12",
       },
       "devDependencies": {
@@ -562,6 +563,8 @@
     "yargs-parser": ["yargs-parser@21.1.1", "", {}, "sha512-tVpsJW7DdjecAiFpbIB1e3qxIQsE6NoPc5/eTdrbbIC4h0LVsWhnoa3g+m2HclBIujHzsxZ4VJVA+GUuc2/LBw=="],
 
     "yesttp": ["yesttp@2.0.1", "", {}, "sha512-GTkQSQsrVgBH5xiZkwPI2RFev4EsIeC60u3sJnQ1URWhxGMCWZMUIxZUthAdlaoWN8Bl3CfHZcKExU3xtuwIUQ=="],
+
+    "yexception": ["yexception@1.0.0", "", {}, "sha512-YM6GUNnxu+XXWuQVqXMxLjQZ4mfiGuZCDSSv+gIsbthSR537ymIduLuR4+wwPj0QSmvTWPLz+wHizQqNpjhL3g=="],
 
     "zod": ["zod@4.3.6", "", {}, "sha512-rftlrkhHZOcjDwkGlnUtZZkvaPHCsDATp4pGpuOOMDaTdDDXF91wuVDJoWoPsKX/3YPQ5fHuF3STjcYyKr+Qhg=="],
 

@@ -1,11 +1,12 @@
-import { Exception } from "./exception/Exception";
+import { Yexception } from "yexception";
 
 export class WebsiteError {
-  public static readonly _NAME_ = "WebsiteError";
-  public static readonly not_found: Exception.Fn<{ ref: string }>;
-  public static readonly already_exists: Exception.Fn<{ hostname: string }>;
+  public static readonly NAME = "WebsiteError";
+
+  public static readonly not_found = Yexception.field<{ ref: string }>();
+  public static readonly already_exists = Yexception.field<{ hostname: string }>();
 
   static {
-    Exception.initializeFields(this);
+    Yexception.initialize(this);
   }
 }

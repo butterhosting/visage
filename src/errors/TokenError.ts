@@ -1,11 +1,12 @@
-import { Exception } from "./exception/Exception";
+import { Yexception } from "yexception";
 
 export class TokenError {
-  public static readonly _NAME_ = "TokenError";
-  public static readonly not_found: Exception.Fn<{ id: string }>;
-  public static readonly websites_not_found: Exception.Fn<{ ids: string[] }>;
+  public static readonly NAME = "TokenError";
+
+  public static readonly not_found = Yexception.field<{ id: string }>();
+  public static readonly websites_not_found = Yexception.field<{ ids: string[] }>();
 
   static {
-    Exception.initializeFields(this);
+    Yexception.initialize(this);
   }
 }
