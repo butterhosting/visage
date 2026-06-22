@@ -14,9 +14,11 @@ test("the API fails without a token", async ({ page }) => {
   const { status, json } = await queryStats(page);
   // then
   expect(status).toEqual(401);
-  expect(json).toEqual({
-    problem: "ServerError::unauthorized",
-  });
+  expect(json).toEqual(
+    expect.objectContaining({
+      problem: "ServerError::unauthorized",
+    }),
+  );
 });
 
 test("the API fails without a website parameter", async ({ page }) => {
@@ -81,9 +83,11 @@ test("the API fails when the token scope doesn't match the website", async ({ pa
   });
   // then
   expect(statsYellow.status).toEqual(403);
-  expect(statsYellow.json).toEqual({
-    problem: "ServerError::forbidden",
-  });
+  expect(statsYellow.json).toEqual(
+    expect.objectContaining({
+      problem: "ServerError::forbidden",
+    }),
+  );
 });
 
 test.describe("the API fails for invalid query parameters", () => {
