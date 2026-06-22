@@ -4,7 +4,7 @@ import { Paper } from "../comps/Paper";
 import { Skeleton } from "../comps/Skeleton";
 import { useDocumentTitle } from "../hooks/useDocumentTitle";
 import { useRegistry } from "../hooks/useRegistry";
-import { useYesQuery } from "../hooks/useYesQuery";
+import { useYesQuery } from "react-yesquery";
 import { Website } from "@/models/Website";
 
 export function settingsPage() {

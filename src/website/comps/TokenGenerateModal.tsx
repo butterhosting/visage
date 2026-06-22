@@ -4,7 +4,7 @@ import { useState } from "react";
 import { TokenClient } from "../clients/TokenClient";
 import { WebsiteClient } from "../clients/WebsiteClient";
 import { useRegistry } from "../hooks/useRegistry";
-import { useYesQuery } from "../hooks/useYesQuery";
+import { useYesQuery } from "react-yesquery";
 import { Icon } from "../images/Icon";
 import { Button } from "./Button";
 import { Modal } from "./Modal";

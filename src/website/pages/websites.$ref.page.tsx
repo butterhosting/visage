@@ -22,7 +22,7 @@ import { PanelTab } from "../femodels/PanelTab";
 import { useDashboardUrlState } from "../hooks/dashboard/useDashboardUrlState";
 import { useDocumentTitle } from "../hooks/useDocumentTitle";
 import { useRegistry } from "../hooks/useRegistry";
-import { useYesQuery } from "../hooks/useYesQuery";
+import { useYesQuery } from "react-yesquery";
 import { Route } from "../Route";
 
 export function websites$refPage() {

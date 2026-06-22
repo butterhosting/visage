@@ -5,7 +5,7 @@ import { TokenClient } from "@/website/clients/TokenClient";
 import { WebsiteClient } from "@/website/clients/WebsiteClient";
 import { Button } from "@/website/comps/Button";
 import { useRegistry } from "@/website/hooks/useRegistry";
-import { useYesQuery } from "@/website/hooks/useYesQuery";
+import { useYesQuery } from "react-yesquery";
 import clsx from "clsx";
 
 export function TokensTab() {

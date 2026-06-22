@@ -6,7 +6,7 @@ import { Skeleton } from "../comps/Skeleton";
 import { WebsiteCard } from "../comps/WebsiteCard";
 import { useDocumentTitle } from "../hooks/useDocumentTitle";
 import { useRegistry } from "../hooks/useRegistry";
-import { useYesQuery } from "../hooks/useYesQuery";
+import { useYesQuery } from "react-yesquery";
 import { Icon } from "../images/Icon";
 import { Route } from "../Route";
 
