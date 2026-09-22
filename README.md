@@ -10,11 +10,11 @@ It helps you understand how many visitors your websites are getting, where they 
 
 Drop a tiny tracking snippet into your websites and get a dashboard with:
 
-* Total visitors, pageviews and median time on page
-* Live pageviews
-* Time-series charts over custom date ranges
-* Top pages and traffic sources
-* ... and much more!
+- Total visitors, pageviews and median time on page
+- Live pageviews
+- Time-series charts over custom date ranges
+- Top pages and traffic sources
+- ... and much more!
 
 ## Quickstart
 
