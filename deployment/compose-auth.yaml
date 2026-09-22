@@ -10,7 +10,7 @@ services:
     command: ["sh", "-c", "mkdir -p /opt/visage/data /opt/visage/tmp"]
 
   visage:
-    image: visage:latest
+    image: butterhosting/visage:latest
     ports:
       - "3000:3000"
     volumes:
