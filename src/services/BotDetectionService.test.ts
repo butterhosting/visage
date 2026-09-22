@@ -1,13 +1,15 @@
-import { Env } from "@/Env";
 import { UserAgent } from "@/models/UserAgent";
+import { TestEnvironment } from "@/testing/TestEnvironment.test";
 import { beforeEach, describe, expect, it } from "bun:test";
 import { BotDetectionService } from "./BotDetectionService";
 
 describe(BotDetectionService.name, () => {
+  let context: TestEnvironment.Context;
   let service: BotDetectionService;
 
-  beforeEach(() => {
-    service = new BotDetectionService({ O_VISAGE_STAGE: "production" } as Env.Private);
+  beforeEach(async () => {
+    context = await TestEnvironment.initialize();
+    service = new BotDetectionService({ ...context.env, O_VISAGE_STAGE: "production" });
   });
 
   it.each([
