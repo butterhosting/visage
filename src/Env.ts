@@ -8,7 +8,7 @@ import { SupportToken } from "./support/SupportToken";
 import { ExtractBetter } from "./types/ExtractBetter";
 
 export namespace Env {
-  export const Schema = z.object({
+  const Schema = z.object({
     VISAGE_STAGE: z.enum(["dev", "e2e", "prod"]),
     VISAGE_TIMEZONE: z.string().refine((tz) => TimeZone.check(tz), {
       error: "invalid_timezone",
@@ -25,11 +25,16 @@ export namespace Env {
     VISAGE_MAXMIND_LICENSE_KEY: z.string(),
   });
 
-  export type Defaultable = ExtractBetter<
+  type Defaultable = ExtractBetter<
     keyof z.input<typeof Schema>,
-    "VISAGE_TIMEZONE" | "VISAGE_LOGGING" | "VISAGE_TRUST_PROXY" | "VISAGE_MAXMIND_BASE_URL" | "VISAGE_MAXMIND_ACCOUNT_ID" | "VISAGE_MAXMIND_LICENSE_KEY"
+    | "VISAGE_TIMEZONE"
+    | "VISAGE_LOGGING"
+    | "VISAGE_TRUST_PROXY"
+    | "VISAGE_MAXMIND_BASE_URL"
+    | "VISAGE_MAXMIND_ACCOUNT_ID"
+    | "VISAGE_MAXMIND_LICENSE_KEY"
   >;
-  export const Defaults: Record<Defaultable, string> = {
+  const Defaults: Record<Defaultable, string> = {
     VISAGE_TIMEZONE: "UTC",
     VISAGE_LOGGING: "info",
     VISAGE_TRUST_PROXY: "false",
@@ -80,7 +85,9 @@ export namespace Env {
   };
 
   export type Private = ReturnType<typeof initialize>;
-  export type Public = Readonly<Pick<Private, "VISAGE_STAGE" | "VISAGE_TIMEZONE" | "VISAGE_COMMIT" | "VISAGE_VERSION" | "VISAGE_SUPPORTER">>;
+  export type Public = Readonly<
+    Pick<Private, "VISAGE_STAGE" | "VISAGE_TIMEZONE" | "VISAGE_COMMIT" | "VISAGE_VERSION" | "VISAGE_SUPPORTER">
+  >;
   export function onlyPublic(env: Private): Public {
     return {
       VISAGE_STAGE: env.VISAGE_STAGE,
