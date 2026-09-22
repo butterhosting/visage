@@ -11,12 +11,12 @@ type Props = {
   close: () => unknown;
 };
 export function PeriodModal({ defaultPeriodRange, apply, close }: Props) {
-  const { O_VISAGE_TIMEZONE } = useRegistry("env");
+  const { VISAGE_TIMEZONE } = useRegistry("env");
   const defaultState = useMemo(() => {
-    const today = Temporal.Now.plainDateISO(O_VISAGE_TIMEZONE);
+    const today = Temporal.Now.plainDateISO(VISAGE_TIMEZONE);
     const { from, to } = defaultPeriodRange;
     if (from && to) {
-      const { fromDate, toDate } = Period.toDates({ fromInstant: from, toInstant: to }, O_VISAGE_TIMEZONE);
+      const { fromDate, toDate } = Period.toDates({ fromInstant: from, toInstant: to }, VISAGE_TIMEZONE);
       return {
         today,
         from: fromDate,
@@ -34,7 +34,7 @@ export function PeriodModal({ defaultPeriodRange, apply, close }: Props) {
   const [to, setTo] = useState(defaultState.to);
 
   function submit() {
-    const { fromInstant, toInstant } = Period.fromDates({ fromDate: from, toDate: to }, O_VISAGE_TIMEZONE);
+    const { fromInstant, toInstant } = Period.fromDates({ fromDate: from, toDate: to }, VISAGE_TIMEZONE);
     apply(fromInstant, toInstant);
   }
   return (

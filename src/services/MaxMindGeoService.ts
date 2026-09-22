@@ -19,15 +19,15 @@ export class MaxMindGeoService {
   private reader?: ReaderModel;
 
   public constructor(env: Env.Private) {
-    if (env.X_MAXMIND) {
+    if (env.VISAGE_MAXMIND) {
       this.configuration = {
-        requestUrl: `${env.X_MAXMIND.BASE_URL}/geoip/databases/GeoLite2-City/download?suffix=tar.gz`,
+        requestUrl: `${env.VISAGE_MAXMIND.BASE_URL}/geoip/databases/GeoLite2-City/download?suffix=tar.gz`,
         requestHeaders: {
-          Authorization: `Basic ${Buffer.from(`${env.X_MAXMIND.ACCOUNT_ID}:${env.X_MAXMIND.LICENSE_KEY}`, "utf-8").toBase64()}`,
+          Authorization: `Basic ${Buffer.from(`${env.VISAGE_MAXMIND.ACCOUNT_ID}:${env.VISAGE_MAXMIND.LICENSE_KEY}`, "utf-8").toBase64()}`,
         },
-        localRoot: env.X_MAXMIND.ROOT,
-        localDatabaseFile: join(env.X_MAXMIND.ROOT, "GeoLite2-City.mmdb"),
-        localVersionFile: join(env.X_MAXMIND.ROOT, "GeoLite2-City.version"),
+        localRoot: env.VISAGE_MAXMIND.ROOT,
+        localDatabaseFile: join(env.VISAGE_MAXMIND.ROOT, "GeoLite2-City.mmdb"),
+        localVersionFile: join(env.VISAGE_MAXMIND.ROOT, "GeoLite2-City.version"),
       };
     }
   }

@@ -28,7 +28,7 @@ import { Route } from "../Route";
 export function websites$refPage() {
   const { ref } = useParams();
   const navigate = useNavigate();
-  const { O_VISAGE_TIMEZONE } = useRegistry("env");
+  const { VISAGE_TIMEZONE } = useRegistry("env");
   const { graph, graphTimeSeriesField, setGraph, period, setPeriod, filters, setFilters } = useDashboardUrlState();
 
   const websiteClient = useRegistry(WebsiteClient);
@@ -125,7 +125,7 @@ export function websites$refPage() {
   }
 
   function resetPeriodAndFilters() {
-    setPeriod(Period.forPreset(Period.defaultPreset(), O_VISAGE_TIMEZONE));
+    setPeriod(Period.forPreset(Period.defaultPreset(), VISAGE_TIMEZONE));
     setFilters([]);
   }
 

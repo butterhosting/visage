@@ -13,7 +13,7 @@ export class BotDetectionService {
   private readonly performBotDetection: boolean;
 
   public constructor(env: Env.Private) {
-    this.performBotDetection = env.O_VISAGE_STAGE === "production";
+    this.performBotDetection = env.VISAGE_STAGE === "prod";
   }
 
   public async isBot({ userAgent, clientSignal }: Input): Promise<boolean> {

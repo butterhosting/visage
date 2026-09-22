@@ -10,7 +10,7 @@ import { useRegistry } from "../useRegistry";
 
 export function useDashboardUrlState() {
   const [params, setParams] = useSearchParams();
-  const { O_VISAGE_TIMEZONE } = useRegistry("env");
+  const { VISAGE_TIMEZONE } = useRegistry("env");
 
   const graphDefault = Graph.visitors;
   const [graph, setGraph] = useState<Graph>(() => {
@@ -50,7 +50,7 @@ export function useDashboardUrlState() {
               fromDate: Temporal.PlainDate.from(fromParam),
               toDate: Temporal.PlainDate.from(toParam),
             },
-            O_VISAGE_TIMEZONE,
+            VISAGE_TIMEZONE,
           );
           try {
             return {
@@ -63,10 +63,10 @@ export function useDashboardUrlState() {
           }
         }
       } else {
-        return Period.forPreset(presetParam, O_VISAGE_TIMEZONE);
+        return Period.forPreset(presetParam, VISAGE_TIMEZONE);
       }
     }
-    return Period.forPreset(Period.Preset.last30d, O_VISAGE_TIMEZONE);
+    return Period.forPreset(Period.Preset.last30d, VISAGE_TIMEZONE);
   });
 
   const [filters, setFilters] = useState<DistributionFilter[]>(() => {
@@ -102,7 +102,7 @@ export function useDashboardUrlState() {
             if (!fromInstant || !toInstant) {
               throw new Error(`Illegal state: both "from" and "to" should be set for custom periods`);
             }
-            const { fromDate, toDate } = Period.toDates({ fromInstant, toInstant }, O_VISAGE_TIMEZONE);
+            const { fromDate, toDate } = Period.toDates({ fromInstant, toInstant }, VISAGE_TIMEZONE);
             params.set("from", fromDate.toString());
             params.set("to", toDate.toString());
           } else {

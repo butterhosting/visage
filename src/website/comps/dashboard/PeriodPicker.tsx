@@ -12,7 +12,7 @@ type Props = {
 };
 export function PeriodPicker({ period, onChange, className }: Props) {
   const dialogClient = useRegistry(DialogClient);
-  const { O_VISAGE_TIMEZONE } = useRegistry("env");
+  const { VISAGE_TIMEZONE } = useRegistry("env");
   const selectRef = useRef<HTMLSelectElement>(null);
 
   const CUSTOM_DISPLAY = "__custom_display__";
@@ -33,7 +33,7 @@ export function PeriodPicker({ period, onChange, className }: Props) {
     if (!fromInstant || !toInstant) {
       throw new Error(`Illegal state: both "from" and "to" should be set for custom periods`);
     }
-    const { fromDate, toDate } = Period.toDates({ fromInstant, toInstant }, O_VISAGE_TIMEZONE);
+    const { fromDate, toDate } = Period.toDates({ fromInstant, toInstant }, VISAGE_TIMEZONE);
     activeCustomLabel = `${Prettify.day(fromDate, { yearFmt: "present", monthFmt: "abbrev" })} \u2013 ${Prettify.day(toDate, { yearFmt: "present", monthFmt: "abbrev" })}`;
   }
 
@@ -46,7 +46,7 @@ export function PeriodPicker({ period, onChange, className }: Props) {
         }
       });
     } else {
-      onChange(Period.forPreset(value as Exclude<Period.Preset, Period.Preset.custom>, O_VISAGE_TIMEZONE));
+      onChange(Period.forPreset(value as Exclude<Period.Preset, Period.Preset.custom>, VISAGE_TIMEZONE));
     }
   };
 

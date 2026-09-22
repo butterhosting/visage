@@ -56,9 +56,9 @@ prepare_image() {
     tmpfile="./dist/visage.Dockerfile"
     mkdir -p ./dist
 
-    visage_root=$(grep '^X_VISAGE_ROOT=' ".env.${stage}" | cut -d= -f2-)
+    visage_root=$(grep '^VISAGE_ROOT=' ".env.${stage}" | cut -d= -f2-)
     if [ -z "$visage_root" ]; then
-        printf "Error: X_VISAGE_ROOT not found in .env.%s\n" "$stage"
+        printf "Error: VISAGE_ROOT not found in .env.%s\n" "$stage"
         exit 1
     fi
 

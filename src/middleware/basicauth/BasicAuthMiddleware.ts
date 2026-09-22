@@ -17,7 +17,7 @@ export class BasicAuthMiddleware implements MiddlewareHandler {
   public constructor(private readonly env: Env.Private) {}
 
   public async initializeFromDisk() {
-    const htpasswd = Bun.file(this.env.X_VISAGE_HTPASSWD);
+    const htpasswd = Bun.file(this.env.VISAGE_HTPASSWD);
     if (await htpasswd.exists()) {
       const content = await htpasswd.text();
       this.enabled = true;

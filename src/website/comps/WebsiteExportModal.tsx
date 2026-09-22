@@ -16,9 +16,9 @@ type Props = {
 };
 export function WebsiteExportModal({ website, close, done }: Props) {
   const websiteClient = useRegistry(WebsiteClient);
-  const { O_VISAGE_TIMEZONE } = useRegistry("env");
+  const { VISAGE_TIMEZONE } = useRegistry("env");
 
-  const [period, setPeriod] = useState(Period.forPreset(Period.Preset.all, O_VISAGE_TIMEZONE));
+  const [period, setPeriod] = useState(Period.forPreset(Period.Preset.all, VISAGE_TIMEZONE));
   const [artifact, setArtifact] = useState<Artifact.Enum>(Artifact.Enum.analytics);
   const [error, setError] = useState<string>();
   const [busy, setBusy] = useState(false);

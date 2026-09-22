@@ -12,7 +12,7 @@ export function TokensTab() {
   const tokenClient = useRegistry(TokenClient);
   const websiteClient = useRegistry(WebsiteClient);
   const dialogClient = useRegistry(DialogClient);
-  const { O_VISAGE_TIMEZONE } = useRegistry("env");
+  const { VISAGE_TIMEZONE } = useRegistry("env");
 
   const { data: tokens, setData: setTokens, getData: getTokens } = useYesQuery({ queryFn: () => tokenClient.list() });
   const { data: websites } = useYesQuery({ queryFn: () => websiteClient.query() });
@@ -46,7 +46,7 @@ export function TokensTab() {
               <tr className="bg-black/2 text-left font-bold text-c-dark-half tracking-wide">
                 <th className="px-5 py-3">ID</th>
                 <th className="px-5 py-3">Scope</th>
-                <th className="px-5 py-3">Last used ({O_VISAGE_TIMEZONE})</th>
+                <th className="px-5 py-3">Last used ({VISAGE_TIMEZONE})</th>
                 <th className="px-5 py-3 w-24"></th>
               </tr>
             </thead>
@@ -59,7 +59,7 @@ export function TokensTab() {
                   <td className="px-5 py-3 text-c-dark-half">{formatScope(token.websiteIds)}</td>
                   <td className="px-5 py-3 text-c-dark-half">
                     {token.lastUsed
-                      ? Prettify.timestamp(token.lastUsed, O_VISAGE_TIMEZONE, {
+                      ? Prettify.timestamp(token.lastUsed, VISAGE_TIMEZONE, {
                           yearFmt: "present",
                           monthFmt: "full",
                           secondFmt: "present",

@@ -13,7 +13,7 @@ export class AnalyticsEventRepository {
     env: Env.Private,
     private readonly sqlite: Sqlite,
   ) {
-    this.maxBotEventTableSize = env.O_VISAGE_STAGE === "production" ? 10_000 : 10;
+    this.maxBotEventTableSize = env.VISAGE_STAGE === "prod" ? 10_000 : 10;
   }
 
   public async create(analyticsEvent: AnalyticsEvent, bot?: "bot"): Promise<void> {

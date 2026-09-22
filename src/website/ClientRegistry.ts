@@ -1,7 +1,6 @@
 import { Env } from "@/Env";
 import { ProblemDetails } from "@/models/ProblemDetails";
 import { Class } from "@/types/Class";
-import { OmitBetter } from "@/types/OmitBetter";
 import { createContext } from "react";
 import { Yesttp } from "yesttp";
 import { DialogClient } from "./clients/DialogClient";
@@ -25,11 +24,12 @@ export class ClientRegistry {
   }
 
   private static printEnv(env: Env.Public) {
-    const envCopy: OmitBetter<Env.Public, "O_VISAGE_SUPPORTER"> = {
-      O_VISAGE_STAGE: env.O_VISAGE_STAGE,
-      O_VISAGE_VERSION: env.O_VISAGE_VERSION,
-      O_VISAGE_COMMIT: env.O_VISAGE_COMMIT,
-      O_VISAGE_TIMEZONE: env.O_VISAGE_TIMEZONE,
+    const envCopy: Env.Public = {
+      VISAGE_STAGE: env.VISAGE_STAGE,
+      VISAGE_VERSION: env.VISAGE_VERSION,
+      VISAGE_COMMIT: env.VISAGE_COMMIT,
+      VISAGE_TIMEZONE: env.VISAGE_TIMEZONE,
+      VISAGE_SUPPORTER: env.VISAGE_SUPPORTER,
     };
     if (Object.entries(envCopy).length > 0) {
       const longestKey = Object.keys(envCopy)

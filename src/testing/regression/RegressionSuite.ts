@@ -54,7 +54,7 @@ export namespace RegressionSuite {
       }
       const databaseCopyPath = join(Path.suiteTmp, "db.sqlite");
       await Bun.write(databaseCopyPath, file);
-      return await Sqlite.initialize({ X_VISAGE_DATABASE: databaseCopyPath } as Env.Private);
+      return await Sqlite.initialize({ VISAGE_DATABASE: databaseCopyPath } as Env.Private);
     }
 
     /** @public */
@@ -68,7 +68,7 @@ export namespace RegressionSuite {
       if (await file.exists()) {
         await file.delete();
       }
-      const sqlite = await Sqlite.initialize({ X_VISAGE_DATABASE: databasePath } as Env.Private);
+      const sqlite = await Sqlite.initialize({ VISAGE_DATABASE: databasePath } as Env.Private);
       if (websites.length > 0) {
         await sqlite.insert($website).values(websites);
       }

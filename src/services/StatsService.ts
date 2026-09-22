@@ -340,7 +340,7 @@ export class StatsService {
   }
 
   private resolveFixedOffset(referenceInstant: Temporal.Instant): Internal.FixedOffset {
-    const offsetNanos = referenceInstant.toZonedDateTimeISO(this.env.O_VISAGE_TIMEZONE).offsetNanoseconds;
+    const offsetNanos = referenceInstant.toZonedDateTimeISO(this.env.VISAGE_TIMEZONE).offsetNanoseconds;
     const offsetSeconds = offsetNanos / 1e9;
 
     const sign = offsetSeconds >= 0 ? "+" : "-";

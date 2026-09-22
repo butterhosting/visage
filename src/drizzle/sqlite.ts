@@ -8,7 +8,7 @@ export type Sqlite = Awaited<ReturnType<typeof Sqlite.initialize>>;
 
 export namespace Sqlite {
   export async function initialize(env: Env.Private) {
-    const database = new Database(env.X_VISAGE_DATABASE, { create: true });
+    const database = new Database(env.VISAGE_DATABASE, { create: true });
     const sqlite = drizzle(database, {
       casing: "snake_case",
       schema,

@@ -68,14 +68,12 @@ export namespace TestEnvironment {
     // but Bun is so fast it's not needed
     const unitTestRoot = join(cwd, "opt", "unit-test");
     const env = Env.initialize("UTC", {
-      O_VISAGE_STAGE: "development",
-      O_VISAGE_TIMEZONE: "UTC",
-      X_VISAGE_ROOT: join(unitTestRoot, "visage"),
-      X_VISAGE_LOGGING: LogLevel.warn,
-      X_VISAGE_TRUST_PROXY: "false",
-      X_VISAGE_VERIFICATION_KEY:
+      VISAGE_STAGE: "dev",
+      VISAGE_TIMEZONE: "UTC",
+      VISAGE_ROOT: join(unitTestRoot, "visage"),
+      VISAGE_LOGGING: LogLevel.warn,
+      VISAGE_VERIFICATION_KEY:
         "-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEAalpLQu9Fkn/R3WylORAad6UB0XAOowFIjF2/FwAyjpc=\n-----END PUBLIC KEY-----",
-      X_VISAGE_ENABLE_RESTRICTED_ENTPOINTS: "false",
     });
     const patchEnvironmentVariables = (environment: Record<string, string>) => {
       Object.assign(Bun.env, environment);
@@ -85,8 +83,8 @@ export namespace TestEnvironment {
     Logger.initialize(env);
 
     // Setup filesystem
-    await mkdir(dirname(env.X_VISAGE_DATABASE), { recursive: true });
-    await rm(env.X_VISAGE_DATABASE, { force: true });
+    await mkdir(dirname(env.VISAGE_DATABASE), { recursive: true });
+    await rm(env.VISAGE_DATABASE, { force: true });
 
     // Setup SQLite
     const sqlite = await Sqlite.initialize(env);

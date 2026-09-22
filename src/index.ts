@@ -11,7 +11,7 @@ import { MaxMindGeoService } from "./services/MaxMindGeoService";
 /**
  * Initialize the logger
  */
-Logger.initialize(Env.initializePartiallyForLogger());
+Logger.initialize(Env.initialize.partiallyForLogger());
 
 /**
  * Initialize the env configuration
@@ -22,8 +22,8 @@ const env = Env.initialize();
  * Create the main directories
  */
 await Promise.all([
-  mkdir(dirname(env.X_VISAGE_DATABASE), { recursive: true }),
-  env.X_MAXMIND ? mkdir(env.X_MAXMIND.ROOT, { recursive: true }) : Promise.resolve(),
+  mkdir(dirname(env.VISAGE_DATABASE), { recursive: true }),
+  env.VISAGE_MAXMIND ? mkdir(env.VISAGE_MAXMIND.ROOT, { recursive: true }) : Promise.resolve(),
 ]);
 
 /**

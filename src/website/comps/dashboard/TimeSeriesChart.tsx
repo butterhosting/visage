@@ -13,7 +13,7 @@ type Props = {
 };
 export function TimeSeriesChart({ timeSeries, minimal, height = 400 }: Props) {
   const gradientId = useMemo(() => Math.random().toString(), []);
-  const { O_VISAGE_TIMEZONE } = useRegistry("env");
+  const { VISAGE_TIMEZONE } = useRegistry("env");
 
   if (!timeSeries) {
     return (
@@ -34,8 +34,8 @@ export function TimeSeriesChart({ timeSeries, minimal, height = 400 }: Props) {
   const chartData = timeSeries.data.map(({ t, y }) => ({
     t,
     y,
-    axisLabel: Internal.Format.tValue(t, tUnit, O_VISAGE_TIMEZONE),
-    tooltipLabel: Internal.Format.tooltipLabel(t, tUnit, O_VISAGE_TIMEZONE),
+    axisLabel: Internal.Format.tValue(t, tUnit, VISAGE_TIMEZONE),
+    tooltipLabel: Internal.Format.tooltipLabel(t, tUnit, VISAGE_TIMEZONE),
   }));
 
   return (
@@ -54,7 +54,7 @@ export function TimeSeriesChart({ timeSeries, minimal, height = 400 }: Props) {
         {!minimal && <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e5e5" />}
         {!minimal && (
           <XAxis
-            dataKey={({ t }: TimeSeries.Point) => Internal.Format.tValue(t, tUnit, O_VISAGE_TIMEZONE)}
+            dataKey={({ t }: TimeSeries.Point) => Internal.Format.tValue(t, tUnit, VISAGE_TIMEZONE)}
             dy={12}
             angle={-45}
             textAnchor="end"

@@ -5,7 +5,7 @@ import { Sqlite } from "./sqlite";
 describe("sqlite", () => {
   it("successfully applies all migrations", async () => {
     // given
-    const env = { X_VISAGE_DATABASE: ":memory:" } as Env.Private;
+    const env = { VISAGE_DATABASE: ":memory:" } as Env.Private;
     // when
     const sqlite = await Sqlite.initialize(env);
     // then (no errors)

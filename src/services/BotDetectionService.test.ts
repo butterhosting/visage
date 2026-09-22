@@ -9,7 +9,7 @@ describe(BotDetectionService.name, () => {
 
   beforeEach(async () => {
     context = await TestEnvironment.initialize();
-    service = new BotDetectionService({ ...context.env, O_VISAGE_STAGE: "production" });
+    service = new BotDetectionService({ ...context.env, VISAGE_STAGE: "prod" });
   });
 
   it.each([

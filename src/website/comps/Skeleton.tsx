@@ -66,7 +66,7 @@ namespace Internal {
   }
 
   export function Footer() {
-    const { O_VISAGE_STAGE, O_VISAGE_SUPPORTER } = useRegistry("env");
+    const { VISAGE_STAGE, VISAGE_SUPPORTER } = useRegistry("env");
     const restrictedClient = useRegistry(RestrictedClient);
     const [busy, setBusy] = useState(false);
     const purge = () => {
@@ -80,7 +80,7 @@ namespace Internal {
     return (
       <footer className="my-12 flex flex-col items-center gap-4">
         <div className="flex items-center gap-2">
-          <Icon.Logo className="h-8 w-auto" withLove={O_VISAGE_SUPPORTER} />
+          <Icon.Logo className="h-8 w-auto" withLove={VISAGE_SUPPORTER} />
           <div className="text-4xl font-extrabold italic pr-5">Visage</div>
         </div>
         <div className="italic -mt-3 pl-5">
@@ -89,7 +89,7 @@ namespace Internal {
             Butterhost.ing
           </a>
         </div>
-        {O_VISAGE_STAGE === "development" && (
+        {VISAGE_STAGE === "dev" && (
           <>
             {busy ? (
               <Spinner />

@@ -92,7 +92,7 @@ export class WebsiteService {
   }
 
   private async enrich(website: Website): Promise<WebsiteRM> {
-    const { from, to } = Period.forPreset(Period.Preset.last30d, this.env.O_VISAGE_TIMEZONE);
+    const { from, to } = Period.forPreset(Period.Preset.last30d, this.env.VISAGE_TIMEZONE);
     const { visitorsTimeSeries } = await this.statsService.queryInternal({
       website: website.id,
       fields: [Stats.Field.visitorsTimeSeries],

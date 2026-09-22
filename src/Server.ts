@@ -39,7 +39,7 @@ export class Server {
 
   public listen() {
     const server: Bun.Server<Socket.Context> = Bun.serve({
-      development: this.env.O_VISAGE_STAGE === "development",
+      development: this.env.VISAGE_STAGE === "dev",
       /**
        * Websockets
        */
@@ -130,11 +130,7 @@ export class Server {
          */
         "/internal-api/env": {
           GET: this.handleRoute(() => {
-            const response = Object.entries(this.env)
-              .filter(([key]) => key.startsWith("O_VISAGE_" satisfies Env.PublicPrefix))
-              .map(([key, value]) => ({ [key]: value }))
-              .reduce((kv1, kv2) => Object.assign({}, kv1, kv2), {});
-            return Response.json(response as Env.Public);
+            return Response.json(Env.onlyPublic(this.env));
           }),
         },
 
@@ -207,11 +203,11 @@ export class Server {
         },
 
         /**
-         * Restricted endpoints for local and/or e2e testing
+         * Restricted (never in production; the e2e suite starts from here)
          */
         "/internal-api/restricted/purge": {
           POST: this.handleRoute(async () => {
-            if (this.env.X_VISAGE_ENABLE_RESTRICTED_ENTPOINTS) {
+            if (this.env.VISAGE_STAGE !== "prod") {
               await this.restrictedService.purge();
               return new Response();
             }
@@ -220,7 +216,7 @@ export class Server {
         },
         "/internal-api/restricted/seed": {
           POST: this.handleRoute(async (request) => {
-            if (this.env.X_VISAGE_ENABLE_RESTRICTED_ENTPOINTS) {
+            if (this.env.VISAGE_STAGE !== "prod") {
               await this.restrictedService.seed(await request.json().catch(() => ({})));
               return new Response();
             }
@@ -239,22 +235,22 @@ export class Server {
     console.log(
       [
         "",
-        `  🚀 \x1b[1mVisage started on ${Prettify.timestamp(Temporal.Now.instant(), this.env.O_VISAGE_TIMEZONE, {
+        `  🚀 \x1b[1mVisage started on ${Prettify.timestamp(Temporal.Now.instant(), this.env.VISAGE_TIMEZONE, {
           yearFmt: "present",
           monthFmt: "full",
           secondFmt: "present",
-        })} (${this.env.O_VISAGE_TIMEZONE})\x1b[0m`,
+        })} (${this.env.VISAGE_TIMEZONE})\x1b[0m`,
         "",
         `  \x1b[1mServer\x1b[0m    ${server.url}`,
         "",
-        `  \x1b[1mStage\x1b[0m     ${this.env.O_VISAGE_STAGE}`,
-        `  \x1b[1mCommit\x1b[0m    ${this.env.O_VISAGE_COMMIT}`,
-        `  \x1b[1mVersion\x1b[0m   ${this.env.O_VISAGE_VERSION}`,
+        `  \x1b[1mStage\x1b[0m     ${this.env.VISAGE_STAGE}`,
+        `  \x1b[1mCommit\x1b[0m    ${this.env.VISAGE_COMMIT}`,
+        `  \x1b[1mVersion\x1b[0m   ${this.env.VISAGE_VERSION}`,
         "",
-        `  \x1b[1mLogging\x1b[0m   ${this.env.X_VISAGE_LOGGING}`,
-        `  \x1b[1mTimezone\x1b[0m  ${this.env.O_VISAGE_TIMEZONE}`,
+        `  \x1b[1mLogging\x1b[0m   ${this.env.VISAGE_LOGGING}`,
+        `  \x1b[1mTimezone\x1b[0m  ${this.env.VISAGE_TIMEZONE}`,
         "",
-        ...(this.env.O_VISAGE_SUPPORTER
+        ...(this.env.VISAGE_SUPPORTER
           ? [
               `  \x1b[1mMode\x1b[0m      Running with love ❤️`, //
             ]
@@ -273,7 +269,7 @@ export class Server {
   }
 
   private resolveClientIp(request: Bun.BunRequest, server: Bun.Server<Socket.Context>): string | undefined {
-    if (this.env.X_VISAGE_TRUST_PROXY) {
+    if (this.env.VISAGE_TRUST_PROXY) {
       const forwarded = request.headers.get("x-forwarded-for");
       if (forwarded) {
         const leftmost = forwarded.split(",")[0]?.trim();
