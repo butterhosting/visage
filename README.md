@@ -19,15 +19,7 @@ Drop a tiny tracking snippet into your websites and get a dashboard with:
 ## Quickstart
 
 ```sh
-# Clone the source code
-git clone https://github.com/butterhosting/visage.git
-cd visage
-
-# Create a docker image
-./visage image create
-
-# Run the container
-docker run --rm -p 3000:3000 visage:latest
+docker run --rm -p 3000:3000 butterhosting/visage
 ```
 
 ## Documentation
