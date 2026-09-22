@@ -20,6 +20,7 @@ import { TokenService } from "./services/TokenService";
 import { WebsiteService } from "./services/WebsiteService";
 import { Socket } from "./socket/Socket";
 import { TrackerService } from "./tracker/TrackerService";
+import path from "path";
 
 export class Server {
   private readonly log = new Logger(__filename);
@@ -68,7 +69,7 @@ export class Server {
       },
       routes: {
         /**
-         * HTML/API fallbacks
+         * HTML/API fallbacks + stable favicon path
          *
          * Unfortunately, no middleware/basic-auth on the HTMLBundle right now; see
          * https://github.com/oven-sh/bun/issues/17595#issuecomment-2965865078
@@ -76,6 +77,7 @@ export class Server {
          * (the suggested "secret asset path" breaks my websocket, unfortunately)
          */
         "/*": index,
+        "/favicon.svg": Bun.file(path.join(import.meta.dir, "website/images/favicon.svg")),
         "/api/*": this.handleRoute(() => {
           return Response.json(ServerError.route_not_found().problemDetails(), { status: 404 });
         }),
