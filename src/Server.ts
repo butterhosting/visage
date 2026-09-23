@@ -259,6 +259,8 @@ export class Server {
               `            https://butterhost.ing/visage/love`, //
             ]),
         "",
+        ...(this.env.VISAGE_DEMO ? ["  \x1b[1mThis is a DEMO: the website and all of its analytics are invented\x1b[0m"] : []),
+        "",
       ].join("\n"),
     );
   }

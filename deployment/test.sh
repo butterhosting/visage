@@ -49,6 +49,18 @@ assert_status() {
     return 0
 }
 
+assert_body() {
+    needle="$1"
+    url="$2"
+    body=$(curl -s -m 5 "$url" || true)
+    if ! printf "%s" "$body" | grep -q -- "$needle"; then
+        printf "    FAIL  expected '%s' in the body of %s\n" "$needle" "$url"
+        return 1
+    fi
+    printf "    OK    '%s' in %s\n" "$needle" "$url"
+    return 0
+}
+
 run_scenario() {
     name="$1"
     compose_file="$2"
@@ -122,6 +134,14 @@ verify_auth() {
     && assert_status "404" http://localhost:3000/internal-api/restricted/purge -u kim:possible -X POST
 }
 
+# the flag alone, on an empty volume: the invented website is there to look at, the restricted routes are not
+verify_demo() {
+    assert_status "200" http://localhost:3000/vis.js \
+    && assert_body '"VISAGE_DEMO":true' http://localhost:3000/internal-api/env \
+    && assert_body '"hostname":"www.example.com"' http://localhost:3000/internal-api/websites \
+    && assert_status "404" http://localhost:3000/internal-api/restricted/seed -X POST
+}
+
 # ─── scenarios ───
 
 cd "$ROOT"
@@ -129,6 +149,7 @@ cd "$ROOT"
 build_image "default"
 run_scenario "fully-accessible" "$SCRIPT_DIR/compose.yaml" verify_no_auth
 run_scenario "basic-auth-restricted" "$SCRIPT_DIR/compose-auth.yaml" verify_auth
+run_scenario "demo" "$SCRIPT_DIR/compose-demo.yaml" verify_demo
 
 # ─── summary ───
 

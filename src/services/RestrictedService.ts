@@ -2,6 +2,7 @@ import { AnalyticsEventConverter } from "@/drizzle/converters/AnalyticsEventConv
 import { $analyticsEvent, $website } from "@/drizzle/schema";
 import { Sqlite } from "@/drizzle/sqlite";
 import { ZodParser } from "@/helpers/ZodParser";
+import { Logger } from "@/Logger";
 import { AnalyticsEvent } from "@/models/AnalyticsEvent";
 import { Website } from "@/models/Website";
 import { Temporal } from "@js-temporal/polyfill";
@@ -11,6 +12,8 @@ import { TokenService } from "./TokenService";
 import { WebsiteService } from "./WebsiteService";
 
 export class RestrictedService {
+  private readonly log = new Logger(__filename);
+
   public constructor(
     private readonly websiteService: WebsiteService,
     private readonly tokenService: TokenService,
@@ -31,6 +34,12 @@ export class RestrictedService {
     await this.websiteService
       .create({ hostname: "www.example.com" })
       .then((website) => this.generateFakeAnalytics(website, rngSeed, Temporal.Now.plainDateISO()));
+  }
+
+  public async seedDemo(): Promise<void> {
+    const website = await this.websiteService.create({ hostname: "www.example.com" });
+    await this.generateFakeAnalytics(website, 4711, Temporal.Now.plainDateISO());
+    this.log.info(`Seeded the demo for ${website.hostname}`);
   }
 
   /**

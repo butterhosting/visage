@@ -17,6 +17,7 @@ export namespace Env {
     VISAGE_ROOT: z.string(),
     VISAGE_LOGGING: z.enum(LogLevel),
     VISAGE_TRUST_PROXY: z.enum(["true", "false"]),
+    VISAGE_DEMO: z.enum(["true", "false"]),
     VISAGE_SUPPORT_TOKEN: z.string().optional(),
     VISAGE_VERIFICATION_KEY: z.string().transform((str) => str.replaceAll("\\n", "\n")),
 
@@ -30,6 +31,7 @@ export namespace Env {
     | "VISAGE_TIMEZONE"
     | "VISAGE_LOGGING"
     | "VISAGE_TRUST_PROXY"
+    | "VISAGE_DEMO"
     | "VISAGE_MAXMIND_BASE_URL"
     | "VISAGE_MAXMIND_ACCOUNT_ID"
     | "VISAGE_MAXMIND_LICENSE_KEY"
@@ -38,6 +40,7 @@ export namespace Env {
     VISAGE_TIMEZONE: "UTC",
     VISAGE_LOGGING: "info",
     VISAGE_TRUST_PROXY: "false",
+    VISAGE_DEMO: "false",
     VISAGE_MAXMIND_BASE_URL: "https://download.maxmind.com",
     VISAGE_MAXMIND_ACCOUNT_ID: "",
     VISAGE_MAXMIND_LICENSE_KEY: "",
@@ -58,8 +61,9 @@ export namespace Env {
         VISAGE_COMMIT: packageJson.commit.slice(0, 7),
         VISAGE_VERSION: packageJson.version,
         VISAGE_HTPASSWD: join(env.VISAGE_ROOT, ".htpasswd"),
-        VISAGE_DATABASE: join(env.VISAGE_ROOT, "data", "db.sqlite"),
+        VISAGE_DATABASE: env.VISAGE_DEMO === "true" ? ":memory:" : join(env.VISAGE_ROOT, "data", "db.sqlite"),
         VISAGE_TRUST_PROXY: env.VISAGE_TRUST_PROXY === "true",
+        VISAGE_DEMO: env.VISAGE_DEMO === "true",
         // geolocation stays off until both credentials are given (an unset env var arrives as "")
         VISAGE_MAXMIND:
           VISAGE_MAXMIND_ACCOUNT_ID && VISAGE_MAXMIND_LICENSE_KEY
@@ -86,7 +90,7 @@ export namespace Env {
 
   export type Private = ReturnType<typeof initialize>;
   export type Public = Readonly<
-    Pick<Private, "VISAGE_STAGE" | "VISAGE_TIMEZONE" | "VISAGE_COMMIT" | "VISAGE_VERSION" | "VISAGE_SUPPORTER">
+    Pick<Private, "VISAGE_STAGE" | "VISAGE_TIMEZONE" | "VISAGE_COMMIT" | "VISAGE_VERSION" | "VISAGE_SUPPORTER" | "VISAGE_DEMO">
   >;
   export function onlyPublic(env: Private): Public {
     return {
@@ -95,6 +99,7 @@ export namespace Env {
       VISAGE_COMMIT: env.VISAGE_COMMIT,
       VISAGE_VERSION: env.VISAGE_VERSION,
       VISAGE_SUPPORTER: env.VISAGE_SUPPORTER,
+      VISAGE_DEMO: env.VISAGE_DEMO,
     };
   }
 

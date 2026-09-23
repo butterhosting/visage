@@ -20,8 +20,12 @@ describe("Env", () => {
     // then
     expect(env.VISAGE_LOGGING).toEqual(LogLevel.debug);
     expect(env.VISAGE_TRUST_PROXY).toEqual(false);
+    expect(env.VISAGE_DEMO).toEqual(false);
     expect(env.VISAGE_TIMEZONE).toEqual("UTC");
     expect(env.VISAGE_PROVIDED).toEqual({ VISAGE_LOGGING: "debug" });
+    const demo = Env.initialize("UTC", { ...REQUIRED, VISAGE_DEMO: "true" });
+    expect(demo.VISAGE_DEMO).toEqual(true);
+    expect(demo.VISAGE_DATABASE).toEqual(":memory:");
   });
 
   it("should only enable maxmind once both credentials are given", () => {
@@ -42,6 +46,6 @@ describe("Env", () => {
     // given
     const env = Env.initialize("UTC", { ...REQUIRED, VISAGE_MAXMIND_ACCOUNT_ID: "faye", VISAGE_MAXMIND_LICENSE_KEY: "klogin" });
     // then
-    expect(Object.keys(Env.onlyPublic(env)).sort()).toEqual(["VISAGE_COMMIT", "VISAGE_STAGE", "VISAGE_SUPPORTER", "VISAGE_TIMEZONE", "VISAGE_VERSION"]);
+    expect(Object.keys(Env.onlyPublic(env)).sort()).toEqual(["VISAGE_COMMIT", "VISAGE_DEMO", "VISAGE_STAGE", "VISAGE_SUPPORTER", "VISAGE_TIMEZONE", "VISAGE_VERSION"]);
   });
 });

@@ -1,0 +1,8 @@
+# The README's demo one-liner, as a stack: no volume, only the flag
+services:
+  visage:
+    image: butterhosting/visage:latest
+    ports:
+      - "3000:3000"
+    environment:
+      VISAGE_DEMO: "true"

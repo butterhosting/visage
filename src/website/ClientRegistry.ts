@@ -30,6 +30,7 @@ export class ClientRegistry {
       VISAGE_COMMIT: env.VISAGE_COMMIT,
       VISAGE_TIMEZONE: env.VISAGE_TIMEZONE,
       VISAGE_SUPPORTER: env.VISAGE_SUPPORTER,
+      VISAGE_DEMO: env.VISAGE_DEMO,
     };
     if (Object.entries(envCopy).length > 0) {
       const longestKey = Object.keys(envCopy)

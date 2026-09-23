@@ -5,6 +5,7 @@ import { RestrictedClient } from "../clients/RestrictedClient";
 import { useRegistry } from "../hooks/useRegistry";
 import { Icon } from "../images/Icon";
 import { Route } from "../Route";
+import { DemoBanner } from "./DemoBanner";
 import { Paper } from "./Paper";
 import { Spinner } from "./Spinner";
 
@@ -12,6 +13,7 @@ type Props = ComponentProps<"main">;
 export function Skeleton(props: Props) {
   return (
     <>
+      <DemoBanner />
       <Internal.Header />
       <Internal.Main {...props} />
       <Internal.Footer />
