@@ -16,13 +16,7 @@ Drop a tiny tracking snippet into your websites and get a dashboard with:
 - top pages and traffic sources
 - ... and much more!
 
-## Quickstart
-
-```sh
-docker run --rm -p 3000:3000 butterhosting/visage
-```
-
-Or take it for a spin first, on an invented website with a year and a half of analytics to click through:
+## Quickstart / Demo
 
 ```sh
 docker run --rm -p 3000:3000 -e VISAGE_DEMO=true butterhosting/visage
