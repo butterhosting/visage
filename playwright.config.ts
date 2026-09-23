@@ -39,7 +39,7 @@ export default defineConfig({
   webServer: {
     command: [
       "mkdir -p opt",
-      "./visage image create --stage e2e",
+      "./image create --stage e2e",
       process.env.CI
         ? `HOST_UID=${process.getuid!()} HOST_GID=${process.getgid!()} docker compose -f compose-e2e.yaml up`
         : "docker compose -f compose-e2e.yaml up",
