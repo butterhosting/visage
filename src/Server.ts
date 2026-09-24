@@ -21,6 +21,7 @@ import { WebsiteService } from "./services/WebsiteService";
 import { Socket } from "./socket/Socket";
 import { TrackerService } from "./tracker/TrackerService";
 import path from "path";
+import { Demo } from "./models/copy/Demo";
 
 export class Server {
   private readonly log = new Logger(__filename);
@@ -259,7 +260,7 @@ export class Server {
               `            https://butterhost.ing/visage/love`, //
             ]),
         "",
-        ...(this.env.VISAGE_DEMO ? ["  \x1b[1mThis is a DEMO: the website and all of its analytics are invented\x1b[0m"] : []),
+        ...(this.env.VISAGE_DEMO ? [`  \x1b[1m${Demo.description}\x1b[0m`] : []),
         "",
       ].join("\n"),
     );
