@@ -23,7 +23,7 @@ const env = Env.initialize();
  * Create the main directories
  */
 await Promise.all([
-  env.VISAGE_DEMO ? Promise.resolve() : mkdir(dirname(env.VISAGE_DATABASE), { recursive: true }),
+  env.INTERACTIVE_DEMO ? Promise.resolve() : mkdir(dirname(env.VISAGE_DATABASE), { recursive: true }),
   env.VISAGE_MAXMIND ? mkdir(env.VISAGE_MAXMIND.ROOT, { recursive: true }) : Promise.resolve(),
 ]);
 
@@ -42,7 +42,7 @@ const registry = await ServerRegistry.bootstrap(env, sqlite);
  */
 await registry.get(MaxMindGeoService).keepDatabaseUpToDate();
 await registry.get(BasicAuthMiddleware).initializeFromDisk();
-if (env.VISAGE_DEMO) {
+if (env.INTERACTIVE_DEMO) {
   await registry.get(RestrictedService).seedDemo();
 }
 registry.get(Server).listen();

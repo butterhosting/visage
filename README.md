@@ -19,7 +19,7 @@ Drop a tiny tracking snippet into your websites and get a dashboard with:
 ## Quickstart / Demo
 
 ```sh
-docker run --rm -p 3000:3000 -e VISAGE_DEMO=true butterhosting/visage
+docker run --rm -p 3000:3000 -e INTERACTIVE_DEMO=true butterhosting/visage
 ```
 
 ## Documentation

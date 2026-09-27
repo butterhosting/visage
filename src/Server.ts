@@ -260,7 +260,7 @@ export class Server {
               `            https://butterhost.ing/visage/love`, //
             ]),
         "",
-        ...(this.env.VISAGE_DEMO ? [`  \x1b[1m${Demo.description}\x1b[0m`] : []),
+        ...(this.env.INTERACTIVE_DEMO ? [`  \x1b[1m${Demo.description}\x1b[0m`] : []),
         "",
       ].join("\n"),
     );

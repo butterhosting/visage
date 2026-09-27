@@ -137,7 +137,7 @@ verify_auth() {
 # the flag alone, on an empty volume: the invented website is there to look at, the restricted routes are not
 verify_demo() {
     assert_status "200" http://localhost:3000/vis.js \
-    && assert_body '"VISAGE_DEMO":true' http://localhost:3000/internal-api/env \
+    && assert_body '"INTERACTIVE_DEMO":true' http://localhost:3000/internal-api/env \
     && assert_body '"hostname":"www.example.com"' http://localhost:3000/internal-api/websites \
     && assert_status "404" http://localhost:3000/internal-api/restricted/seed -X POST
 }
