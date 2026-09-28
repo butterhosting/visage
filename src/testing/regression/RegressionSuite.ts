@@ -8,6 +8,7 @@ import { Env } from "@/Env";
 import { Website } from "@/models/Website";
 import { test } from "bun:test";
 import { InferInsertModel } from "drizzle-orm";
+import { rm } from "fs/promises";
 import { join } from "path";
 
 test.skip("regression suite management", async () => {
@@ -53,6 +54,11 @@ export namespace RegressionSuite {
         throw new Error(`Regression database not found: ${databasePath}`);
       }
       const databaseCopyPath = join(Path.suiteTmp, "db.sqlite");
+      // bun:sqlite defers a close until drizzle's statements are garbage collected, which keeps the previous copy locked in
+      // WAL mode. So the copy is a new file rather than an overwrite, and the journal files of the previous one go with it
+      await Promise.all(
+        [databaseCopyPath, `${databaseCopyPath}-wal`, `${databaseCopyPath}-shm`].map((file) => rm(file, { force: true })),
+      );
       await Bun.write(databaseCopyPath, file);
       return await Sqlite.initialize({ VISAGE_DATABASE: databaseCopyPath } as Env.Private);
     }

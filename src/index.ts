@@ -46,3 +46,11 @@ if (env.INTERACTIVE_DEMO) {
   await registry.get(RestrictedService).seedDemo();
 }
 registry.get(Server).listen();
+
+for (const signal of ["SIGTERM", "SIGINT"] as const) {
+  process.once(signal, async () => {
+    await registry.get(Server).stop();
+    sqlite.close();
+    process.exit(0);
+  });
+}

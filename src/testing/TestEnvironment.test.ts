@@ -84,7 +84,9 @@ export namespace TestEnvironment {
 
     // Setup filesystem
     await mkdir(dirname(env.VISAGE_DATABASE), { recursive: true });
-    await rm(env.VISAGE_DATABASE, { force: true });
+    await Promise.all(
+      [`${env.VISAGE_DATABASE}`, `${env.VISAGE_DATABASE}-wal`, `${env.VISAGE_DATABASE}-shm`].map((file) => rm(file, { force: true })),
+    );
 
     // Setup SQLite
     const sqlite = await Sqlite.initialize(env);
