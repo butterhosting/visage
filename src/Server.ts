@@ -254,15 +254,6 @@ export class Server {
         `  \x1b[1mLogging\x1b[0m   ${this.env.VISAGE_LOGGING}`,
         `  \x1b[1mTimezone\x1b[0m  ${this.env.VISAGE_TIMEZONE}`,
         "",
-        ...(this.env.VISAGE_SUPPORTER
-          ? [
-              `  \x1b[1mMode\x1b[0m      Running with love ❤️`, //
-            ]
-          : [
-              `  \x1b[1mMode\x1b[0m      Running normally`, //
-              `            https://butterhost.ing/visage/love`, //
-            ]),
-        "",
         ...(this.env.INTERACTIVE_DEMO ? [`  \x1b[1m${Demo.description}\x1b[0m`] : []),
         "",
       ].join("\n"),

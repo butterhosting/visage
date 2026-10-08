@@ -68,7 +68,7 @@ namespace Internal {
   }
 
   export function Footer() {
-    const { VISAGE_STAGE, VISAGE_SUPPORTER } = useRegistry("env");
+    const { VISAGE_STAGE } = useRegistry("env");
     const restrictedClient = useRegistry(RestrictedClient);
     const [busy, setBusy] = useState(false);
     const purge = () => {
@@ -82,7 +82,7 @@ namespace Internal {
     return (
       <footer className="my-12 flex flex-col items-center gap-4">
         <div className="flex items-center gap-2">
-          <Icon.Logo className="h-8 w-auto" withLove={VISAGE_SUPPORTER} />
+          <Icon.Logo className="h-8 w-auto" />
           <div className="text-4xl font-extrabold italic pr-5">Visage</div>
         </div>
         <div className="italic -mt-3 pl-5">

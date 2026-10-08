@@ -72,8 +72,6 @@ export namespace TestEnvironment {
       VISAGE_TIMEZONE: "UTC",
       VISAGE_ROOT: join(unitTestRoot, "visage"),
       VISAGE_LOGGING: LogLevel.warn,
-      VISAGE_VERIFICATION_KEY:
-        "-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEAalpLQu9Fkn/R3WylORAad6UB0XAOowFIjF2/FwAyjpc=\n-----END PUBLIC KEY-----",
     });
     const patchEnvironmentVariables = (environment: Record<string, string>) => {
       Object.assign(Bun.env, environment);

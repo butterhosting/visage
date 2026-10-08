@@ -29,7 +29,6 @@ export class ClientRegistry {
       VISAGE_VERSION: env.VISAGE_VERSION,
       VISAGE_COMMIT: env.VISAGE_COMMIT,
       VISAGE_TIMEZONE: env.VISAGE_TIMEZONE,
-      VISAGE_SUPPORTER: env.VISAGE_SUPPORTER,
       INTERACTIVE_DEMO: env.INTERACTIVE_DEMO,
     };
     if (Object.entries(envCopy).length > 0) {

@@ -4,7 +4,6 @@ import { z } from "zod/v4";
 import packageJson from "../package.json";
 import { TimeZone } from "./helpers/TimeZone";
 import { LogLevel } from "./models/LogLevel";
-import { SupportToken } from "./support/SupportToken";
 import { ExtractBetter } from "./types/ExtractBetter";
 
 export namespace Env {
@@ -18,8 +17,6 @@ export namespace Env {
     VISAGE_LOGGING: z.enum(LogLevel),
     VISAGE_TRUST_PROXY: z.enum(["true", "false"]),
     INTERACTIVE_DEMO: z.enum(["true", "false"]),
-    VISAGE_SUPPORT_TOKEN: z.string().optional(),
-    VISAGE_VERIFICATION_KEY: z.string().transform((str) => str.replaceAll("\\n", "\n")),
 
     VISAGE_MAXMIND_BASE_URL: z.string(),
     VISAGE_MAXMIND_ACCOUNT_ID: z.string(),
@@ -51,10 +48,9 @@ export namespace Env {
       throw new Error(`Invalid timezone: ${timezone}`);
     }
     const { provided, merged } = withDefaults(environment);
-    return Schema.transform(({ VISAGE_ROOT, VISAGE_SUPPORT_TOKEN, VISAGE_VERIFICATION_KEY, ...env }) => ({
+    return Schema.transform(({ VISAGE_ROOT, ...env }) => ({
       ...env,
       VISAGE_ROOT: isAbsolute(VISAGE_ROOT) ? VISAGE_ROOT : join(process.cwd(), VISAGE_ROOT),
-      VISAGE_SUPPORTER: Boolean(SupportToken.verify({ hexToken: VISAGE_SUPPORT_TOKEN, publicKey: VISAGE_VERIFICATION_KEY })),
     }))
       .transform(({ VISAGE_MAXMIND_BASE_URL, VISAGE_MAXMIND_ACCOUNT_ID, VISAGE_MAXMIND_LICENSE_KEY, ...env }) => ({
         ...env,
@@ -90,7 +86,7 @@ export namespace Env {
 
   export type Private = ReturnType<typeof initialize>;
   export type Public = Readonly<
-    Pick<Private, "VISAGE_STAGE" | "VISAGE_TIMEZONE" | "VISAGE_COMMIT" | "VISAGE_VERSION" | "VISAGE_SUPPORTER" | "INTERACTIVE_DEMO">
+    Pick<Private, "VISAGE_STAGE" | "VISAGE_TIMEZONE" | "VISAGE_COMMIT" | "VISAGE_VERSION" | "INTERACTIVE_DEMO">
   >;
   export function onlyPublic(env: Private): Public {
     return {
@@ -98,7 +94,6 @@ export namespace Env {
       VISAGE_TIMEZONE: env.VISAGE_TIMEZONE,
       VISAGE_COMMIT: env.VISAGE_COMMIT,
       VISAGE_VERSION: env.VISAGE_VERSION,
-      VISAGE_SUPPORTER: env.VISAGE_SUPPORTER,
       INTERACTIVE_DEMO: env.INTERACTIVE_DEMO,
     };
   }
