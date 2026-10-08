@@ -1,4 +1,4 @@
-# Visage: Simple Privacy-Friendly Web Analytics for Self-Hosters
+# Visage: Simple Web Analytics for Self-Hosters
 
 ![analytics dashboard showing total visitors, pageviews, median time on page, a time-series chart and breakdowns by page and traffic source](.readme/screenshot.png)
 
